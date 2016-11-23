@@ -1,0 +1,8 @@
+Created with: http://goqr.me/de/
+Error-Correction Level L for all examples.
+
+qrcode-google = http://www.google.de
+qrcode-lorem = Lorem Ipsum
+qrcode-github = http://www.github.com
+qrcode-adler = ADLER08
+qrcode-long = Ich bin ein ganz langer Text damit ich einen ganz groﬂen QR-Code kriege der total riesig ist und h‰sslich aussieht.
