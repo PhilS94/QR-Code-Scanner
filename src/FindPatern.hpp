@@ -10,7 +10,10 @@ public:
     Mat findAllContours(Mat image);
     Mat findQRCodePaterns(Mat image);
     bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
+    bool isTrapez(std::vector<cv::Point> in);
+    Point calculateMassCentres(std::vector<cv::Point>);
     std::vector<Point> getCoordinates(std::vector<Point> &contour);
+
 
 private:
     Mat originalImage;

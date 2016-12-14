@@ -55,11 +55,12 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
             if (isContourInsideContour(contours.at(i), contours.at(j))) {
                 for (int k = 0; k <contours.size(); ++k) {
                     if (isContourInsideContour(contours.at(k), contours.at(i))){
-                        coordinates.push_back(getCoordinates(contours.at(j)));
-                        trueContoures.push_back((vector<Point> &&) contours.at(k));
-                        trueContoures.push_back((vector<Point> &&) contours.at(i));
-                        trueContoures.push_back((vector<Point> &&) contours.at(j));
-
+                        if(isTrapez(contours.at(j))){
+                            coordinates.push_back(getCoordinates(contours.at(j)));
+                            trueContoures.push_back((vector<Point> &&) contours.at(k));
+                            trueContoures.push_back((vector<Point> &&) contours.at(i));
+                            trueContoures.push_back((vector<Point> &&) contours.at(j));
+                        }
                     }
                 }
             }
@@ -73,6 +74,11 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
     color[2] = cv::Scalar(255, 0, 0);
     for (size_t idx = 0; idx < trueContoures.size(); idx++) {
         cv::drawContours(contourImage, trueContoures, idx, color[idx % 3]);
+        Vec3b px = contourImage.at<Vec3b>(calculateMassCentres(trueContoures.at(idx)));
+        px[0] = 0;
+        px[1] = 0;
+        px[2] = 255;
+        contourImage.at<Vec3b>(calculateMassCentres(trueContoures.at(idx))) = px;
     }
 
     for (int l = 0; l < coordinates.size() ; ++l) {
@@ -130,5 +136,46 @@ bool FindPatern::isContourInsideContour(std::vector<cv::Point> in, std::vector<c
     }
 
     return false;
+}
+
+bool FindPatern::isTrapez(std::vector<cv::Point> in){
+
+    std::vector<cv::Point> approximatedPolygon;
+    double epsilon = 0.1*cv::arcLength(in,true);
+    approxPolyDP(in, approximatedPolygon, epsilon, true);
+    bool ret = ( approximatedPolygon.size() == 4 );
+    return ret;
+}
+
+Point FindPatern::calculateMassCentres(std::vector<cv::Point> in){
+
+    int xCoordinates[] = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
+    int yCoordinates[] = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
+
+    //extremalwerte werden bestimmt
+    for(int i=0;i<in.size();i++){
+        if(xCoordinates[0] > in.at(i).x){
+            xCoordinates[0] = in.at(i).x;
+        }
+        if(xCoordinates[1] < in.at(i).x){
+            xCoordinates[1] = in.at(i).x;
+        }
+
+        if(yCoordinates[0] > in.at(i).y){
+            yCoordinates[0] = in.at(i).y;
+        }
+        if(yCoordinates[1] < in.at(i).y){
+            yCoordinates[1] = in.at(i).y;
+        }
+    }
+
+    int _x = (xCoordinates[0] + xCoordinates[1]) / 2;
+    int _y = (yCoordinates[0] + yCoordinates[1]) / 2;
+
+    Point point;
+    point.x = _x;
+    point.y = _y;
+
+    return point;
 }
 
