@@ -22,7 +22,7 @@ int main(int argc, const char *argv[]) {
     } else {
         if (argc == 2) {
             cout << argv[0] << endl;
-            //videoInput();
+            videoInput();
         } else if (argc == 3) {
             cout << argv[2] << endl;
             string s;
