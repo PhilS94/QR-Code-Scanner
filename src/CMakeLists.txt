@@ -15,7 +15,9 @@ set(SOURCE_FILES
         ImageReader.hpp
         ImageReader.cpp
         FindPatern.hpp
-        FindPatern.cpp)
+        FindPatern.cpp
+        FinderPaternModel.cpp
+        FinderPaternModel.hpp)
 
 add_executable(main ${SOURCE_FILES})
 target_link_libraries( main ${OpenCV_LIBS} )

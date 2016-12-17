@@ -18,8 +18,8 @@ public:
 
 private:
     ImageReader reader;
-    int threshold_value = 128;
-    int threshold_type = THRESH_BINARY;
+    int threshold_value = 120;
+    int threshold_type = CV_THRESH_OTSU;
     int const max_BINARY_value = 255;
 };
 #endif //QRCODE_IMAGEBINARIZATION_H

@@ -4,6 +4,7 @@
 #include "ImageReader.hpp"
 #include "ImageBinarization.hpp"
 #include "FindPatern.hpp"
+#include "FinderPaternModel.hpp"
 
 
 
@@ -88,25 +89,41 @@ void pictureInput(const string path) {
 
     Mat grayscale;
     cvtColor(image, grayscale, CV_BGR2GRAY);
-//    namedWindow( "Grayscale", WINDOW_AUTOSIZE );
-//    imshow("Grayscale", grayscale);
+    namedWindow( "Grayscale", WINDOW_AUTOSIZE );
+    imshow("Grayscale", grayscale);
 
     Mat binary;
     ImageBinarization binarizedImage;
     binary = binarizedImage.run(grayscale);
-//    namedWindow( "Binaer", WINDOW_AUTOSIZE );
-//    imshow("Binaer", binary);
+    namedWindow( "Binaer", WINDOW_AUTOSIZE );
+    imshow("Binaer", binary);
 
 
     Mat contour;
     FindPatern patern(image);
     contour = patern.findAllContours(binary);
-//    namedWindow( "Konturen", WINDOW_AUTOSIZE );
-//    imshow("Konturen", contour);
+    namedWindow( "Konturen", WINDOW_AUTOSIZE );
+    imshow("Konturen", contour);
 
     Mat filteredContours;
     filteredContours = patern.findQRCodePaterns(binary);
     namedWindow("Konturen #2", WINDOW_AUTOSIZE);
     imshow("Konturen #2", filteredContours);
 
+    vector<FinderPaternModel> fPattern = patern.getAllPaterns();
+
+    for (int i = 0; i < fPattern.size(); ++i) {
+        circle(image, fPattern[i].topleft, 3, CV_RGB(255,0,0), 2, 8, 0);
+        circle(image, fPattern[i].topright, 3, CV_RGB(0,255,0), 2, 8, 0);
+        circle(image, fPattern[i].bottomleft, 3, CV_RGB(0,0,255), 2, 8, 0);
+    }
+
+    namedWindow("Neues Image", WINDOW_AUTOSIZE);
+    imshow("Neues Image", image);
+
+    Mat images;
+    images = patern.tiltCorrection(image, fPattern[0]);
+
+    namedWindow("QR Code", WINDOW_AUTOSIZE);
+    imshow("QR Code", images);
 }
