@@ -112,18 +112,36 @@ void pictureInput(const string path) {
 
     vector<FinderPaternModel> fPattern = patern.getAllPaterns();
 
+    cv::Scalar color[3];
+    color[0] = cv::Scalar(0, 0, 255);
+    color[1] = cv::Scalar(0, 255, 0);
+    color[2] = cv::Scalar(255, 0, 0);
+
     for (int i = 0; i < fPattern.size(); ++i) {
-        circle(image, fPattern[i].topleft, 3, CV_RGB(255,0,0), 2, 8, 0);
-        circle(image, fPattern[i].topright, 3, CV_RGB(0,255,0), 2, 8, 0);
-        circle(image, fPattern[i].bottomleft, 3, CV_RGB(0,0,255), 2, 8, 0);
+        cout << "############" <<endl;
+        cout << fPattern[i].topleft.x << ", "<< fPattern[i].topleft.y <<endl;
+        cout << fPattern[i].topright.x << ", "<< fPattern[i].topright.y <<endl;
+        cout << fPattern[i].bottomleft.x << ", "<< fPattern[i].bottomleft.y <<endl;
+        circle(image, fPattern[i].topleft, 3, color[i % 3], 2, 8, 0);
+        circle(image, fPattern[i].topright, 3, color[i % 3], 2, 8, 0);
+        circle(image, fPattern[i].bottomleft, 3, color[i % 3], 2, 8, 0);
+        cout << "############" <<endl;
     }
 
     namedWindow("Neues Image", WINDOW_AUTOSIZE);
     imshow("Neues Image", image);
 
-    Mat images;
-    images = patern.tiltCorrection(image, fPattern[0]);
+    Mat images1, images2, images3;
+    images1 = patern.tiltCorrection(image, fPattern[0]);
+    images2 = patern.tiltCorrection(image, fPattern[1]);
+    images3 = patern.tiltCorrection(image, fPattern[2]);
 
-    namedWindow("QR Code", WINDOW_AUTOSIZE);
-    imshow("QR Code", images);
+    namedWindow("QR Code1", WINDOW_AUTOSIZE);
+    imshow("QR Code1", images1);
+
+    namedWindow("QR Code2", WINDOW_AUTOSIZE);
+    imshow("QR Code2", images2);
+
+    namedWindow("QR Code3", WINDOW_AUTOSIZE);
+    imshow("QR Code3", images3);
 }

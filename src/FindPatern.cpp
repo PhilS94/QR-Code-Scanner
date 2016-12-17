@@ -7,7 +7,23 @@
 bool compareContourAreas (vector<Point> contour1, vector<Point> contour2) {
     double i = abs(contourArea(Mat(contour1)));
     double j = abs(contourArea(Mat(contour2)));
-    return ( i > j );
+
+    return ( i >= j && contour1[0].x < contour2[0].x );
+}
+
+bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point>> contours2){
+    double i = 0;
+    double j = 0;
+
+    for (int k = 0; k < contours1.size(); ++k) {
+        i += abs(contourArea(Mat(contours1[k])));
+    }
+
+    for (int k = 0; k < contours1.size(); ++k) {
+        j += abs(contourArea(Mat(contours2[k])));
+    }
+
+    return ( i >= j);
 }
 
 
@@ -50,7 +66,7 @@ Mat FindPatern::findAllContours(Mat image) {
 
 Mat FindPatern::findQRCodePaterns(Mat image) {
 
-    std::vector<std::vector<cv::Point>> coordinates;
+    sort(contours.begin(), contours.end(), compareContourAreas);
 
     for (int i = 0; i < contours.size(); ++i) {
         //iteration über die Kontur Punkte
@@ -63,7 +79,6 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
                             pairs.push_back((vector<Point> &&) contours.at(j));
                             pairs.push_back((vector<Point> &&) contours.at(i));
                             pairs.push_back((vector<Point> &&) contours.at(k));
-                            sort(pairs.begin(), pairs.end(), compareContourAreas);
                             trueContoures.push_back(pairs);
                         }
                     }
@@ -72,6 +87,7 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
         }
     }
 
+    sort(trueContoures.begin(), trueContoures.end(), compareContoureVectors);
 
     cv::Mat contourImage = originalImage.clone();
 
@@ -81,7 +97,7 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
     color[2] = cv::Scalar(255, 0, 0);
     for (size_t idx = 0; idx < trueContoures.size(); idx++) {
         for (size_t idx2 = 0; idx2 < trueContoures.at(idx).size(); idx2++) {
-            cv::drawContours(contourImage, trueContoures[idx], idx2, color[idx2 % 3]);
+            cv::drawContours(contourImage, trueContoures[idx], idx2, color[idx % 3]);
         }
     }
     return contourImage;
@@ -144,26 +160,29 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
 
     vector<Point2f> vecsrc;
     vector<Point2f> vecdst;
-    vecdst.push_back(Point2f(40, 40));
-    vecdst.push_back(Point2f(140, 40));
-    vecdst.push_back(Point2f(40, 140));
+    vecdst.push_back(Point2f(20, 20));
+    vecdst.push_back(Point2f(120, 20));
+    vecdst.push_back(Point2f(120,120));
+    vecdst.push_back(Point2f(20, 120));
 
     vecsrc.push_back(fPatern.topleft);
     vecsrc.push_back(fPatern.topright);
+    vecsrc.push_back(Point2f(fPatern.topright.x,fPatern.bottomleft.y));
     vecsrc.push_back(fPatern.bottomleft);
 
 
-    Mat affineTrans = getAffineTransform(vecsrc, vecdst);
+
+    Mat affineTrans = getPerspectiveTransform(vecsrc, vecdst);
     Mat warped;
-    warpAffine(image, warped, affineTrans, image.size());
-    Mat qrcode_color = warped(Rect(0, 0, 185, 185));
+    warpPerspective(image, warped, affineTrans, image.size());
+    Mat qrcode_color = warped(Rect(0, 0, 145, 145));
     Mat qrcode_gray;
     cvtColor (qrcode_color,qrcode_gray,CV_BGR2GRAY);
     Mat qrcode_bin;
     threshold(qrcode_gray, qrcode_bin, 120, 255, CV_THRESH_OTSU);
 
 
-    return qrcode_bin;
+    return qrcode_gray;
 
 }
 
@@ -249,6 +268,5 @@ vector<FinderPaternModel> FindPatern::getAllPaterns(){
 
     return paterns;
 }
-
 
 
