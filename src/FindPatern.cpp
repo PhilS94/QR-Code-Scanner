@@ -157,13 +157,14 @@ Point FindPatern::calculateMassCentres(std::vector<cv::Point> in){
 }
 
 Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
-
     vector<Point2f> vecsrc;
     vector<Point2f> vecdst;
+
     vecdst.push_back(Point2f(20, 20));
     vecdst.push_back(Point2f(120, 20));
     vecdst.push_back(Point2f(120,120));
     vecdst.push_back(Point2f(20, 120));
+
 
     vecsrc.push_back(fPatern.topleft);
     vecsrc.push_back(fPatern.topright);
@@ -171,9 +172,8 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
     vecsrc.push_back(fPatern.bottomleft);
 
 
-
     Mat affineTrans = getPerspectiveTransform(vecsrc, vecdst);
-    Mat warped;
+    Mat warped = Mat(image.size(),image.type());
     warpPerspective(image, warped, affineTrans, image.size());
     Mat qrcode_color = warped(Rect(0, 0, 145, 145));
     Mat qrcode_gray;
@@ -181,9 +181,7 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
     Mat qrcode_bin;
     threshold(qrcode_gray, qrcode_bin, 120, 255, CV_THRESH_OTSU);
 
-
-    return qrcode_gray;
-
+    return qrcode_bin;
 }
 
 
@@ -261,6 +259,15 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
 }
 
 vector<FinderPaternModel> FindPatern::getAllPaterns(){
+
+	std::cout << "trueContoures Size: " << trueContoures.size() << endl;
+
+	//Philipp: Diese Funktion hat Fehlermeldung wenn sie mit trueContoures.size()=2 durchlaufen wird! Und das passiert bei einigen Bildern.
+	//Vorzeitige Lösung:
+	if (trueContoures.size() < 3) {
+		return paterns;
+	}
+	//(Allerdings keinen Plan)
 
     for (int i = 0; i < trueContoures.size(); i++) {
         paterns.push_back(getFinderPaternModel(trueContoures[i][trueContoures[i].size() - 1], trueContoures[i++][trueContoures[i].size() - 1], trueContoures[i++][trueContoures[i].size() - 1]));
