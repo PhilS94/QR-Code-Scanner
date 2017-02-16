@@ -18,7 +18,7 @@ public:
     Point calculateMassCentres(std::vector<cv::Point>);
     Mat tiltCorrection(Mat image, FinderPaternModel fPatern);
     FinderPaternModel getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3);
-    vector<FinderPaternModel> getAllPaterns();
+    void getAllPaterns(vector<FinderPaternModel> &paterns);
 
 
 

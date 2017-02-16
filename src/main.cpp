@@ -98,8 +98,39 @@ void videoInput() {
 
         Mat filteredContours;
         filteredContours = patern.findQRCodePaterns(binary);
-        namedWindow("Konturen #2", WINDOW_AUTOSIZE);
-        imshow("Konturen #2", filteredContours);
+
+        //DEBUG
+        cout << "Now getting all Patterns" << endl;
+        vector<FinderPaternModel> fPattern;
+        patern.getAllPaterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+
+        cv::Scalar color[3];
+        color[0] = cv::Scalar(0, 0, 255);
+        color[1] = cv::Scalar(0, 255, 0);
+        color[2] = cv::Scalar(255, 0, 0);
+
+        for (int i = 0; i < fPattern.size(); ++i) {
+            circle(frame, fPattern[i].topleft, 3, color[0], 2, 8, 0);
+            circle(frame, fPattern[i].topright, 3, color[1], 2, 8, 0);
+            circle(frame, fPattern[i].bottomleft, 3, color[2], 2, 8, 0);
+        }
+
+        //namedWindow(imageName+" Tracked Image", WINDOW_AUTOSIZE);
+        //imshow(imageName+" Tracked Image", image);
+
+        cout << "Now tiltCorrecting Image...: " << endl;
+
+        //Philipp: fPattern enthält nicht immer 3 Elemente->Vector out of bounds error, tatsächlich immer nur 0 oder 1 Element. vorzeitige Lösung:
+        if (fPattern.size() > 0) {
+            frame = patern.tiltCorrection(frame, fPattern[0]);
+        }
+
+        string saveImageName = "QRScanned";
+
+        if (!frame.empty()) {
+            imshow(saveImageName, frame); // Speichere momentan nur image1..
+        }
+        //DEBUG
 
         // Press 'c' to escape
         if (waitKey(30) == 'c') break;
@@ -154,7 +185,8 @@ void pictureInput(const string path) {
     //imshow(imageName+" Konturen #2", filteredContours);
 
     cout << "Now getting all Patterns" << endl;
-    vector<FinderPaternModel> fPattern = patern.getAllPaterns(); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+    vector<FinderPaternModel> fPattern;
+    patern.getAllPaterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
     cv::Scalar color[3];
     color[0] = cv::Scalar(0, 0, 255);

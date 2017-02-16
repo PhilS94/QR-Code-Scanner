@@ -258,22 +258,19 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
     }
 }
 
-vector<FinderPaternModel> FindPatern::getAllPaterns(){
+void FindPatern::getAllPaterns(vector<FinderPaternModel> &paterns){
 
 	std::cout << "trueContoures Size: " << trueContoures.size() << endl;
 
 	//Philipp: Diese Funktion hat Fehlermeldung wenn sie mit trueContoures.size()=2 durchlaufen wird! Und das passiert bei einigen Bildern.
 	//Vorzeitige Lösung:
-	if (trueContoures.size() < 3) {
-		return paterns;
-	}
-	//(Allerdings keinen Plan)
-
-    for (int i = 0; i < trueContoures.size(); i++) {
-        paterns.push_back(getFinderPaternModel(trueContoures[i][trueContoures[i].size() - 1], trueContoures[i++][trueContoures[i].size() - 1], trueContoures[i++][trueContoures[i].size() - 1]));
+	if (trueContoures.size() >= 3) {
+        for (int i = 0; i < trueContoures.size(); i++) {
+            paterns.push_back(getFinderPaternModel(trueContoures[i][trueContoures[i].size() - 1],
+                                                   trueContoures[i++][trueContoures[i].size() - 1],
+                                                   trueContoures[i++][trueContoures[i].size() - 1]));
+        }
     }
-
-    return paterns;
 }
 
 
