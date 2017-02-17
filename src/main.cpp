@@ -9,6 +9,10 @@
 #include "FindPatern.hpp"
 #include "FinderPaternModel.hpp"
 
+#ifdef _WIN32
+#include <direct.h>
+#endif
+
 
 using namespace std;
 using namespace cv;
@@ -32,7 +36,11 @@ inline void makeDir(string strPath) {
     const char *tmp = strPath.c_str();
 
     if (stat(tmp, &info) != 0) {
+#ifdef _WIN32
+		_mkdir(strPath.c_str());
+#else
         mkdir(strPath.c_str(), 0777);
+#endif
     }
 }
 
@@ -78,8 +86,11 @@ int main(int argc, const char *argv[]) {
             return -1;
         }
     }
-
+#ifdef _WIN32
+	system("pause");
+#else
     waitKey(0);
+#endif
     return 0;
 }
 
