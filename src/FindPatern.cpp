@@ -3,6 +3,24 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "FindPatern.hpp"
 
+bool isLexicographicMax(Point a, Point b, Point c){
+    bool retA, retB;
+
+    if (c.y > b.y || (c.y == b.y && c.x > b.x)){
+        retB = true;
+    }
+
+    if (c.y > a.y || (c.y == a.y && c.x > a.x)){
+        retA = true;
+    }
+
+    return retA && retB;
+
+}
+
+int getOrientation(Point a, Point b, Point c){
+    return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x));
+}
 
 bool compareContourAreas (vector<Point> contour1, vector<Point> contour2) {
     double i = abs(contourArea(Mat(contour1)));
@@ -212,45 +230,39 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
         p2 = pt3;
         p3 = pt1;
     }
-    x1 = p1.x;
-    y1 = p1.y;
-    x2 = p2.x;
-    y2 = p2.y;
-    x3 = p3.x;
-    y3 = p3.y;
-    if(x1 == x2){
-        if(y1 > y2){
-            if(x3 < x1){
+
+    if(getOrientation(p1, p2, p3) < 0){
+        if(isLexicographicMax(p1, p2, p3)){
+            if(p1.x < p2.x){
                 FinderPaternModel paternModel(p3, p2, p1);
                 return paternModel;
-            }else{
+            } else {
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
             }
-        }else{
-            if(x3 < x1){
+        } else {
+            if(p1.x < p2.x){
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
-            }else{
-                FinderPaternModel paternModel(p3, p2, p1);
+            } else {
+                FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
             }
         }
-    }else{
-        double newy = (y2 - y1) / (x2 - x1) * x3 + y1 - (y2 - y1) / (x2 - x1) * x1;
-        if(x1 > x2){
-            if(newy < y3){
-                FinderPaternModel paternModel(p3, p2, p1);
-                return paternModel;;
-            }else{
+    } else {
+        if(isLexicographicMax(p1, p3, p2)){
+            if(p1.y < p3.y){
+                FinderPaternModel paternModel(p1, p3, p2);
+                return paternModel;
+            } else {
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
             }
-        }else{
-            if(newy < y3){
+        } else {
+            if(p2.y < p3.y){
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
-            }else{
+            } else {
                 FinderPaternModel paternModel(p3, p2, p1);
                 return paternModel;
             }
