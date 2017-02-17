@@ -46,8 +46,25 @@ void testAllImagesAtPath(const string path);
 int main(int argc, const char *argv[]) {
     cout << argv[0] << endl;
 
+    cout << "+---------------------------------------------------------------------------+\n"
+            "|     _______  _______    _______  _______  ______   _______                |\n"
+            "|    (  ___  )(  ____ )  (  ____ \\(  ___  )(  __  \\ (  ____ \\               |\n"
+            "|    | (   ) || (    )|  | (    \\/| (   ) || (  \\  )| (    \\/               |\n"
+            "|    | |   | || (____)|  | |      | |   | || |   ) || (__                   |\n"
+            "|    | |   | ||     __)  | |      | |   | || |   | ||  __)                  |\n"
+            "|    | | /\\| || (\\ (     | |      | |   | || |   ) || (                     |\n"
+            "|    | (_\\ \\ || ) \\ \\__  | (____/\\| (___) || (__/  )| (____/\\               |\n"
+            "|    (____\\/_)|/   \\__/  (_______/(_______)(______/ (_______/               |\n"
+            "+---------------------------------------------------------------------------+" << endl;
+
     if (argc > 3 || argc == 1) {
-        cout << "Unknown option! \nusage: <main> [0 = picture, 1 = camera ] [<path>]" << endl;
+        cout << "|                                                                           |" << endl;
+        cout << "| Please enter 0 and a valid Path to load a Directory with Pictures.        |\n"
+                "| e.g. 0 /home/username/Pictures                                            |\n"
+                "| For starting the Program with Videoinput please enter 1                   |\n"
+                "|                                                                           |" << endl;
+        cout << "| Usage: <main> [0 = picture, 1 = camera ] [<path>]                         |\n"
+                "+---------------------------------------------------------------------------+" << endl;
     } else {
         if (argc == 2) {
             cout << argv[0] << endl;
