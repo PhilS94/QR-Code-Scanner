@@ -3,3 +3,12 @@
 
 # CMakeFiles
 cmake-build-*/
+/x64/Debug
+/Debug
+/.vs/qrcode/v14
+/qrcode.vcxproj.user
+/qrcode.vcxproj.filters
+/qrcode.vcxproj
+/qrcode.VC.VC.opendb
+/qrcode.VC.db
+/qrcode.sln
