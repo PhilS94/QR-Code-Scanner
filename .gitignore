@@ -3,6 +3,8 @@
 
 # CMakeFiles
 cmake-build-*/
+
+# Visual Studio
 /x64/Debug
 /Debug
 /.vs/qrcode/v14

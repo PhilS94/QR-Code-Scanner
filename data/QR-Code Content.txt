@@ -1,8 +1,23 @@
-Created with: http://goqr.me/de/
-Error-Correction Level L for all examples.
+# Created with: http://goqr.me/de/
+# Error-Correction Level L for all examples.
 
 qrcode-google = http://www.google.de
 qrcode-lorem = Lorem Ipsum
 qrcode-github = http://www.github.com
 qrcode-adler = ADLER08
 qrcode-long = Ich bin ein ganz langer Text damit ich einen ganz groﬂen QR-Code kriege der total riesig ist und h‰sslich aussieht.
+grcode-bla5 = blablablablabla
+qrcode-farm = Michel lebt auf einem Bauernhof mit einem groﬂen Tor und vielen kleinen Schweinen.
+qrcode-english = I'm an english text used for qrcode creation.
+qrcode-added = I'm an english text used for qrcode creation. With added text to make me larger and more imposing.
+qrcode-leo = http://dict.leo.org/german-english/Translation
+qrcode-longest = I am aspiring to be the longest qrcode in existence! Hopefully at least. So therefore I'll ratlle on for a long time in order to fill all the space that may possibly be filled, reaching up to 300 symbols. This already looks really cool and is a challenge for all qrcode reader! Espacially the old ones.
+qrcode-challenge = Challenge!
+qrcode-challenge20 = Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! 
+qrcode-challenge60 = Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! Challenge! 
+qrcode-puff = Puff
+qrcode-again = Puff! AGAIN!
+qrcode-data = DATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
+qrcode-read = READ ME! PLEASE ME!
+qrcode-no = NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!
+qrcode-different = I'm different...
