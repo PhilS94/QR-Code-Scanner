@@ -6,10 +6,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-class ImageReader
-{
+class ImageReader {
 public:
-    static cv::Mat readImage(const std::string& filePath);
+    static cv::Mat readImage(const std::string &filePath);
 
 };
 

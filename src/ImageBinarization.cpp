@@ -6,7 +6,7 @@ Mat ImageBinarization::run(Mat image) {
     Mat blurredImage;
     image += Scalar(-50, -50, -50);
     blurredImage = image.clone();
-    GaussianBlur(blurredImage, blurredImage,Size(3,3), 0,0);
-    threshold(blurredImage, binarizedImage, threshold_value, max_BINARY_value,threshold_type);
+    GaussianBlur(blurredImage, blurredImage, Size(3, 3), 0, 0);
+    threshold(blurredImage, binarizedImage, threshold_value, max_BINARY_value, threshold_type);
     return binarizedImage;
 }

@@ -11,8 +11,7 @@
 using namespace cv;
 using namespace std;
 
-class ImageBinarization
-{
+class ImageBinarization {
 public:
     Mat run(Mat image);
 
@@ -22,4 +21,5 @@ private:
     int threshold_type = CV_THRESH_OTSU;
     int const max_BINARY_value = 255;
 };
+
 #endif //QRCODE_IMAGEBINARIZATION_H

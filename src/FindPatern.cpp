@@ -3,15 +3,15 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "FindPatern.hpp"
 
-bool isLexicographicMax(Point a, Point b, Point c){
+bool isLexicographicMax(Point a, Point b, Point c) {
     bool retA = false;
     bool retB = false;
 
-    if (c.y > b.y || (c.y == b.y && c.x > b.x)){
+    if (c.y > b.y || (c.y == b.y && c.x > b.x)) {
         retB = true;
     }
 
-    if (c.y > a.y || (c.y == a.y && c.x > a.x)){
+    if (c.y > a.y || (c.y == a.y && c.x > a.x)) {
         retA = true;
     }
 
@@ -19,18 +19,18 @@ bool isLexicographicMax(Point a, Point b, Point c){
 
 }
 
-int getOrientation(Point a, Point b, Point c){
-    return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x));
+int getOrientation(Point a, Point b, Point c) {
+    return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
 }
 
-bool compareContourAreas (vector<Point> contour1, vector<Point> contour2) {
+bool compareContourAreas(vector<Point> contour1, vector<Point> contour2) {
     double i = abs(contourArea(Mat(contour1)));
     double j = abs(contourArea(Mat(contour2)));
 
-    return ( i >= j && contour1[0].x < contour2[0].x );
+    return (i >= j && contour1[0].x < contour2[0].x);
 }
 
-bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point>> contours2){
+bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point>> contours2) {
     double i = 0;
     double j = 0;
 
@@ -42,7 +42,7 @@ bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point
         j += abs(contourArea(Mat(contours2[k])));
     }
 
-    return ( i >= j);
+    return (i >= j);
 }
 
 
@@ -59,16 +59,16 @@ Mat FindPatern::findAllContours(Mat image) {
     cv::Mat contourOutput = image.clone();
     vector<Vec4i> hierarchy;
     findContours(image, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    cout<<"contours.size = "<<contours.size()<<endl;
+    cout << "contours.size = " << contours.size() << endl;
     int m = 0;
-    while(m < contours.size()){
-        if(contourArea(contours[m]) <= minPix){
+    while (m < contours.size()) {
+        if (contourArea(contours[m]) <= minPix) {
             contours.erase(contours.begin() + m);
-        }else if(contourArea(contours[m]) > maxPix){
+        } else if (contourArea(contours[m]) > maxPix) {
             contours.erase(contours.begin() + m);
-        }else ++ m;
+        } else ++m;
     }
-    cout<<"contours.size = "<<contours.size()<<endl;
+    cout << "contours.size = " << contours.size() << endl;
 
 
     cv::Mat contourImage = originalImage.clone();
@@ -91,9 +91,9 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
         //iteration über die Kontur Punkte
         for (int j = 0; j < contours.size(); ++j) {
             if (isContourInsideContour(contours.at(i), contours.at(j))) {
-                for (int k = 0; k <contours.size(); ++k) {
-                    if (isContourInsideContour(contours.at(k), contours.at(i))){
-                        if(isTrapez(contours.at(j))){
+                for (int k = 0; k < contours.size(); ++k) {
+                    if (isContourInsideContour(contours.at(k), contours.at(i))) {
+                        if (isTrapez(contours.at(j))) {
                             vector<vector<Point>> pairs;
                             pairs.push_back((vector<Point> &&) contours.at(j));
                             pairs.push_back((vector<Point> &&) contours.at(i));
@@ -124,7 +124,7 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
 }
 
 bool FindPatern::isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out) {
-    if(in.size() > 0 && out.size() > 0){
+    if (in.size() > 0 && out.size() > 0) {
         for (int i = 0; i < in.size(); i++) {
             if (pointPolygonTest(out, in[i], false) <= 0) return false;
         }
@@ -134,33 +134,33 @@ bool FindPatern::isContourInsideContour(std::vector<cv::Point> in, std::vector<c
     return false;
 }
 
-bool FindPatern::isTrapez(std::vector<cv::Point> in){
+bool FindPatern::isTrapez(std::vector<cv::Point> in) {
 
     std::vector<cv::Point> approximatedPolygon;
-    double epsilon = 0.1*cv::arcLength(in,true);
+    double epsilon = 0.1 * cv::arcLength(in, true);
     approxPolyDP(in, approximatedPolygon, epsilon, true);
-    bool ret = ( approximatedPolygon.size() == 4 );
+    bool ret = (approximatedPolygon.size() == 4);
     return ret;
 }
 
-Point FindPatern::calculateMassCentres(std::vector<cv::Point> in){
+Point FindPatern::calculateMassCentres(std::vector<cv::Point> in) {
 
     int xCoordinates[] = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
     int yCoordinates[] = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min()};
 
     //extremalwerte werden bestimmt
-    for(int i=0;i<in.size();i++){
-        if(xCoordinates[0] > in.at(i).x){
+    for (int i = 0; i < in.size(); i++) {
+        if (xCoordinates[0] > in.at(i).x) {
             xCoordinates[0] = in.at(i).x;
         }
-        if(xCoordinates[1] < in.at(i).x){
+        if (xCoordinates[1] < in.at(i).x) {
             xCoordinates[1] = in.at(i).x;
         }
 
-        if(yCoordinates[0] > in.at(i).y){
+        if (yCoordinates[0] > in.at(i).y) {
             yCoordinates[0] = in.at(i).y;
         }
-        if(yCoordinates[1] < in.at(i).y){
+        if (yCoordinates[1] < in.at(i).y) {
             yCoordinates[1] = in.at(i).y;
         }
     }
@@ -175,7 +175,7 @@ Point FindPatern::calculateMassCentres(std::vector<cv::Point> in){
     return point;
 }
 
-Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
+Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern) {
     vector<Point2f> vecsrc;
     vector<Point2f> vecdst;
 
@@ -190,11 +190,11 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
 
 
     Mat affineTrans = getAffineTransform(vecsrc, vecdst);
-    Mat warped = Mat(image.size(),image.type());
-    warpAffine(image, warped,affineTrans,image.size());
+    Mat warped = Mat(image.size(), image.type());
+    warpAffine(image, warped, affineTrans, image.size());
     Mat qrcode_color = warped(Rect(0, 0, 145, 145));
     Mat qrcode_gray;
-    cvtColor (qrcode_color,qrcode_gray,CV_BGR2GRAY);
+    cvtColor(qrcode_color, qrcode_gray, CV_BGR2GRAY);
     Mat qrcode_bin;
     threshold(qrcode_gray, qrcode_bin, 120, 255, CV_THRESH_OTSU);
 
@@ -202,7 +202,7 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
 }
 
 
-FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3){
+FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {
 
 
     Point pt1 = calculateMassCentres(cont1);
@@ -216,23 +216,23 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
     double x1, y1, x2, y2, x3, y3;
     double Max = max(d12, max(d13, d23));
     Point p1, p2, p3;
-    if(Max == d12){
+    if (Max == d12) {
         p1 = pt1;
         p2 = pt2;
         p3 = pt3;
-    }else if(Max == d13){
+    } else if (Max == d13) {
         p1 = pt1;
         p2 = pt3;
         p3 = pt2;
-    }else if(Max == d23){
+    } else if (Max == d23) {
         p1 = pt2;
         p2 = pt3;
         p3 = pt1;
     }
 
-    if(getOrientation(p1, p2, p3) < 0){
-        if(isLexicographicMax(p1, p2, p3)){
-            if(p1.x < p2.x){
+    if (getOrientation(p1, p2, p3) < 0) {
+        if (isLexicographicMax(p1, p2, p3)) {
+            if (p1.x < p2.x) {
                 FinderPaternModel paternModel(p3, p2, p1);
                 return paternModel;
             } else {
@@ -240,7 +240,7 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
                 return paternModel;
             }
         } else {
-            if(p1.x < p2.x){
+            if (p1.x < p2.x) {
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
             } else {
@@ -249,8 +249,8 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
             }
         }
     } else {
-        if(isLexicographicMax(p1, p3, p2)){
-            if(p1.y < p3.y){
+        if (isLexicographicMax(p1, p3, p2)) {
+            if (p1.y < p3.y) {
                 FinderPaternModel paternModel(p1, p3, p2);
                 return paternModel;
             } else {
@@ -258,7 +258,7 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
                 return paternModel;
             }
         } else {
-            if(p2.y < p3.y){
+            if (p2.y < p3.y) {
                 FinderPaternModel paternModel(p3, p1, p2);
                 return paternModel;
             } else {
@@ -269,13 +269,13 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
     }
 }
 
-void FindPatern::getAllPaterns(vector<FinderPaternModel> &paterns){
+void FindPatern::getAllPaterns(vector<FinderPaternModel> &paterns) {
 
-	std::cout << "trueContoures Size: " << trueContoures.size() << endl;
+    std::cout << "trueContoures Size: " << trueContoures.size() << endl;
 
-	//Philipp: Diese Funktion hat Fehlermeldung wenn sie mit trueContoures.size()=2 durchlaufen wird! Und das passiert bei einigen Bildern.
-	//Vorzeitige Lösung:
-	if (trueContoures.size() >= 3) {
+    //Philipp: Diese Funktion hat Fehlermeldung wenn sie mit trueContoures.size()=2 durchlaufen wird! Und das passiert bei einigen Bildern.
+    //Vorzeitige Lösung:
+    if (trueContoures.size() >= 3) {
         for (int i = 0; i < trueContoures.size(); i++) {
             paterns.push_back(getFinderPaternModel(trueContoures[i][trueContoures[i].size() - 1],
                                                    trueContoures[i++][trueContoures[i].size() - 1],

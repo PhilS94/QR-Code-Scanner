@@ -1,13 +1,9 @@
 #include <iostream>
-#include <string>
 #include <opencv2/opencv.hpp> // Philipp: Besser als das include #include <cv.h> (verursachte Fehlermeldungen)
-#include <opencv2/imgproc/imgproc.hpp>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include "ImageReader.hpp"
 #include "ImageBinarization.hpp"
 #include "FindPatern.hpp"
-#include "FinderPaternModel.hpp"
 
 #ifdef _WIN32
 #include <direct.h>
@@ -37,7 +33,7 @@ inline void makeDir(string strPath) {
 
     if (stat(tmp, &info) != 0) {
 #ifdef _WIN32
-		_mkdir(strPath.c_str());
+        _mkdir(strPath.c_str());
 #else
         mkdir(strPath.c_str(), 0777);
 #endif
@@ -66,12 +62,12 @@ int main(int argc, const char *argv[]) {
             "+---------------------------------------------------------------------------+" << endl;
 
     if (argc > 3 || argc == 1) {
-        cout << "|                                                                           |" << endl;
-        cout << "| Please enter 0 and a valid Path to load a Directory with Pictures.        |\n"
+        cout << "|                                                                           |"
+                "| Please enter 0 and a valid Path to load a Directory with Pictures.        |\n"
                 "| e.g. 0 /home/username/Pictures                                            |\n"
                 "| For starting the Program with Videoinput please enter 1                   |\n"
-                "|                                                                           |" << endl;
-        cout << "| Usage: <main> [0 = picture, 1 = camera ] [<path>]                         |\n"
+                "|                                                                           |\n"
+                "| Usage: <main> [0 = picture, 1 = camera ] [<path>]                         |\n"
                 "+---------------------------------------------------------------------------+" << endl;
     } else {
         if (argc == 2) {
@@ -87,7 +83,7 @@ int main(int argc, const char *argv[]) {
         }
     }
 #ifdef _WIN32
-	system("pause");
+    system("pause");
 #else
     waitKey(0);
 #endif
@@ -130,7 +126,8 @@ void videoInput() {
         //DEBUG
         cout << "Now getting all Patterns" << endl;
         vector<FinderPaternModel> fPattern;
-        patern.getAllPaterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+        patern.getAllPaterns(
+                fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
         cv::Scalar color[3];
         color[0] = cv::Scalar(0, 0, 255);
@@ -203,8 +200,7 @@ void pictureInput(const string path) {
     Mat contour;
     FindPatern patern(image);
     contour = patern.findAllContours(binary);
-//    namedWindow(imageName+" Konturen", WINDOW_AUTOSIZE );
-//    imshow(imageName+" Konturen", contour);
+
 
     cout << "Now filtering Contours..." << endl;
     Mat filteredContours;
@@ -214,7 +210,8 @@ void pictureInput(const string path) {
 
     cout << "Now getting all Patterns" << endl;
     vector<FinderPaternModel> fPattern;
-    patern.getAllPaterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+    patern.getAllPaterns(
+            fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
     cv::Scalar color[3];
     color[0] = cv::Scalar(0, 0, 255);
