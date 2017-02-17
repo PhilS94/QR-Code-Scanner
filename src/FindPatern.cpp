@@ -180,19 +180,17 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern){
 
     vecdst.push_back(Point2f(20, 20));
     vecdst.push_back(Point2f(120, 20));
-    vecdst.push_back(Point2f(120,120));
     vecdst.push_back(Point2f(20, 120));
 
 
     vecsrc.push_back(fPatern.topleft);
     vecsrc.push_back(fPatern.topright);
-    vecsrc.push_back(Point2f(fPatern.topright.x,fPatern.bottomleft.y));
     vecsrc.push_back(fPatern.bottomleft);
 
 
-    Mat affineTrans = getPerspectiveTransform(vecsrc, vecdst);
+    Mat affineTrans = getAffineTransform(vecsrc, vecdst);
     Mat warped = Mat(image.size(),image.type());
-    warpPerspective(image, warped, affineTrans, image.size());
+    warpAffine(image, warped,affineTrans,image.size());
     Mat qrcode_color = warped(Rect(0, 0, 145, 145));
     Mat qrcode_gray;
     cvtColor (qrcode_color,qrcode_gray,CV_BGR2GRAY);

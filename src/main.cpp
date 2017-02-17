@@ -189,28 +189,28 @@ void pictureInput(const string path) {
     cout << "Now Converting Image to Grayscale..." << endl;
     Mat grayscale;
     cvtColor(image, grayscale, CV_BGR2GRAY);
-    //namedWindow(imageName+" Grayscale", WINDOW_AUTOSIZE );
-    //imshow(imageName+" Grayscale", grayscale);
+//    namedWindow(imageName+" Grayscale", WINDOW_AUTOSIZE );
+//    imshow(imageName+" Grayscale", grayscale);
 
     cout << "Now binarizing Image..." << endl;
     Mat binary;
     ImageBinarization binarizedImage;
     binary = binarizedImage.run(grayscale);
-    //namedWindow(imageName+" Binaer", WINDOW_AUTOSIZE );
-    //imshow(imageName+" Binaer", binary);
+//    namedWindow(imageName+" Binaer", WINDOW_AUTOSIZE );
+//    imshow(imageName+" Binaer", binary);
 
     cout << "Now finding Contours..." << endl;
     Mat contour;
     FindPatern patern(image);
     contour = patern.findAllContours(binary);
-    //namedWindow(imageName+" Konturen", WINDOW_AUTOSIZE );
-    //imshow(imageName+" Konturen", contour);
+//    namedWindow(imageName+" Konturen", WINDOW_AUTOSIZE );
+//    imshow(imageName+" Konturen", contour);
 
     cout << "Now filtering Contours..." << endl;
     Mat filteredContours;
     filteredContours = patern.findQRCodePaterns(binary);
-    //namedWindow(imageName+" Konturen #2", WINDOW_AUTOSIZE);
-    //imshow(imageName+" Konturen #2", filteredContours);
+//    namedWindow(imageName+" Konturen #2", WINDOW_AUTOSIZE);
+//    imshow(imageName+" Konturen #2", filteredContours);
 
     cout << "Now getting all Patterns" << endl;
     vector<FinderPaternModel> fPattern;
@@ -222,14 +222,9 @@ void pictureInput(const string path) {
     color[2] = cv::Scalar(255, 0, 0);
 
     for (int i = 0; i < fPattern.size(); ++i) {
-//		cout << "############" << endl;
-//		cout << fPattern[i].topleft.x << ", " << fPattern[i].topleft.y << endl;
-//		cout << fPattern[i].topright.x << ", " << fPattern[i].topright.y << endl;
-//		cout << fPattern[i].bottomleft.x << ", " << fPattern[i].bottomleft.y << endl;
         circle(image, fPattern[i].topleft, 3, color[i % 3], 2, 8, 0);
         circle(image, fPattern[i].topright, 3, color[i % 3], 2, 8, 0);
         circle(image, fPattern[i].bottomleft, 3, color[i % 3], 2, 8, 0);
-//		cout << "############" << endl;
     }
 
     //namedWindow(imageName+" Tracked Image", WINDOW_AUTOSIZE);
@@ -238,21 +233,11 @@ void pictureInput(const string path) {
     cout << "Now tiltCorrecting Image...: " << endl;
 
     //Philipp: fPattern enthält nicht immer 3 Elemente->Vector out of bounds error, tatsächlich immer nur 0 oder 1 Element. vorzeitige Lösung:
-    Mat image1, image2, image3;
+    Mat image1;
     if (fPattern.size() > 0) {
         image1 = patern.tiltCorrection(image, fPattern[0]);
         //namedWindow(imageName + " QR Code1", WINDOW_AUTOSIZE);
         //imshow(imageName + " QR Code1", image1);
-    }
-    if (fPattern.size() > 1) {
-        image2 = patern.tiltCorrection(image, fPattern[1]);
-        namedWindow(imageName + " QR Code2", WINDOW_AUTOSIZE);
-        imshow(imageName + " QR Code2", image2);
-    }
-    if (fPattern.size() > 2) {
-        image3 = patern.tiltCorrection(image, fPattern[2]);
-        namedWindow(imageName + " QR Code3", WINDOW_AUTOSIZE);
-        imshow(imageName + " QR Code3", image3);
     }
 
     /*Philipp:
