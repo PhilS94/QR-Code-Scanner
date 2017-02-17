@@ -15,9 +15,24 @@ class ImageBinarization {
 public:
     Mat run(Mat image);
 
+    void computeSmoothing();
+
+    void createHistogram();
+
+    void setThresholdValue();
+
+    void computeThreshold();
+
 private:
     ImageReader reader;
-    int threshold_value = 120;
+    Mat image;
+    Mat blurredImage;
+    Mat binarizedImage;
+    Mat hist;
+    int histSize = 256;
+    double m = (hist.rows * hist.cols) / 2;
+    int bin = 0;
+    int threshold_value = -1;
     int threshold_type = CV_THRESH_OTSU;
     int const max_BINARY_value = 255;
 };
