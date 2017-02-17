@@ -47,46 +47,78 @@ Philipp: Lädt alle Bilder am angegebenen Pfad und wendet QR-Code Algorithmus auf
 */
 void testAllImagesAtPath(const string path);
 
+void printLogo()
+{
+	cout << "+---------------------------------------------------------------------------+\n"
+		"|     _______  _______    _______  _______  ______   _______                |\n"
+		"|    (  ___  )(  ____ )  (  ____ \\(  ___  )(  __  \\ (  ____ \\               |\n"
+		"|    | (   ) || (    )|  | (    \\/| (   ) || (  \\  )| (    \\/               |\n"
+		"|    | |   | || (____)|  | |      | |   | || |   ) || (__                   |\n"
+		"|    | |   | ||     __)  | |      | |   | || |   | ||  __)                  |\n"
+		"|    | | /\\| || (\\ (     | |      | |   | || |   ) || (                     |\n"
+		"|    | (_\\ \\ || ) \\ \\__  | (____/\\| (___) || (__/  )| (____/\\               |\n"
+		"|    (____\\/_)|/   \\__/  (_______/(_______)(______/ (_______/               |\n"
+		"+---------------------------------------------------------------------------+" << endl;
+}
+
+void printUsage()
+{
+	cout << "|                                                                           |\n"
+			"| Please enter 0, 1 or 2 path values to start one of the following modes:   |\n"
+			"|                                                                           |\n"
+			"|     - 0 path values: Camera Mode.                                         |\n"
+			"|       Attempt to open a camera feed and continously search for qrcodes.   |\n"
+			"|                                                                           |\n"
+			"|     - 1 path values: Folder Scan Mode.                                    |\n"
+			"|       Scan all images in the folder for qrcodes and save the detection    |\n"
+			"|       results into a subfolder.                                           |\n"
+			"|                                                                           |\n"
+			"|     - 2 path values: Evaluation Mode.                                     |\n"
+			"|       Read image stored at input-path and save the detection result       |\n"
+			"|       to output-path.                                                     |\n"
+			"|                                                                           |\n"
+			"| Usage: <main>                                                             |\n"
+			"| Usage: <main> [<folder-path>]                                             |\n"
+			"| Usage: <main> [<input-path>] [<output-path>]                              |\n"
+			"+---------------------------------------------------------------------------+" << endl;
+}
+
 int main(int argc, const char *argv[]) {
-    cout << argv[0] << endl;
+    cout << "Path to executable: " << argv[0] << endl;
+	printLogo();
 
-    cout << "+---------------------------------------------------------------------------+\n"
-            "|     _______  _______    _______  _______  ______   _______                |\n"
-            "|    (  ___  )(  ____ )  (  ____ \\(  ___  )(  __  \\ (  ____ \\               |\n"
-            "|    | (   ) || (    )|  | (    \\/| (   ) || (  \\  )| (    \\/               |\n"
-            "|    | |   | || (____)|  | |      | |   | || |   ) || (__                   |\n"
-            "|    | |   | ||     __)  | |      | |   | || |   | ||  __)                  |\n"
-            "|    | | /\\| || (\\ (     | |      | |   | || |   ) || (                     |\n"
-            "|    | (_\\ \\ || ) \\ \\__  | (____/\\| (___) || (__/  )| (____/\\               |\n"
-            "|    (____\\/_)|/   \\__/  (_______/(_______)(______/ (_______/               |\n"
-            "+---------------------------------------------------------------------------+" << endl;
+	printUsage();
+	if (argc == 1)
+	{
+		cout << "Starting Camera Mode..." << endl;
+		videoInput();
+	}
+	else if (argc == 2)
+	{
+		cout << "Starting Folder Scan Mode..." << endl;
+		cout << argv[1] << endl;
+		string s;
+		s += argv[1];
+		testAllImagesAtPath(s);
+	}
+	else if (argc == 3)
+	{
+		cout << "Starting Evaluation Mode..." << endl;
+		// TODO: Start Evaluation mode
+		// In this mode the first argument is a path value for the input and the second argument
+		// is a path value for the resulting output file for matching with the ground truth.
+	}
+	else
+	{
+		printUsage();
+	}
 
-    if (argc > 3 || argc == 1) {
-        cout << "|                                                                           |"
-                "| Please enter 0 and a valid Path to load a Directory with Pictures.        |\n"
-                "| e.g. 0 /home/username/Pictures                                            |\n"
-                "| For starting the Program with Videoinput please enter 1                   |\n"
-                "|                                                                           |\n"
-                "| Usage: <main> [0 = picture, 1 = camera ] [<path>]                         |\n"
-                "+---------------------------------------------------------------------------+" << endl;
-    } else {
-        if (argc == 2) {
-            cout << argv[0] << endl;
-            videoInput();
-        } else if (argc == 3) {
-            cout << argv[2] << endl;
-            string s;
-            s += argv[2];
-            testAllImagesAtPath(s); // Philipp: Statt pictureInput diese Funktion eingefügt
-        } else {
-            return -1;
-        }
-    }
 #ifdef _WIN32
     system("pause");
 #else
     waitKey(0);
 #endif
+
     return 0;
 }
 
