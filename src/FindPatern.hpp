@@ -25,6 +25,8 @@ public:
 
     Mat tiltCorrection(Mat image, FinderPaternModel fPatern);
 
+	Mat FindPatern::normalize(Mat image);
+
     FinderPaternModel getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3);
 
     void getAllPaterns(vector<FinderPaternModel> &paterns);
