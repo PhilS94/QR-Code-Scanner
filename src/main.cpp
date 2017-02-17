@@ -80,6 +80,7 @@ void printUsage()
 			"| Usage: <main>                                                             |\n"
 			"| Usage: <main> [<folder-path>]                                             |\n"
 			"| Usage: <main> [<input-path>] [<output-path>]                              |\n"
+			"| Usage: <main> [-generate] [<ground_truth-path>] [<output-path>]           |\n"
 			"+---------------------------------------------------------------------------+" << endl;
 }
 
@@ -87,7 +88,6 @@ int main(int argc, const char *argv[]) {
     cout << "Path to executable: " << argv[0] << endl;
 	printLogo();
 
-	printUsage();
 	if (argc == 1)
 	{
 		cout << "Starting Camera Mode..." << endl;
@@ -108,9 +108,20 @@ int main(int argc, const char *argv[]) {
 		// In this mode the first argument is a path value for the input and the second argument
 		// is a path value for the resulting output file for matching with the ground truth.
 	}
+	else if (argc == 4 && string(argv[1]) == "-generate")
+	{
+		// Will be used for automatic generation of the database.
+		cout << "Source: " << argv[2] << endl;
+		cout << "Destination: " << argv[3] << endl;
+	}
 	else
 	{
 		printUsage();
+		cout << endl << "Printing Arguments:" << endl;
+		for(int i = 0; i < argc; i++)
+		{
+			cout << argv[i] << endl;
+		}
 	}
 
 #ifdef _WIN32
@@ -136,21 +147,21 @@ void videoInput() {
 
         Mat grayscale;
         cv::cvtColor(frame, grayscale, CV_BGR2GRAY);
-        //    namedWindow( "Grayscale", WINDOW_AUTOSIZE );
-        //    imshow("Grayscale", grayscale);
+            namedWindow( "Grayscale", WINDOW_AUTOSIZE );
+            imshow("Grayscale", grayscale);
 
         Mat binary;
         ImageBinarization binarizedImage;
         binary = binarizedImage.run(grayscale);
-        //    namedWindow( "Binaer", WINDOW_AUTOSIZE );
-        //    imshow("Binaer", binary);
+            namedWindow( "Binaer", WINDOW_AUTOSIZE );
+            imshow("Binaer", binary);
 
 
         Mat contour;
         FindPatern patern(frame);
         contour = patern.findAllContours(binary);
-        //    namedWindow( "Konturen", WINDOW_AUTOSIZE );
-        //    imshow("Konturen", contour);
+            namedWindow( "Konturen", WINDOW_AUTOSIZE );
+            imshow("Konturen", contour);
 
         Mat filteredContours;
         filteredContours = patern.findQRCodePaterns(binary);
