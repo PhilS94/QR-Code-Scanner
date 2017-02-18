@@ -12,14 +12,14 @@ set(SOURCE_FILES
         main.cpp
         ImageBinarization.hpp
         ImageBinarization.cpp
-        ImageReader.hpp
-        ImageReader.cpp
         FindPatern.hpp
         FindPatern.cpp
         FinderPaternModel.cpp
         FinderPaternModel.hpp
         Filesystem.cpp
-        Filesystem.hpp)
+        Filesystem.hpp
+        Generate.cpp
+        Generate.hpp)
 
 add_executable(main ${SOURCE_FILES})
 target_link_libraries( main ${OpenCV_LIBS} )

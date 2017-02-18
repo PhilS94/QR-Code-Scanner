@@ -1,36 +1,27 @@
 #ifndef FILESYSTEM_HPP
 #define FILESYSTEM_HPP
 
-#include <iostream>
 #include <vector>
+#include <opencv2/core/core.hpp>
+
 #ifdef _WIN32
-#include <direct.h>
-#endif
-
-std::vector<std::string> allFilesAtPath(const std::string path);
-std::vector<std::string> allImagesAtPath(const std::string path);
-
-inline void makeDir(std::string strPath) {
-
-	struct stat info;
-	const char *tmp = strPath.c_str();
-
-	if (stat(tmp, &info) != 0) {
-#ifdef _WIN32
-		_mkdir(strPath.c_str());
+#define separator "\\"
 #else
-		mkdir(strPath.c_str(), 0777);
+#define separator "/";
 #endif
-	}
-}
 
-inline char separator() {
-#ifdef _WIN32
-	return '\\';
-#else
-	return '/';
-#endif
+class FileSystem
+{
+public:
+	static inline std::vector<std::string> allFilesAtPath(const std::string& folderPath);
+
+	static inline std::vector<std::string> allImagesAtPath(const std::string& folderPath);
+
+	static inline cv::Mat readImage(const std::string& filePath);
+
+	static inline void saveImage(const std::string& folderPath, const std::string& fileName, const cv::Mat& mat);
+
+	static inline void makeDir(std::string &path);
 };
-
 
 #endif // FILESYSTEM_HPP

@@ -5,9 +5,6 @@
 #ifndef QRCODE_IMAGEBINARIZATION_H
 #define QRCODE_IMAGEBINARIZATION_H
 
-//#include <opencv2/ml.hpp> // Philipp: Besser als das include #include <ml.h> (verursachte Fehlermeldungen)
-#include "ImageReader.hpp"
-
 using namespace cv;
 using namespace std;
 
@@ -24,7 +21,6 @@ public:
     void computeThreshold();
 
 private:
-    ImageReader reader;
     Mat image;
     Mat blurredImage;
     Mat binarizedImage;

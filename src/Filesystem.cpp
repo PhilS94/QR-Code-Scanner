@@ -1,34 +1,58 @@
 
 #include "Filesystem.hpp"
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
-using namespace std;
+#ifdef _WIN32
+#include <direct.h>
+#endif
 
-vector<string> allFilesAtPath(const string path)
+cv::Mat FileSystem::readImage(const std::string& filePath)
 {
-	vector<cv::String> allFiles;
-	vector<string> result;
-	cv::glob(path, allFiles, false);
+	return cv::imread(filePath, CV_LOAD_IMAGE_ANYCOLOR);
+}
 
-	for (auto it = allFiles.begin(); it != allFiles.end(); ++it) {
-		result.push_back(cv::String(*it));
-	}
+void FileSystem::saveImage(const std::string& folderPath, const std::string& fileName, const cv::Mat& mat)
+{
+	cv::imwrite(folderPath + separator + fileName, mat);
+}
 
+std::vector<std::string> FileSystem::allFilesAtPath(const std::string& folderPath)
+{
+	std::vector<std::string> result;
+	cv::glob(folderPath, result, false);
 	return result;
 }
 
-vector<string> allImagesAtPath(const string path)
+std::vector<std::string> FileSystem::allImagesAtPath(const std::string& folderPath)
 {
-	vector<string> allFiles = allFilesAtPath(path);
-	vector<string> imageFiles;
+	std::vector<std::string> allFiles = allFilesAtPath(folderPath);
+	std::vector<std::string> imageFiles;
 
-	for (auto it = allFiles.begin(); it != allFiles.end(); ++it) {
-		string file = *it;
-		string fileType = file.substr(file.find_last_of(".") + 1);
-		if ((fileType == "jpg") || (fileType == "png")) {
+	for (auto it = allFiles.begin(); it != allFiles.end(); ++it)
+	{
+		std::string file = *it;
+		std::string fileType = file.substr(file.find_last_of(".") + 1);
+		if ((fileType == "jpg") || (fileType == "png"))
+		{
 			imageFiles.push_back(file);
 		}
 	}
 
 	return imageFiles;
+}
+
+void FileSystem::makeDir(std::string &path)
+{
+	struct stat info;
+	const char* tmp = path.c_str();
+
+	// TODO: What should happen if makeDir fails?
+	if (stat(tmp, &info) != 0)
+	{
+#ifdef _WIN32
+		_mkdir(path.c_str());
+#else
+		mkdir(path.c_str(), 0777);
+#endif
+	}
 }

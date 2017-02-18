@@ -1,24 +1,18 @@
 #include <iostream>
-#include <opencv2/opencv.hpp> // Philipp: Besser als das include #include <cv.h> (verursachte Fehlermeldungen)
+#include <opencv2/opencv.hpp>
 #include <sys/stat.h>
-#include "ImageReader.hpp"
 #include "ImageBinarization.hpp"
 #include "FindPatern.hpp"
 #include "Filesystem.hpp"
+#include "Generate.hpp"
 
 using namespace std;
 using namespace cv;
 
 void videoInput();
-
 void pictureInput(const string path);
-
-/**
-Philipp: Lädt alle Bilder am angegebenen Pfad und wendet QR-Code Algorithmus auf sie an.
-
-@param Pfad an dem Dateien gesucht werden.
-*/
 void testAllImagesAtPath(const string path);
+void generateMode(const string source, const string dest);
 
 void printLogo()
 {
@@ -51,8 +45,8 @@ void printUsage()
 			"|       to output-path.                                                     |\n"
 			"|                                                                           |\n"
 			"|     - 2 path values and \"-generate\": Generate Mode.                       |\n"
-			"|       Read image stored at input-path and save the detection result       |\n"
-			"|       to output-path.                                                     |\n"
+			"|       Read images stored at ground-truth-path and generate syntethic      |\n"
+			"|       database images at output-path                                      |\n"
 			"|                                                                           |\n"
 			"| Usage: <main>                                                             |\n"
 			"| Usage: <main> [<folder-path>]                                             |\n"
@@ -87,20 +81,13 @@ int main(int argc, const char *argv[]) {
 	}
 	else if (argc == 4 && string(argv[1]) == "-generate")
 	{
-		// Will be used for automatic generation of the database.
-		cout << "Ground Truth Source: " << argv[2] << endl;
-		cout << "Destination        : " << argv[3] << endl;
-
-		string sourcePath(argv[2]);
-		string destPath(argv[3]);
-
-
-
+		cout << "Starting Generate Mode..." << endl;
+		generateMode(argv[2], argv[3]);
 	}
 	else
 	{
 		printUsage();
-		cout << endl << "Printing Arguments:" << endl;
+		cout << endl << endl << "Printing Arguments:" << endl << endl;
 		for(int i = 0; i < argc; i++)
 		{
 			cout << argv[i] << endl;
@@ -108,7 +95,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 #ifdef _WIN32
-    system("pause");
+    //system("pause");
 #else
     waitKey(0);
 #endif
@@ -192,15 +179,14 @@ void videoInput() {
 void pictureInput(const string path) {
 
     //Philipp: extrahiert den Namen der Datei. Nützlich für Bildvorschau und dem folgenden speichern der Datei. Ist aber relativ unsichere Lösung.
-    std::string imageName = path.substr(0, path.find_last_of(".")).substr(path.find_last_of(separator()) + 1);
-    std::string currentDir = path.substr(0, path.find_last_of(separator()) + 1);
+    std::string imageName = path.substr(0, path.find_last_of(".")).substr(path.find_last_of(separator) + 1);
+    std::string currentDir = path.substr(0, path.find_last_of(separator) + 1);
     cout << endl;
 
     cout << "Current Directory: " << currentDir << endl;
     cout << "Now Loading Image: " << imageName << endl;
 
-    ImageReader reader;
-    Mat image = reader.readImage(path);
+    Mat image = FileSystem::readImage(path);
     if (image.cols > 2000 || image.rows > 2000) {
         cout << "Now resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
         Mat resizedImage(0.25 * image.rows, 0.25 * image.cols, image.type());
@@ -270,7 +256,7 @@ void pictureInput(const string path) {
 
 
     string saveDir = currentDir + "ScannedQR/";
-    makeDir(saveDir);
+    FileSystem::makeDir(saveDir);
 
     string saveImageName = imageName + "_QRScanned.jpg";
     cout << "Saving QR-Tracked Image in " << saveDir + saveImageName << endl;
@@ -286,10 +272,10 @@ void pictureInput(const string path) {
 void testAllImagesAtPath(const string path) {
     cout << "Reading all Files in " << path << " ..." << endl;
 
-	vector<std::string> imageFiles = allImagesAtPath(path);
+	vector<std::string> imageFiles = FileSystem::allImagesAtPath(path);
 
     cout << "Found the following valid Files: " << endl;
-    for (vector<std::string>::iterator it = imageFiles.begin(); it != imageFiles.end(); ++it) {
+    for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
         cout << *it << endl;
     }
     cout << endl;
@@ -300,10 +286,19 @@ void testAllImagesAtPath(const string path) {
 
     if (confirm == 'y') {
         cout << "Now start iterating through all Images.." << endl;
-        for (vector<std::string>::iterator it = imageFiles.begin(); it != imageFiles.end(); ++it) {
+        for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
             pictureInput(*it);
         }
         cout << endl;
         cout << "Finished iterating through all Images." << endl;
     }
+}
+
+void generateMode(const string source, const string dest)
+{
+	cout << "Source     : " << source << endl;
+	cout << "Destination: " << dest << endl;
+
+	Generator gen(source, dest);
+	gen.border();
 }
