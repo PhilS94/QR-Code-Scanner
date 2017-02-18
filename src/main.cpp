@@ -3,7 +3,7 @@
 #include <vector>
 #include <sys/stat.h>
 #include "ImageBinarization.hpp"
-#include "FindPatern.hpp"
+#include "FindPattern.hpp"
 #include "Filesystem.hpp"
 #include "Generate.hpp"
 
@@ -129,18 +129,18 @@ void videoInput() {
 
 
 		Mat contour;
-		FindPatern patern(frame);
-		contour = patern.findAllContours(binary);
+		FindPattern pattern(frame);
+		contour = pattern.findAllContours(binary);
 		namedWindow("Konturen", WINDOW_AUTOSIZE);
 		imshow("Konturen", contour);
 
 		Mat filteredContours;
-		filteredContours = patern.findQRCodePaterns(binary);
+		filteredContours = pattern.findQRCodePatterns(binary);
 
 		//DEBUG
 		cout << "Now getting all Patterns" << endl;
-		vector<FinderPaternModel> fPattern;
-		patern.getAllPaterns(
+		vector<FinderPatternModel> fPattern;
+		pattern.getAllPatterns(
 			fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
 		cv::Scalar color[3];
@@ -161,7 +161,7 @@ void videoInput() {
 
 		//Philipp: fPattern enthält nicht immer 3 Elemente->Vector out of bounds error, tatsächlich immer nur 0 oder 1 Element. vorzeitige Lösung:
 		if (fPattern.size() > 0) {
-			frame = patern.tiltCorrection(frame, fPattern[0]);
+			frame = pattern.tiltCorrection(frame, fPattern[0]);
 		}
 
 		string saveImageName = "QRScanned";
@@ -210,19 +210,19 @@ void pictureInput(const string path) {
 
 	cout << "Now finding Contours..." << endl;
 	Mat contour;
-	FindPatern patern(image);
-	contour = patern.findAllContours(binary);
+	FindPattern pattern(image);
+	contour = pattern.findAllContours(binary);
 
 
 	cout << "Now filtering Contours..." << endl;
 	Mat filteredContours;
-	filteredContours = patern.findQRCodePaterns(binary);
+	filteredContours = pattern.findQRCodePatterns(binary);
 	//    namedWindow(imageName+" Konturen #2", WINDOW_AUTOSIZE);
 	//    imshow(imageName+" Konturen #2", filteredContours);
 
 	cout << "Now getting all Patterns" << endl;
-	vector<FinderPaternModel> fPattern;
-	patern.getAllPaterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+	vector<FinderPatternModel> fPattern;
+	pattern.getAllPatterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
 	cv::Scalar color[3];
 	color[0] = cv::Scalar(0, 0, 255);
@@ -244,8 +244,8 @@ void pictureInput(const string path) {
 	Mat QRCode;
 	Mat QRCodeTrueSize;
 	if (fPattern.size() > 0) {
-		QRCode = patern.tiltCorrection(image, fPattern[0]);
-		QRCodeTrueSize = patern.normalize(QRCode);
+		QRCode = pattern.tiltCorrection(image, fPattern[0]);
+		QRCodeTrueSize = pattern.normalize(QRCode);
 		//namedWindow(imageName + " QR Code1", WINDOW_AUTOSIZE);
 		//imshow(imageName + " QR Code1", QRCode);
 	}

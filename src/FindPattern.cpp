@@ -1,7 +1,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "FindPatern.hpp"
+#include "FindPattern.hpp"
 
 /*
 bool isLexicographicMax(Point a, Point b, Point c) {
@@ -48,11 +48,11 @@ bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point
 }
 
 
-FindPatern::FindPatern(Mat originalImage) {
+FindPattern::FindPattern(Mat originalImage) {
 	this->originalImage = originalImage;
 }
 
-Mat FindPatern::findAllContours(Mat image) {
+Mat FindPattern::findAllContours(Mat image) {
 
 	float minPix = 8.00;
 	float maxPix = 0.2 * image.cols * image.rows;
@@ -87,7 +87,7 @@ Mat FindPatern::findAllContours(Mat image) {
 	return contourImage;
 }
 
-Mat FindPatern::findQRCodePaterns(Mat image) {
+Mat FindPattern::findQRCodePatterns(Mat image) {
 
 	sort(contours.begin(), contours.end(), compareContourAreas);
 
@@ -127,7 +127,7 @@ Mat FindPatern::findQRCodePaterns(Mat image) {
 
 }
 
-bool FindPatern::isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out) {
+bool FindPattern::isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out) {
 	if (in.size() > 0 && out.size() > 0) {
 		for (int i = 0; i < in.size(); i++) {
 			if (pointPolygonTest(out, in[i], false) <= 0) return false;
@@ -138,7 +138,7 @@ bool FindPatern::isContourInsideContour(std::vector<cv::Point> in, std::vector<c
 	return false;
 }
 
-bool FindPatern::isTrapez(std::vector<cv::Point> in) {
+bool FindPattern::isTrapez(std::vector<cv::Point> in) {
 
 	std::vector<cv::Point> approximatedPolygon;
 	double epsilon = 0.1 * cv::arcLength(in, true);
@@ -147,7 +147,7 @@ bool FindPatern::isTrapez(std::vector<cv::Point> in) {
 	return ret;
 }
 
-Point FindPatern::calculateMassCentres(std::vector<cv::Point> in) {
+Point FindPattern::calculateMassCentres(std::vector<cv::Point> in) {
 
 	int xCoordinates[] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
 	int yCoordinates[] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
@@ -179,7 +179,7 @@ Point FindPatern::calculateMassCentres(std::vector<cv::Point> in) {
 	return point;
 }
 
-Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern) {
+Mat FindPattern::tiltCorrection(Mat image, FinderPatternModel fPattern) {
 	vector<Point2f> vecsrc;
 	vector<Point2f> vecdst;
 
@@ -188,9 +188,9 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern) {
 	vecdst.push_back(Point2f(20, 120));
 
 
-	vecsrc.push_back(fPatern.topleft);
-	vecsrc.push_back(fPatern.topright);
-	vecsrc.push_back(fPatern.bottomleft);
+	vecsrc.push_back(fPattern.topleft);
+	vecsrc.push_back(fPattern.topright);
+	vecsrc.push_back(fPattern.bottomleft);
 
 
 	Mat affineTrans = getAffineTransform(vecsrc, vecdst);
@@ -205,7 +205,7 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern) {
 	return qrcode_bin;
 }
 
-Mat FindPatern::normalize(Mat image) {
+Mat FindPattern::normalize(Mat image) {
 	if (image.cols != image.rows) {
 		throw std::exception("Can not normalize a non-quadratic Image");
 	}
@@ -232,12 +232,12 @@ Mat FindPatern::normalize(Mat image) {
 	return trueSizeQRImage;
 }
 
-int FindPatern::getVersionNumber(Mat image) {
+int FindPattern::getVersionNumber(Mat image) {
 	//TODO: Lese Versionsnummer des QRCodes ab
 	return 1;
 }
 
-int FindPatern::getModules(int versionNumber) {
+int FindPattern::getModules(int versionNumber) {
 	if ((versionNumber < 1) || (versionNumber>40)) {
 		throw std::exception("Versionnumber of QRCode is not legit.");
 	}
@@ -251,7 +251,7 @@ int FindPatern::getModules(int versionNumber) {
 	*/
 }
 
-FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {
+FinderPatternModel FindPattern::getFinderPatternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {
 	Point pt1 = calculateMassCentres(cont1);
 	Point pt2 = calculateMassCentres(cont2);
 	Point pt3 = calculateMassCentres(cont3);
@@ -281,12 +281,12 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
 
 	//Überprüfe die Orientierung des Dreiecks a,b,c und entscheide ob das Dreieck a,b,c oder a,c,b das gewünnschte Dreieck ist.
 	if (getOrientation(a, b, c) > 0) {
-		FinderPaternModel paternModel(a, b, c);
-		return paternModel;
+		FinderPatternModel patternModel(a, b, c);
+		return patternModel;
 	}
 	else if (getOrientation(a, b, c) < 0) {
-		FinderPaternModel paternModel(a, c, b);
-		return paternModel;
+		FinderPatternModel patternModel(a, c, b);
+		return patternModel;
 	}
 	else {
 		throw new exception("The three detected Points lie on a line! No legit QR-Code!");
@@ -295,7 +295,7 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
 
 
 /*
-FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {
+FinderPatternModel FindPattern::getFinderPatternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {
 
 
 	Point pt1 = calculateMassCentres(cont1);
@@ -328,51 +328,51 @@ FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<P
 	if (getOrientation(p1, p2, p3) < 0) {
 		if (isLexicographicMax(p1, p2, p3)) {
 			if (p1.x < p2.x) {
-				FinderPaternModel paternModel(p3, p2, p1);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p2, p1);
+				return patternModel;
 			}
 			else {
-				FinderPaternModel paternModel(p3, p1, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p1, p2);
+				return patternModel;
 			}
 		}
 		else {
 			if (p1.x < p2.x) {
-				FinderPaternModel paternModel(p3, p1, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p1, p2);
+				return patternModel;
 			}
 			else {
-				FinderPaternModel paternModel(p3, p1, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p1, p2);
+				return patternModel;
 			}
 		}
 	}
 	else {
 		if (isLexicographicMax(p1, p3, p2)) {
 			if (p1.y < p3.y) {
-				FinderPaternModel paternModel(p1, p3, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p1, p3, p2);
+				return patternModel;
 			}
 			else {
-				FinderPaternModel paternModel(p3, p1, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p1, p2);
+				return patternModel;
 			}
 		}
 		else {
 			if (p2.y < p3.y) {
-				FinderPaternModel paternModel(p3, p1, p2);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p1, p2);
+				return patternModel;
 			}
 			else {
-				FinderPaternModel paternModel(p3, p2, p1);
-				return paternModel;
+				FinderPatternModel patternModel(p3, p2, p1);
+				return patternModel;
 			}
 		}
 	}
 }
 */
 
-void FindPatern::getAllPaterns(vector<FinderPaternModel> &paterns) {
+void FindPattern::getAllPatterns(vector<FinderPatternModel> &patterns) {
 
 	std::cout << "trueContoures Size: " << trueContoures.size() << endl;
 
@@ -380,7 +380,7 @@ void FindPatern::getAllPaterns(vector<FinderPaternModel> &paterns) {
 	//Vorzeitige Lösung:
 	if (trueContoures.size() >= 3) {
 		for (int i = 0; i < trueContoures.size(); i++) {
-			paterns.push_back(getFinderPaternModel(trueContoures[i][trueContoures[i].size() - 1],
+			patterns.push_back(getFinderPatternModel(trueContoures[i][trueContoures[i].size() - 1],
 				trueContoures[i++][trueContoures[i].size() - 1],
 				trueContoures[i++][trueContoures[i].size() - 1]));
 		}

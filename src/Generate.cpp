@@ -62,22 +62,26 @@ void Generator::scale()
 
 	string saveFolder = fs.makeDir(dest, "02_scale");
 
-	float scale = 10;
-	for (auto path : workingFiles)
+	// TODO: Experiment with different interpolation types.
+	auto interpolationType = INTER_NEAREST;
+	string interpolationID = "_in_";
+
+	for(float scale = 2.0f; scale < 10.1f; scale += (1.0f/3.0f))
 	{
-		Mat image = fs.readImage(path);
-		Mat scaledImage;
+		for (auto path : workingFiles)
+		{
+			Mat image = fs.readImage(path);
+			Mat scaledImage;
 
-		Size scaled = image.size();
+			Size scaled = image.size();
 
-		// TODO: Experiment with different interpolation types.
-		resize(image, scaledImage, Size(), scale, scale, INTER_NEAREST);
+			resize(image, scaledImage, Size(), scale, scale, interpolationType);
 
-		// TODO: Imporve name conversion.
-		string filename = fs.toFileName(path) + "-s" + to_string(scale) + fs.toExtension(path, true);
-		fs.saveImage(saveFolder, filename, scaledImage);
+			string filename = fs.toFileName(path) + "-s" + interpolationID + to_string(scale).substr(0, 4) + fs.toExtension(path, true);
+			fs.saveImage(saveFolder, filename, scaledImage);
 
-		generated.push_back(fs.toPath(saveFolder, filename));
+			generated.push_back(fs.toPath(saveFolder, filename));
+		}
 	}
 
 	cout << "Generated the following scaled images:" << endl;

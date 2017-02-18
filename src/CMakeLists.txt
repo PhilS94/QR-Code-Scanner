@@ -12,10 +12,10 @@ set(SOURCE_FILES
         main.cpp
         ImageBinarization.hpp
         ImageBinarization.cpp
-        FindPatern.hpp
-        FindPatern.cpp
-        FinderPaternModel.cpp
-        FinderPaternModel.hpp
+        FindPattern.hpp
+        FindPattern.cpp
+        FinderPatternModel.cpp
+        FinderPatternModel.hpp
         Filesystem.cpp
         Filesystem.hpp
         Generate.cpp
