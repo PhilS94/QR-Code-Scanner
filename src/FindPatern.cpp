@@ -3,6 +3,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "FindPatern.hpp"
 
+/*
 bool isLexicographicMax(Point a, Point b, Point c) {
 	bool retA = false;
 	bool retB = false;
@@ -18,6 +19,7 @@ bool isLexicographicMax(Point a, Point b, Point c) {
 	return retA && retB;
 
 }
+*/
 
 int getOrientation(Point a, Point b, Point c) {
 	return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x));
@@ -204,7 +206,49 @@ Mat FindPatern::tiltCorrection(Mat image, FinderPaternModel fPatern) {
 }
 
 Mat FindPatern::normalize(Mat image) {
-	return Mat();
+	if (image.cols != image.rows) {
+		throw std::exception("Can not normalize a non-quadratic Image");
+	}
+
+	int versionNumber = getVersionNumber(image);
+	int modules = getModules(versionNumber);
+
+	Mat scaledImage;
+	resize(image, scaledImage, Size(), 2, 2, CV_INTER_LINEAR);
+
+	// Create modules x modules Grid over scaledImage and use the Pixel at the center of the each cell as the Pixel for the trueSizedQRImage
+	Mat trueSizeQRImage = Mat(modules, modules, CV_8U);
+	float gridLength = scaledImage.cols / modules;
+	Point startPoint = Point(gridLength / 2, gridLength / 2);
+
+	for (int x = 0; x < modules; x++) {
+		for (int y = 0; y < modules; y++) {
+			Point centerOfCell = startPoint + Point(x*gridLength, y*gridLength);
+			centerOfCell = Point(cvRound(centerOfCell.x), cvRound(centerOfCell.y));
+			trueSizeQRImage.at<uchar>(x, y) = scaledImage.at<uchar>(centerOfCell);
+		}
+	}
+
+	return trueSizeQRImage;
+}
+
+int FindPatern::getVersionNumber(Mat image) {
+	//TODO: Lese Versionsnummer des QRCodes ab
+	return 1;
+}
+
+int FindPatern::getModules(int versionNumber) {
+	if ((versionNumber < 1) || (versionNumber>40)) {
+		throw std::exception("Versionnumber of QRCode is not legit.");
+	}
+	return 21 + (versionNumber - 1) * 4;
+	/*This return the following:
+	1:	21
+	2:	25
+	3:	29
+	4:	33
+	...
+	*/
 }
 
 FinderPaternModel FindPatern::getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3) {

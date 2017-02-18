@@ -6,6 +6,8 @@
 #include <direct.h>
 #endif
 
+#define HAS_OPENCV3 1
+
 using namespace std;
 
 cv::Mat FileSystem::readImage(const string& fullPath)
@@ -31,17 +33,18 @@ string FileSystem::toExtension(const string& fullPath, bool keepDot)
 
 string FileSystem::toFileName(const string& fullPath, bool keepExtension)
 {
-	if(keepExtension)
+	if (keepExtension)
 	{
 		return fullPath.substr(fullPath.find_last_of(separator) + 1);
-	} else {
+	}
+	else {
 		return fullPath.substr(0, fullPath.find_last_of(".")).substr(fullPath.find_last_of(separator) + 1);
 	}
 }
 
 string FileSystem::toFolderPath(const string& fullPath, bool keepSeparator)
 {
-	if(keepSeparator)
+	if (keepSeparator)
 	{
 		return fullPath.substr(0, fullPath.find_last_of(separator) + 1);
 	}
@@ -63,7 +66,15 @@ string FileSystem::toPath(const string& folderPath, const string& fileName, cons
 vector<string> FileSystem::allFilesAtPath(const string& folderPath)
 {
 	vector<string> result;
-	cv::glob(folderPath, result, false);
+	#ifdef HAS_OPENCV3
+		vector<cv::String> tempResult;
+		cv::glob(folderPath, tempResult, false);
+		for (auto it = tempResult.begin(); it != tempResult.end(); ++it) {
+			result.push_back(std::string(*it));
+		}
+	#else
+		cv::glob(folderPath, result, false);
+	#endif
 	return result;
 }
 

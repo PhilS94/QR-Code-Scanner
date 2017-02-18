@@ -27,6 +27,10 @@ public:
 
 	Mat FindPatern::normalize(Mat image);
 
+	int FindPatern::getVersionNumber(Mat image);
+
+	int FindPatern::getModules(int versionNumber);
+
     FinderPaternModel getFinderPaternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3);
 
     void getAllPaterns(vector<FinderPaternModel> &paterns);
