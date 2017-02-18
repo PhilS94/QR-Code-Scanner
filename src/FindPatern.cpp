@@ -44,7 +44,7 @@ bool compareContoureVectors(vector<vector<Point>> contours1, vector<vector<Point
 		j += abs(contourArea(Mat(contours2[k])));
 	}
 
-	return (i >= j);
+	return (i > j);
 }
 
 

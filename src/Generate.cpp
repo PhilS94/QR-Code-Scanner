@@ -53,7 +53,7 @@ void Generator::border()
 	workingFiles = generated;
 }
 
-// TODO: Generate none uniform scale!
+// MAYBE: Generate non-uniform scales.
 void Generator::scale()
 {
 	cout << "Generating scaled images from ground truth with border." << endl;
