@@ -5,7 +5,7 @@
 cmake-build-*/
 
 # Visual Studio
-/x64/Debug
+/x64
 /Debug
 /.vs/qrcode/v14
 /qrcode.vcxproj.user
@@ -14,3 +14,7 @@ cmake-build-*/
 /qrcode.VC.VC.opendb
 /qrcode.VC.db
 /qrcode.sln
+
+# Generated Files
+*/ScannedQR
+*/01_border

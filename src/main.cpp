@@ -4,11 +4,7 @@
 #include "ImageReader.hpp"
 #include "ImageBinarization.hpp"
 #include "FindPatern.hpp"
-
-#ifdef _WIN32
-#include <direct.h>
-#endif
-
+#include "Filesystem.hpp"
 
 using namespace std;
 using namespace cv;
@@ -16,29 +12,6 @@ using namespace cv;
 void videoInput();
 
 void pictureInput(const string path);
-
-
-inline char separator() {
-#ifdef _WIN32
-    return '\\';
-#else
-    return '/';
-#endif
-};
-
-inline void makeDir(string strPath) {
-
-    struct stat info;
-    const char *tmp = strPath.c_str();
-
-    if (stat(tmp, &info) != 0) {
-#ifdef _WIN32
-        _mkdir(strPath.c_str());
-#else
-        mkdir(strPath.c_str(), 0777);
-#endif
-    }
-}
 
 /**
 Philipp: L‰dt alle Bilder am angegebenen Pfad und wendet QR-Code Algorithmus auf sie an.
@@ -77,10 +50,14 @@ void printUsage()
 			"|       Read image stored at input-path and save the detection result       |\n"
 			"|       to output-path.                                                     |\n"
 			"|                                                                           |\n"
+			"|     - 2 path values and \"-generate\": Generate Mode.                       |\n"
+			"|       Read image stored at input-path and save the detection result       |\n"
+			"|       to output-path.                                                     |\n"
+			"|                                                                           |\n"
 			"| Usage: <main>                                                             |\n"
 			"| Usage: <main> [<folder-path>]                                             |\n"
 			"| Usage: <main> [<input-path>] [<output-path>]                              |\n"
-			"| Usage: <main> [-generate] [<ground_truth-path>] [<output-path>]           |\n"
+			"| Usage: <main> [-generate] [<ground-truth-path>] [<output-path>]           |\n"
 			"+---------------------------------------------------------------------------+" << endl;
 }
 
@@ -111,8 +88,14 @@ int main(int argc, const char *argv[]) {
 	else if (argc == 4 && string(argv[1]) == "-generate")
 	{
 		// Will be used for automatic generation of the database.
-		cout << "Source: " << argv[2] << endl;
-		cout << "Destination: " << argv[3] << endl;
+		cout << "Ground Truth Source: " << argv[2] << endl;
+		cout << "Destination        : " << argv[3] << endl;
+
+		string sourcePath(argv[2]);
+		string destPath(argv[3]);
+
+
+
 	}
 	else
 	{
@@ -303,21 +286,10 @@ void pictureInput(const string path) {
 void testAllImagesAtPath(const string path) {
     cout << "Reading all Files in " << path << " ..." << endl;
 
-    vector<cv::String> allFiles;
-    vector<std::string> validFiles;
-    cv::glob(path, allFiles, false); // Liest alle Dateinamen am gegebenen Pfad in allFiles ein
-
-    //Filter alle Dateien auﬂer .jpg und .png aus, ggf. noch andere zulassen?
-    for (vector<String>::iterator it = allFiles.begin(); it != allFiles.end(); ++it) {
-        std::string file = String(*it);
-        std::string fileType = file.substr(file.find_last_of(".") + 1);
-        if ((fileType == "jpg") || (fileType == "png")) {
-            validFiles.push_back(file);
-        }
-    }
+	vector<std::string> imageFiles = allImagesAtPath(path);
 
     cout << "Found the following valid Files: " << endl;
-    for (vector<std::string>::iterator it = validFiles.begin(); it != validFiles.end(); ++it) {
+    for (vector<std::string>::iterator it = imageFiles.begin(); it != imageFiles.end(); ++it) {
         cout << *it << endl;
     }
     cout << endl;
@@ -328,7 +300,7 @@ void testAllImagesAtPath(const string path) {
 
     if (confirm == 'y') {
         cout << "Now start iterating through all Images.." << endl;
-        for (vector<std::string>::iterator it = validFiles.begin(); it != validFiles.end(); ++it) {
+        for (vector<std::string>::iterator it = imageFiles.begin(); it != imageFiles.end(); ++it) {
             pictureInput(*it);
         }
         cout << endl;
