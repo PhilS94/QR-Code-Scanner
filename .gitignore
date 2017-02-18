@@ -16,5 +16,6 @@ cmake-build-*/
 /qrcode.sln
 
 # Generated Files
-*/ScannedQR
-*/01_border
+ScannedQR
+01_border
+02_scale

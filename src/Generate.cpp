@@ -3,6 +3,7 @@
 #include "Generate.hpp"
 #include "Filesystem.hpp"
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/tracking.hpp>
 
 
 using namespace std;
@@ -27,9 +28,7 @@ void Generator::border()
 	vector<string> generated;
 	FileSystem fs;
 
-	// TODO: Maybe delete the folder before generating?
-	string saveFolder = dest + separator + "01_border";
-	fs.makeDir(saveFolder);
+	string saveFolder = fs.makeDir(dest, "01_border");
 
 	for(auto path : workingFiles)
 	{
@@ -50,10 +49,44 @@ void Generator::border()
 	{
 		cout << path << endl;
 	}
+
+	workingFiles = generated;
 }
 
+// TODO: Generate none uniform scale!
 void Generator::scale()
 {
+	cout << "Generating scaled images from ground truth with border." << endl;
+	vector<string> generated;
+	FileSystem fs;
+
+	string saveFolder = fs.makeDir(dest, "02_scale");
+
+	float scale = 10;
+	for (auto path : workingFiles)
+	{
+		Mat image = fs.readImage(path);
+		Mat scaledImage;
+
+		Size scaled = image.size();
+
+		// TODO: Experiment with different interpolation types.
+		resize(image, scaledImage, Size(), scale, scale, INTER_NEAREST);
+
+		// TODO: Imporve name conversion.
+		string filename = fs.toFileName(path) + "-s" + to_string(scale) + fs.toExtension(path, true);
+		fs.saveImage(saveFolder, filename, scaledImage);
+
+		generated.push_back(fs.toPath(saveFolder, filename));
+	}
+
+	cout << "Generated the following scaled images:" << endl;
+	for (auto path : generated)
+	{
+		cout << path << endl;
+	}
+
+	workingFiles = generated;
 }
 
 void Generator::rotate()

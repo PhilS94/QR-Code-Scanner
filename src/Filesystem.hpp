@@ -31,7 +31,9 @@ public:
 
 	static void saveImage(const std::string& folderPath, const std::string& fileName, const cv::Mat& mat);
 
-	static void makeDir(std::string &folderPath);
+	static void makeDir(const std::string& fullPath);
+
+	static std::string makeDir(const std::string& folderPath, const char* folderName);
 };
 
 #endif // FILESYSTEM_HPP
