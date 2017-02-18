@@ -2,6 +2,7 @@
 #include <iostream>
 #include "Generate.hpp"
 #include "Filesystem.hpp"
+#include <opencv2/highgui/highgui.hpp>
 
 
 using namespace std;
@@ -27,26 +28,28 @@ void Generator::border()
 	FileSystem fs;
 
 	// TODO: Maybe delete the folder before generating?
-	string folder = dest + separator + "01_border";
-	fs.makeDir(folder);
+	string saveFolder = dest + separator + "01_border";
+	fs.makeDir(saveFolder);
 
 	for(auto path : workingFiles)
 	{
 		Mat image = fs.readImage(path);
 
-		Size borderImageSize = image.size();
-		borderImageSize.height += 2;
-		borderImageSize.width += 2;
-
-		Mat borderImage(borderImageSize, image.type());
+		Mat borderImage(image.cols + 2, image.rows + 2, image.type());
 		borderImage.setTo(Scalar(255, 255, 255));
-		// TODO: Fill the border with white elements.
+		image.copyTo(borderImage(Rect(1, 1, image.cols, image.rows)));
 
-		
-		fs.saveImage(folder, "test.png", borderImage);
-		break;
+		string filename = fs.toFileName(path) + "-b" + fs.toExtension(path, true);
+		fs.saveImage(saveFolder, filename, borderImage);
+
+		generated.push_back(fs.toPath(saveFolder, filename));
 	}
 
+	cout << "Generated the following qrcodes with borders:" << endl;
+	for(auto path : generated)
+	{
+		cout << path << endl;
+	}
 }
 
 void Generator::scale()

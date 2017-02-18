@@ -16,6 +16,51 @@ void FileSystem::saveImage(const std::string& folderPath, const std::string& fil
 	cv::imwrite(folderPath + separator + fileName, mat);
 }
 
+std::string FileSystem::toExtension(const std::string& fullPath, bool keepDot)
+{
+	// TODO: Make sure this always returns a valid extension.
+	if (keepDot)
+	{
+		return fullPath.substr(fullPath.find_last_of("."));
+	}
+	else {
+		return fullPath.substr(fullPath.find_last_of(".") + 1);
+	}
+}
+
+std::string FileSystem::toFileName(const std::string& fullPath, bool keepExtension)
+{
+	// TODO: Make sure this always returns a valid file name.
+	if(keepExtension)
+	{
+		return fullPath.substr(fullPath.find_last_of(separator) + 1);
+	} else {
+		return fullPath.substr(0, fullPath.find_last_of(".")).substr(fullPath.find_last_of(separator) + 1);
+	}
+}
+
+std::string FileSystem::toFolderPath(const std::string& fullPath, bool keepSeparator)
+{
+	// TODO: Make sure this always returns a valid path.
+	if(keepSeparator)
+	{
+		return fullPath.substr(0, fullPath.find_last_of(separator) + 1);
+	}
+	else {
+		return fullPath.substr(0, fullPath.find_last_of(separator));
+	}
+}
+
+std::string FileSystem::toPath(const std::string& folderPath, const std::string& fileName)
+{
+	return folderPath + separator + fileName;
+}
+
+std::string FileSystem::toPath(const std::string& folderPath, const std::string& fileName, const std::string& extension)
+{
+	return folderPath + separator + fileName + "." + extension;
+}
+
 std::vector<std::string> FileSystem::allFilesAtPath(const std::string& folderPath)
 {
 	std::vector<std::string> result;

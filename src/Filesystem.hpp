@@ -13,15 +13,25 @@
 class FileSystem
 {
 public:
-	static inline std::vector<std::string> allFilesAtPath(const std::string& folderPath);
+	static std::string toExtension(const std::string& fullPath, bool keepDot = false);
 
-	static inline std::vector<std::string> allImagesAtPath(const std::string& folderPath);
+	static std::string toFileName(const std::string& fullPath, bool keepExtension = false);
 
-	static inline cv::Mat readImage(const std::string& filePath);
+	static std::string toFolderPath(const std::string& fullPath, bool keepSeparator = false);
 
-	static inline void saveImage(const std::string& folderPath, const std::string& fileName, const cv::Mat& mat);
+	static std::string toPath(const std::string& folderPath, const std::string& fileName);
 
-	static inline void makeDir(std::string &path);
+	static std::string toPath(const std::string& folderPath, const std::string& fileName, const std::string& extension);
+
+	static std::vector<std::string> allFilesAtPath(const std::string& folderPath);
+
+	static std::vector<std::string> allImagesAtPath(const std::string& folderPath);
+
+	static cv::Mat readImage(const std::string& fullPath);
+
+	static void saveImage(const std::string& folderPath, const std::string& fileName, const cv::Mat& mat);
+
+	static void makeDir(std::string &folderPath);
 };
 
 #endif // FILESYSTEM_HPP

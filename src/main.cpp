@@ -1,5 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
+#include <vector>
 #include <sys/stat.h>
 #include "ImageBinarization.hpp"
 #include "FindPatern.hpp"
@@ -95,7 +96,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 #ifdef _WIN32
-    //system("pause");
+    system("pause");
 #else
     waitKey(0);
 #endif
@@ -179,8 +180,8 @@ void videoInput() {
 void pictureInput(const string path) {
 
     //Philipp: extrahiert den Namen der Datei. Nützlich für Bildvorschau und dem folgenden speichern der Datei. Ist aber relativ unsichere Lösung.
-    std::string imageName = path.substr(0, path.find_last_of(".")).substr(path.find_last_of(separator) + 1);
-    std::string currentDir = path.substr(0, path.find_last_of(separator) + 1);
+	std::string imageName = FileSystem::toFileName(path);
+	std::string currentDir = FileSystem::toFolderPath(path, true);
     cout << endl;
 
     cout << "Current Directory: " << currentDir << endl;
