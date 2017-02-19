@@ -192,14 +192,11 @@ void Generator::perspective()
 				continue;
 
 			Mat image = fs.readImage(path);
-			Mat rotatedImage;
 
-			Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
-			Mat rot_mat = getRotationMatrix2D(image_center, degree, 1.0);
-			warpAffine(image, rotatedImage, rot_mat, image.size());
 
-			string filename = fs.toFileName(path) + "-r" + to_string(degree).substr(0, to_string(degree).find_last_of(".")) + fs.toExtension(path, true);
-			fs.saveImage(saveFolder, filename, rotatedImage);
+
+			string filename = fs.toFileName(path) + "-p" + fs.toExtension(path, true);
+			fs.saveImage(saveFolder, filename, image);
 
 			generated.push_back(fs.toPath(saveFolder, filename));
 		}

@@ -10,10 +10,12 @@
 using namespace std;
 using namespace cv;
 
-void videoInput();
-void pictureInput(const string path);
-void testAllImagesAtPath(const string path);
-void generateMode(const string source, const string dest);
+void findQRCode(const string path);
+
+void cameraMode();
+void folderMode(const string& path);
+void evaluationMode(const string& source, const string& dest);
+void generateMode(const string& source, const string& dest);
 
 void printLogo()
 {
@@ -63,7 +65,7 @@ int main(int argc, const char *argv[]) {
 	if (argc == 1)
 	{
 		cout << "Starting Camera Mode..." << endl;
-		videoInput();
+		cameraMode();
 	}
 	else if (argc == 2)
 	{
@@ -71,7 +73,7 @@ int main(int argc, const char *argv[]) {
 		cout << argv[1] << endl;
 		string s;
 		s += argv[1];
-		testAllImagesAtPath(s);
+		folderMode(s);
 	}
 	else if (argc == 3)
 	{
@@ -104,10 +106,13 @@ int main(int argc, const char *argv[]) {
 	return 0;
 }
 
-void videoInput() {
+void cameraMode() {
 	VideoCapture cap(0); // open the default camera
 	if (!cap.isOpened())  // check if we succeeded
-		cout << "Errorcode: -1" << endl;
+	{
+		cout << "Could not open camera." << endl;
+		return;
+	}
 
 	namedWindow("Video", 1);
 	while (1) {
@@ -177,7 +182,7 @@ void videoInput() {
 }
 
 
-void pictureInput(const string path) {
+void findQRCode(const string path) {
 
 	//Philipp: extrahiert den Namen der Datei. Nützlich für Bildvorschau und dem folgenden speichern der Datei. Ist aber relativ unsichere Lösung.
 	std::string imageName = FileSystem::toFileName(path);
@@ -255,8 +260,8 @@ void pictureInput(const string path) {
 	Alternativ setze saveDir auf leeren String "", dann werden alle Bilder direkt im ProjektOrdner gespeichert.
 	*/
 
-	string saveDir = currentDir + "ScannedQR/";
-	FileSystem::makeDir(saveDir);
+	string saveDir = FileSystem::makeDir(currentDir, "ScannedQR");
+	
 
 	string saveImageName = imageName + "_1_QRScanned.jpg";
 	cout << "Saving QR-Tracked Image in " << saveDir + saveImageName << endl;
@@ -275,10 +280,10 @@ void pictureInput(const string path) {
 	}
 }
 
-void testAllImagesAtPath(const string path) {
-	cout << "Reading all Files in " << path << " ..." << endl;
+void folderMode(const string& source) {
+	cout << "Reading all Files in " << source << " ..." << endl;
 
-	vector<std::string> imageFiles = FileSystem::allImagesAtPath(path);
+	vector<std::string> imageFiles = FileSystem::allImagesAtPath(source);
 
 	cout << "Found the following valid Files: " << endl;
 	for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
@@ -293,14 +298,23 @@ void testAllImagesAtPath(const string path) {
 	if (confirm == 'y') {
 		cout << "Now start iterating through all Images.." << endl;
 		for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
-			pictureInput(*it);
+			findQRCode(*it);
 		}
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
 	}
+	else
+	{
+		cout << endl << "Aborted." << endl << endl;
+	}
 }
 
-void generateMode(const string source, const string dest)
+void evaluationMode(const string& source, const string& dest)
+{
+	// TODO: Implement.
+}
+
+void generateMode(const string& source, const string& dest)
 {
 	cout << "Source     : " << source << endl;
 	cout << "Destination: " << dest << endl;
