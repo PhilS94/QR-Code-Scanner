@@ -214,7 +214,7 @@ void Generator::perspective()
 				}
 
 				//If StepX + StepY equals approx. 1, the stepPoint would lie on the line between bottomLeft and topRight 
-				//The minSetpDistanceFromLine determines how close the stepPoint can be to this line
+				//The minStepDistanceFromLine determines how close the stepPoint can be to this line
 				if (abs(stepX + stepY - 1) < minStepDistanceFromLine) {
 					continue;
 				}
@@ -226,7 +226,7 @@ void Generator::perspective()
 
 				count++;
 
-				//Skip every skip-th Image in order to only get the desired amount of transformed Images
+				//Only use every skip-th Image in order to get the desired amount of transformed Images
 				if (count % skip) {
 					continue;
 				}
