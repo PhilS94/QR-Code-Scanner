@@ -196,7 +196,12 @@ Mat FindPattern::tiltCorrection(Mat image, FinderPatternModel fPattern) {
 	Mat affineTrans = getAffineTransform(vecsrc, vecdst);
 	Mat warped = Mat(image.size(), image.type());
 	warpAffine(image, warped, affineTrans, image.size());
-	Mat qrcode_color = warped(Rect(0, 0, 145, 145));
+
+	// TODO: Improve warp target roi size!
+	int width = image.size().width < 145 ? image.size().width : 145;
+	int height = image.size().height < 145 ? image.size().height : 145;
+
+	Mat qrcode_color = warped(Rect(0, 0, width, height));
 	Mat qrcode_gray;
 	cvtColor(qrcode_color, qrcode_gray, CV_BGR2GRAY);
 	Mat qrcode_bin;
@@ -207,7 +212,7 @@ Mat FindPattern::tiltCorrection(Mat image, FinderPatternModel fPattern) {
 
 Mat FindPattern::normalize(Mat image) {
 	if (image.cols != image.rows) {
-		throw std::exception("Can not normalize a non-quadratic Image");
+		throw std::exception("Can't normalize a non-quadratic Image");
 	}
 
 	int versionNumber = getVersionNumber(image);

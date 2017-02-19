@@ -30,15 +30,17 @@ void Generator::border()
 
 	string saveFolder = fs.makeDir(dest, "01_border");
 
+	int borderSize = 1;
+
 	for(auto path : workingFiles)
 	{
 		Mat image = fs.readImage(path);
 
-		Mat borderImage(image.cols + 2, image.rows + 2, image.type());
+		Mat borderImage(image.cols + 2 * borderSize, image.rows + 2 * borderSize, image.type());
 		borderImage.setTo(Scalar(255, 255, 255));
-		image.copyTo(borderImage(Rect(1, 1, image.cols, image.rows)));
+		image.copyTo(borderImage(Rect(borderSize, borderSize, image.cols, image.rows)));
 
-		string filename = fs.toFileName(path) + "-b" + fs.toExtension(path, true);
+		string filename = fs.toFileName(path) + "-b" + to_string(borderSize) + fs.toExtension(path, true);
 		fs.saveImage(saveFolder, filename, borderImage);
 
 		generated.push_back(fs.toPath(saveFolder, filename));
@@ -49,6 +51,7 @@ void Generator::border()
 	{
 		cout << path << endl;
 	}
+	cout << endl;
 
 	workingFiles = generated;
 }
@@ -64,9 +67,10 @@ void Generator::scale()
 
 	// TODO: Experiment with different interpolation types.
 	auto interpolationType = INTER_NEAREST;
-	string interpolationID = "_in_";
+	string interpolationID = "in";
 
-	for(float scale = 2.0f; scale < 10.1f; scale += (1.0f/3.0f))
+	// TODO: Experiment with different scale values and step sizes.
+	for(float scale = 7.0f; scale < 9.1f; scale += (2.0f/3.0f))
 	{
 		for (auto path : workingFiles)
 		{
@@ -89,6 +93,7 @@ void Generator::scale()
 	{
 		cout << path << endl;
 	}
+	cout << endl;
 
 	workingFiles = generated;
 }
