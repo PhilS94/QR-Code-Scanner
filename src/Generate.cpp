@@ -25,7 +25,7 @@ Generator::Generator(const string source, const string dest)
 
 void Generator::border()
 {
-	cout << "Generating ground truth images with border." << endl;
+	cout << "Generating ground truth images with border..." << endl;
 	vector<string> generated;
 	FileSystem fs;
 
@@ -59,7 +59,7 @@ void Generator::border()
 // MAYBE: Generate non-uniform scales.
 void Generator::scale()
 {
-	cout << "Generating scaled images from ground truth with border." << endl;
+	cout << "Generating scaled images from ground truth with border..." << endl;
 	vector<string> generated;
 	FileSystem fs;
 
@@ -112,7 +112,7 @@ void Generator::scale()
 
 void Generator::rotate()
 {
-	cout << "Generating rotated images from scaled images." << endl;
+	cout << "Generating rotated images from scaled images..." << endl;
 	vector<string> generated;
 	FileSystem fs;
 
@@ -124,19 +124,21 @@ void Generator::rotate()
 	int count = 0;
 	int desiredFiles = 500;
 	int estimatedFiles = workingFiles.size() * (max_rotation / step_size);
-	if(estimatedFiles < desiredFiles)
+	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
+	if (estimatedFiles < desiredFiles)
 	{
 		estimatedFiles = desiredFiles;
 	}
 
 	int skip = estimatedFiles / desiredFiles;
+	cout << "Use every " << skip << ". image." << endl;
 
 	for (float degree = step_size; degree < max_rotation; degree += step_size)
 	{
 		for (auto path : workingFiles)
 		{
 			count++;
-			if(count % skip)
+			if (count % skip)
 				continue;
 
 			Mat image = fs.readImage(path);
@@ -153,55 +155,6 @@ void Generator::rotate()
 		}
 	}
 
-	for(auto path : generated)
-	{
-		cout << path << endl;
-	}
-	cout << "Generated " << to_string(generated.size()) << " rotated images." << endl << endl;
-
-	workingFiles = generated;
-}
-
-void Generator::perspective()
-{
-	cout << "Generating tilted images from rotated images." << endl;
-	vector<string> generated;
-	FileSystem fs;
-
-	string saveFolder = fs.makeDir(dest, "04_perspective");
-
-	float step_size = 36.0f;
-	float max_rotation = 359.0f;
-
-	int count = 0;
-	int desiredFiles = 500;
-	int estimatedFiles = workingFiles.size() * (max_rotation / step_size);
-	if (estimatedFiles < desiredFiles)
-	{
-		estimatedFiles = desiredFiles;
-	}
-
-	int skip = estimatedFiles / desiredFiles;
-
-	for (float degree = step_size; degree < 359.0f; degree += step_size)
-	{
-		for (auto path : workingFiles)
-		{
-			count++;
-			if (count % skip)
-				continue;
-
-			Mat image = fs.readImage(path);
-
-
-
-			string filename = fs.toFileName(path) + "-p" + fs.toExtension(path, true);
-			fs.saveImage(saveFolder, filename, image);
-
-			generated.push_back(fs.toPath(saveFolder, filename));
-		}
-	}
-
 	for (auto path : generated)
 	{
 		cout << path << endl;
@@ -210,6 +163,104 @@ void Generator::perspective()
 
 	workingFiles = generated;
 }
+
+/*
+Apply affine Transformation by moving the upperLeftCorner of the Input Image by the given step_size in X and Y Direction.
+*/
+void Generator::perspective()
+{
+	cout << "Generating warped images from rotated images..." << endl;
+	vector<string> generated;
+	FileSystem fs;
+
+	string saveFolder = fs.makeDir(dest, "04_perspective");
+
+	const float step_size = 0.2f; // Between 0 and 1
+	const float minStepDistanceFromLine = 0.3f; //Between 0 and 1, determines how close the stepPoint can be to the diagonal line, Smaller values lead to "stronger" Affine Transformations  
+
+	int count = 0;
+	int desiredFiles = 1000;
+	int estimatedFiles = workingFiles.size() * (1 / pow(step_size, 2));
+	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
+	if (estimatedFiles < desiredFiles)
+	{
+		estimatedFiles = desiredFiles;
+	}
+
+	int skip = estimatedFiles / desiredFiles;
+	cout << "Use every " << skip << ". image." << endl;
+
+	vector<Point2f> vecsrc;
+	vector<Point2f> vecdst;
+	for (auto path : workingFiles)
+	{
+		const Mat image = fs.readImage(path);
+		Point2f topLeft(0, 0);
+		Point2f topRight(image.cols - 1, 0);
+		Point2f bottomLeft(0, image.rows - 1);
+
+		vecsrc.clear();
+		vecsrc.push_back(topLeft);
+		vecsrc.push_back(topRight);
+		vecsrc.push_back(bottomLeft);
+
+		for (float stepX = 0; stepX < 1; stepX += step_size)
+		{
+			for (float stepY = 0; stepY < 1; stepY += step_size)
+			{
+				//If both Steps equal 0, the Transformation will be the identity -> Ignore this case
+				if (stepX == 0 && stepY == 0) {
+					continue;
+				}
+
+				//If StepX + StepY equals approx. 1, the stepPoint would lie on the line between bottomLeft and topRight 
+				//The minSetpDistanceFromLine determines how close the stepPoint can be to this line
+				if (abs(stepX + stepY - 1) < minStepDistanceFromLine) {
+					continue;
+				}
+
+				//If StepX or StepY larger than 100% -> Ignore this case
+				if (stepX >= 1 || stepY >= 1) {
+					continue;
+				}
+
+				count++;
+
+				//Skip every skip-th Image in order to only get the desired amount of transformed Images
+				if (count % skip) {
+					continue;
+				}
+
+				Point2f stepPoint(cvRound(stepX*image.cols - 1), cvRound(stepY*image.rows - 1));
+
+				vecdst.clear();
+				vecdst.push_back(stepPoint);
+				vecdst.push_back(topRight);
+				vecdst.push_back(bottomLeft);
+
+				Mat affineMatrix = getAffineTransform(vecsrc, vecdst);
+				Mat warpedImage = Mat(image.size(), image.type());
+				warpAffine(image, warpedImage, affineMatrix, image.size());
+
+				string s = "0." + to_string(cvRound(stepX * 10)) + "X" + "0." + to_string(cvRound(stepY * 10)) + "Y";
+				string filename = fs.toFileName(path) + "-p" + s + fs.toExtension(path, true);
+				fs.saveImage(saveFolder, filename, warpedImage);
+
+				generated.push_back(fs.toPath(saveFolder, filename));
+			}
+		}
+	}
+
+	for (auto path : generated)
+	{
+		cout << path << endl;
+	}
+	cout << "Generated " << to_string(generated.size()) << " warped images." << endl << endl;
+
+	workingFiles = generated;
+
+}
+
 
 void Generator::synthetic()
 {

@@ -323,4 +323,5 @@ void generateMode(const string& source, const string& dest)
 	gen.border();
 	gen.scale();
 	gen.rotate();
+	gen.perspective();
 }
