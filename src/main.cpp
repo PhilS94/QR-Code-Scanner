@@ -184,14 +184,16 @@ void cameraMode() {
 
 void findQRCode(const string path) {
 
+	FileSystem fs;
+
 	//Philipp: extrahiert den Namen der Datei. Nützlich für Bildvorschau und dem folgenden speichern der Datei. Ist aber relativ unsichere Lösung.
-	std::string imageName = FileSystem::toFileName(path);
-	std::string currentDir = FileSystem::toFolderPath(path, true);
+	std::string imageName = fs.toFileName(path);
+	std::string currentDir = fs.toFolderPath(path, true);
 	cout << endl;
 
 	cout << "Now Loading Image: " << imageName << endl;
 
-	Mat image = FileSystem::readImage(path);
+	Mat image = fs.readImage(path);
 	if (image.cols > 2000 || image.rows > 2000) {
 		cout << "Now resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
 		Mat resizedImage(0.25 * image.rows, 0.25 * image.cols, image.type());
@@ -260,23 +262,23 @@ void findQRCode(const string path) {
 	Alternativ setze saveDir auf leeren String "", dann werden alle Bilder direkt im ProjektOrdner gespeichert.
 	*/
 
-	string saveDir = FileSystem::makeDir(currentDir, "ScannedQR");
+	string saveDir = fs.makeDir(currentDir, "ScannedQR");
 	
 
 	string saveImageName = imageName + "_1_QRScanned.jpg";
-	cout << "Saving QR-Tracked Image in " << saveDir + saveImageName << endl;
-	imwrite(saveDir + saveImageName, image);
+	cout << "Saving QR-Tracked Image in " << saveDir + separator + saveImageName << endl;
+	fs.saveImage(saveDir, saveImageName, image);
 
 	if (!QRCode.empty()) {
 		string saveImageExtractedName = imageName + "_2_QRExtracted.jpg";
-		cout << "Saving QR-Extracted Image in " << saveDir + saveImageExtractedName << endl;
-		imwrite(saveDir + saveImageExtractedName, QRCode); 
+		cout << "Saving QR-Extracted Image in " << saveDir + separator + saveImageExtractedName << endl;
+		fs.saveImage(saveDir, saveImageExtractedName, QRCode);
 	}
 
 	if (!QRCodeTrueSize.empty()) {
 		string saveQRTrueSizeName = imageName + "_3_QRTrueSize.jpg";
-		cout << "Saving QR-Extracted Image in " << saveDir + saveQRTrueSizeName << endl;
-		imwrite(saveDir + saveQRTrueSizeName, QRCodeTrueSize);
+		cout << "Saving QR-Extracted Image in " << saveDir + separator + saveQRTrueSizeName << endl;
+		fs.saveImage(saveDir, saveQRTrueSizeName, QRCodeTrueSize);
 	}
 }
 
