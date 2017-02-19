@@ -12,7 +12,7 @@ public:
 	void border();
 	void scale();
 	void rotate();
-	void shear();
+	void perspective();
 	void synthetic();
 	void blur();
 	void noise();

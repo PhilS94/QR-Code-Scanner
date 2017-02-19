@@ -308,4 +308,5 @@ void generateMode(const string source, const string dest)
 	Generator gen(source, dest);
 	gen.border();
 	gen.scale();
+	gen.rotate();
 }

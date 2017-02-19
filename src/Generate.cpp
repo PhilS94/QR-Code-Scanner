@@ -1,9 +1,9 @@
-
 #include <iostream>
-#include "Generate.hpp"
-#include "Filesystem.hpp"
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
+
+#include "Generate.hpp"
+#include "Filesystem.hpp"
 
 
 using namespace std;
@@ -16,7 +16,8 @@ Generator::Generator(const string source, const string dest)
 	workingFiles = FileSystem::allImagesAtPath(source);
 
 	cout << "Found the following image Files: " << endl;
-	for (auto it : workingFiles) {
+	for (auto it : workingFiles)
+	{
 		cout << it << endl;
 	}
 	cout << endl;
@@ -30,12 +31,12 @@ void Generator::border()
 
 	string saveFolder = fs.makeDir(dest, "01_border");
 
-	int borderSize = 1;
 
-	for(auto path : workingFiles)
+	for (auto path : workingFiles)
 	{
 		Mat image = fs.readImage(path);
 
+		int borderSize = image.cols * 0.25;
 		Mat borderImage(image.cols + 2 * borderSize, image.rows + 2 * borderSize, image.type());
 		borderImage.setTo(Scalar(255, 255, 255));
 		image.copyTo(borderImage(Rect(borderSize, borderSize, image.cols, image.rows)));
@@ -46,12 +47,11 @@ void Generator::border()
 		generated.push_back(fs.toPath(saveFolder, filename));
 	}
 
-	cout << "Generated the following qrcodes with borders:" << endl;
-	for(auto path : generated)
+	for (auto path : generated)
 	{
 		cout << path << endl;
 	}
-	cout << endl;
+	cout << "Generated " << to_string(generated.size()) << " border images." << endl << endl;
 
 	workingFiles = generated;
 }
@@ -65,45 +65,153 @@ void Generator::scale()
 
 	string saveFolder = fs.makeDir(dest, "02_scale");
 
-	// TODO: Experiment with different interpolation types.
-	auto interpolationType = INTER_NEAREST;
-	string interpolationID = "in";
-
-	// TODO: Experiment with different scale values and step sizes.
-	for(float scale = 7.0f; scale < 9.1f; scale += (2.0f/3.0f))
+	for (int i = 0; i < 3; i++)
 	{
-		for (auto path : workingFiles)
+		auto interpolationType = INTER_NEAREST;
+		string interpolationID = "-inear";
+
+		if (i == 1)
 		{
-			Mat image = fs.readImage(path);
-			Mat scaledImage;
+			interpolationType = INTER_LINEAR;
+			interpolationID = "-ilinear";
+		}
+		else if (i == 2)
+		{
+			interpolationType = INTER_AREA;
+			interpolationID = "-iarea";
+		}
 
-			Size scaled = image.size();
+		// TODO: Experiment with different scale values and step sizes.
+		for (float scale = 6.0f; scale < 10.1f; scale += (2.0f / 3.0f))
+		{
+			for (auto path : workingFiles)
+			{
+				Mat image = fs.readImage(path);
+				Mat scaledImage;
 
-			resize(image, scaledImage, Size(), scale, scale, interpolationType);
+				Size scaled = image.size();
 
-			string filename = fs.toFileName(path) + "-s" + interpolationID + to_string(scale).substr(0, 4) + fs.toExtension(path, true);
-			fs.saveImage(saveFolder, filename, scaledImage);
+				resize(image, scaledImage, Size(), scale, scale, interpolationType);
 
-			generated.push_back(fs.toPath(saveFolder, filename));
+				string filename = fs.toFileName(path) + "-s" + to_string(scale).substr(0, 4) + interpolationID + fs.toExtension(path, true);
+				fs.saveImage(saveFolder, filename, scaledImage);
+
+				generated.push_back(fs.toPath(saveFolder, filename));
+			}
 		}
 	}
 
-	cout << "Generated the following scaled images:" << endl;
 	for (auto path : generated)
 	{
 		cout << path << endl;
 	}
-	cout << endl;
+	cout << "Generated " << to_string(generated.size()) << " scaled images." << endl << endl;
 
 	workingFiles = generated;
 }
 
 void Generator::rotate()
 {
+	cout << "Generating rotated images from scaled images." << endl;
+	vector<string> generated;
+	FileSystem fs;
+
+	string saveFolder = fs.makeDir(dest, "03_rotate");
+
+	float step_size = 36.0f;
+	float max_rotation = 359.0f;
+
+	int count = 0;
+	int desiredFiles = 500;
+	int estimatedFiles = workingFiles.size() * (max_rotation / step_size);
+	if(estimatedFiles < desiredFiles)
+	{
+		estimatedFiles = desiredFiles;
+	}
+
+	int skip = estimatedFiles / desiredFiles;
+
+	for (float degree = step_size; degree < max_rotation; degree += step_size)
+	{
+		for (auto path : workingFiles)
+		{
+			count++;
+			if(count % skip)
+				continue;
+
+			Mat image = fs.readImage(path);
+			Mat rotatedImage;
+
+			Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
+			Mat rot_mat = getRotationMatrix2D(image_center, degree, 1.0);
+			warpAffine(image, rotatedImage, rot_mat, image.size());
+
+			string filename = fs.toFileName(path) + "-r" + to_string(degree).substr(0, to_string(degree).find_last_of(".")) + fs.toExtension(path, true);
+			fs.saveImage(saveFolder, filename, rotatedImage);
+
+			generated.push_back(fs.toPath(saveFolder, filename));
+		}
+	}
+
+	for(auto path : generated)
+	{
+		cout << path << endl;
+	}
+	cout << "Generated " << to_string(generated.size()) << " rotated images." << endl << endl;
+
+	workingFiles = generated;
 }
 
-void Generator::shear()
+void Generator::perspective()
 {
+	cout << "Generating tilted images from rotated images." << endl;
+	vector<string> generated;
+	FileSystem fs;
+
+	string saveFolder = fs.makeDir(dest, "04_perspective");
+
+	float step_size = 36.0f;
+	float max_rotation = 359.0f;
+
+	int count = 0;
+	int desiredFiles = 500;
+	int estimatedFiles = workingFiles.size() * (max_rotation / step_size);
+	if (estimatedFiles < desiredFiles)
+	{
+		estimatedFiles = desiredFiles;
+	}
+
+	int skip = estimatedFiles / desiredFiles;
+
+	for (float degree = step_size; degree < 359.0f; degree += step_size)
+	{
+		for (auto path : workingFiles)
+		{
+			count++;
+			if (count % skip)
+				continue;
+
+			Mat image = fs.readImage(path);
+			Mat rotatedImage;
+
+			Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
+			Mat rot_mat = getRotationMatrix2D(image_center, degree, 1.0);
+			warpAffine(image, rotatedImage, rot_mat, image.size());
+
+			string filename = fs.toFileName(path) + "-r" + to_string(degree).substr(0, to_string(degree).find_last_of(".")) + fs.toExtension(path, true);
+			fs.saveImage(saveFolder, filename, rotatedImage);
+
+			generated.push_back(fs.toPath(saveFolder, filename));
+		}
+	}
+
+	for (auto path : generated)
+	{
+		cout << path << endl;
+	}
+	cout << "Generated " << to_string(generated.size()) << " rotated images." << endl << endl;
+
+	workingFiles = generated;
 }
 
 void Generator::synthetic()

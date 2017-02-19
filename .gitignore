@@ -19,3 +19,5 @@ cmake-build-*/
 ScannedQR
 01_border
 02_scale
+03_rotate
+04_perspective
