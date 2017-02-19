@@ -184,9 +184,8 @@ void cameraMode() {
 
 void findQRCode(const string path) {
 
-	//Philipp: extrahiert den Namen der Datei. Nützlich für Bildvorschau und dem folgenden speichern der Datei. Ist aber relativ unsichere Lösung.
 	std::string imageName = FileSystem::toFileName(path);
-	std::string currentDir = FileSystem::toFolderPath(path, true);
+	std::string currentDir = FileSystem::toFolderPath(path, false);
 	cout << endl;
 
 	cout << "Now Loading Image: " << imageName << endl;
@@ -255,14 +254,8 @@ void findQRCode(const string path) {
 		//imshow(imageName + " QR Code1", QRCode);
 	}
 
-	/*Philipp:
-	Damit die Bilder gespeichert werden, muss ein Ordner "ScannedQR" im ProjektOrdner zunächst manuell erstellt werden.
-	Alternativ setze saveDir auf leeren String "", dann werden alle Bilder direkt im ProjektOrdner gespeichert.
-	*/
-
-	string saveDir = FileSystem::makeDir(currentDir, "ScannedQR");
+	string saveDir = FileSystem::makeDir(currentDir, "ScannedQR")+ separator;
 	
-
 	string saveImageName = imageName + "_1_QRScanned.jpg";
 	cout << "Saving QR-Tracked Image in " << saveDir + saveImageName << endl;
 	imwrite(saveDir + saveImageName, image);
