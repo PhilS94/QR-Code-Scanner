@@ -1,6 +1,9 @@
 #include <opencv2/opencv.hpp> // Philipp: Besser als das include #include <cv.h> (verursachte Fehlermeldungen)
 #include "ImageBinarization.hpp"
 
+using namespace std;
+using namespace cv;
+
 void ImageBinarization::computeSmoothing() {
     image += Scalar(-50, -50, -50);
     blurredImage = image.clone();

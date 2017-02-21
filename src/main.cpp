@@ -3,20 +3,18 @@
 #include "ImageBinarization.hpp"
 #include "FindPattern.hpp"
 #include "Filesystem.hpp"
-#include "Generate.hpp"
+#include "Generator.hpp"
+#include "CodeFinder.hpp"
 
 using namespace std;
 using namespace cv;
 
 void findQRCode(const string path);
-
 void cameraMode();
-
 void folderMode(const string &path);
-
 void evaluationMode(const string &source, const string &dest);
-
 void generateMode(const string &source, const string &dest);
+
 
 void printLogo() {
     cout << "+---------------------------------------------------------------------------+\n"
@@ -30,6 +28,7 @@ void printLogo() {
             "|    (____\\/_)|/   \\__/  (_______/(_______)(______/ (_______/               |\n"
             "+---------------------------------------------------------------------------+" << endl;
 }
+
 
 void printUsage() {
     cout << "|                                                                           |\n"
@@ -57,6 +56,7 @@ void printUsage() {
             "+---------------------------------------------------------------------------+" << endl;
 }
 
+
 int main(int argc, const char *argv[]) {
     cout << "Path to executable: " << argv[0] << endl;
     printLogo();
@@ -67,20 +67,16 @@ int main(int argc, const char *argv[]) {
     } else if (argc == 2) {
         cout << "Starting Folder Scan Mode..." << endl;
         cout << argv[1] << endl;
-        string s;
-        s += argv[1];
-        folderMode(s);
+        folderMode(argv[1]);
     } else if (argc == 3) {
         cout << "Starting Evaluation Mode..." << endl;
-        // TODO: Start Evaluation mode
-        // In this mode the first argument is a path value for the input and the second argument
-        // is a path value for the resulting output file for matching with the ground truth.
+		evaluationMode(argv[1], argv[2]);
     } else if (argc == 4 && string(argv[1]) == "-generate") {
         cout << "Starting Generate Mode..." << endl;
         generateMode(argv[2], argv[3]);
     } else {
         printUsage();
-        cout << endl << endl << "Printing Arguments:" << endl << endl;
+		cout << endl << endl << "Failed to select mode. Printing Arguments:" << endl << endl;
         for (int i = 0; i < argc; i++) {
             cout << argv[i] << endl;
         }
@@ -94,6 +90,7 @@ int main(int argc, const char *argv[]) {
 
     return 0;
 }
+
 
 void cameraMode() {
     VideoCapture cap(0); // open the default camera
@@ -134,8 +131,7 @@ void cameraMode() {
         //DEBUG
         cout << "Now getting all Patterns" << endl;
         vector<FinderPatternModel> fPattern;
-        pattern.getAllPatterns(
-                fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+        pattern.getAllPatterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
         cv::Scalar color[3];
         color[0] = cv::Scalar(0, 0, 255);
@@ -180,8 +176,9 @@ void findQRCode(const string path) {
     cout << endl;
 
     cout << "Now Loading Image: " << imageName << endl;
-
     Mat image = fs.readImage(path);
+
+	// TODO: Remove resizing in final version.
     if (image.cols > 2000 || image.rows > 2000) {
         cout << "Now resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
         Mat resizedImage(0.25 * image.rows, 0.25 * image.cols, image.type());
@@ -217,8 +214,7 @@ void findQRCode(const string path) {
 
     cout << "Now getting all Patterns" << endl;
     vector<FinderPatternModel> fPattern;
-    pattern.getAllPatterns(
-            fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
+    pattern.getAllPatterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
 
     cv::Scalar color[3];
     color[0] = cv::Scalar(0, 0, 255);
@@ -236,7 +232,7 @@ void findQRCode(const string path) {
 
     cout << "Now tiltCorrecting Image...: " << endl;
 
-    //Philipp: fPattern enthï¿½lt nicht immer 3 Elemente->Vector out of bounds error, tatsï¿½chlich immer nur 0 oder 1 Element. vorzeitige Lï¿½sung:
+    //Philipp: fPattern enthält nicht immer 3 Elemente->Vector out of bounds error, tatsächlich immer nur 0 oder 1 Element. vorzeitige Lösung:
     Mat QRCode;
     Mat QRCodeTrueSize;
     if (fPattern.size() > 0) {
@@ -266,6 +262,7 @@ void findQRCode(const string path) {
     }
 }
 
+
 void folderMode(const string &source) {
     cout << "Reading all Files in " << source << " ..." << endl;
 
@@ -294,8 +291,20 @@ void folderMode(const string &source) {
 }
 
 void evaluationMode(const string &source, const string &dest) {
-    // TODO: Implement.
+	FileSystem fs;
+	CodeFinder codeFinder;
+
+	Mat inputImage = fs.readImage(source);
+	Mat outputImage = codeFinder.find(inputImage, true);
+
+	imshow("Contours", codeFinder.drawContours());
+	imshow("Patterns", codeFinder.drawFinderPatterns());
+	imshow("Approx", codeFinder.drawApprox());
+	waitKey(0);
+
+	fs.saveImage(dest, outputImage);
 }
+
 
 void generateMode(const string &source, const string &dest) {
     cout << "Source     : " << source << endl;

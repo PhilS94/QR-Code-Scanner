@@ -2,7 +2,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include "Generate.hpp"
+#include "Generator.hpp"
 #include "Filesystem.hpp"
 
 

@@ -5,12 +5,11 @@
 #ifndef QRCODE_IMAGEBINARIZATION_H
 #define QRCODE_IMAGEBINARIZATION_H
 
-using namespace cv;
-using namespace std;
+#include <opencv2/contrib/contrib.hpp>
 
 class ImageBinarization {
 public:
-    Mat run(Mat image);
+	cv::Mat run(cv::Mat image);
 
     void computeSmoothing();
 
@@ -21,10 +20,10 @@ public:
     void computeThreshold();
 
 private:
-    Mat image;
-    Mat blurredImage;
-    Mat binarizedImage;
-    Mat hist;
+	cv::Mat image;
+	cv::Mat blurredImage;
+	cv::Mat binarizedImage;
+	cv::Mat hist;
     int histSize = 256;
     double m = (hist.rows * hist.cols) / 2;
     int bin = 0;

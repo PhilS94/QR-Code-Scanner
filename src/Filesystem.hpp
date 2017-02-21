@@ -28,7 +28,9 @@ public:
 
     static cv::Mat readImage(const std::string &fullPath);
 
-    static void saveImage(const std::string &folderPath, const std::string &fileName, const cv::Mat &mat);
+	static void saveImage(const std::string &fullPath, const cv::Mat &mat);
+
+    static std::string saveImage(const std::string &folderPath, const std::string &fileName, const cv::Mat &mat);
 
     static void makeDir(const std::string &fullPath);
 

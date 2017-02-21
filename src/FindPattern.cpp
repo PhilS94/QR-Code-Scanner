@@ -3,6 +3,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "FindPattern.hpp"
 
+using namespace std;
+using namespace cv;
 
 /*
 bool isLexicographicMax(Point a, Point b, Point c) {
@@ -87,7 +89,7 @@ Mat FindPattern::findAllContours(Mat image) {
 }
 
 Mat FindPattern::findQRCodePatterns(Mat image) {
-
+	// TODO: What happens if we find more than three patterns?
     sort(contours.begin(), contours.end(), compareContourAreas);
 
     for (int i = 0; i < contours.size(); ++i) {
@@ -287,13 +289,15 @@ FinderPatternModel FindPattern::getFinderPatternModel(vector<Point> cont1, vecto
     if (getOrientation(a, b, c) > 0) {
         FinderPatternModel patternModel(a, b, c);
         return patternModel;
-    } else if (getOrientation(a, b, c) < 0) {
-        FinderPatternModel patternModel(a, c, b);
-        return patternModel;
-    } else {
-        //The three detected Points lie on a line! No legit QR-Code!
-        throw new exception();
     }
+
+	if (getOrientation(a, b, c) < 0) {
+		FinderPatternModel patternModel(a, c, b);
+		return patternModel;
+	}
+
+	//The three detected Points lie on a line! No legit QR-Code!
+	throw exception();
 }
 
 

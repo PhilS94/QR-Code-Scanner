@@ -4,17 +4,14 @@
 #include "FinderPatternModel.hpp"
 #include <opencv2/opencv.hpp>
 
-using namespace cv;
-using namespace std;
-
 class FinderPatternModel {
 
 public:
-    FinderPatternModel(Point a, Point b, Point c);
+    FinderPatternModel(cv::Point a, cv::Point b, cv::Point c);
 
-    Point topleft;
-    Point topright;
-    Point bottomleft;
+	cv::Point topleft;
+	cv::Point topright;
+	cv::Point bottomleft;
 };
 
 
