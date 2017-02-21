@@ -25,11 +25,11 @@ public:
 
     Mat tiltCorrection(Mat image, FinderPatternModel fPattern);
 
-	Mat FindPattern::normalize(Mat image);
+    Mat normalize(Mat image);
 
-	int FindPattern::getVersionNumber(Mat image);
+    int getVersionNumber(Mat image);
 
-	int FindPattern::getModules(int versionNumber);
+    int getModules(int versionNumber);
 
     FinderPatternModel getFinderPatternModel(vector<Point> cont1, vector<Point> cont2, vector<Point> cont3);
 
