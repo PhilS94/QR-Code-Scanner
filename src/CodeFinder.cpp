@@ -151,6 +151,7 @@ cv::Mat CodeFinder::drawFinderPatterns()
 	return draw(finderPatternContours);
 }
 
+
 Point calculateMassCentres(std::vector<cv::Point> in) {
 
 	int xCoordinates[] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
@@ -191,132 +192,106 @@ double squareDistance(Point a, Point b)
 	return x*x + y*y;
 }
 
-double squareDistanceToCenters(Point a, vector<Point> centers)
+int getDirection(int x, int y)
 {
-	double distance = 0.0f;
-	for(Point c : centers)
+	if (x >= 0 && y >= 0)
 	{
-		distance += squareDistance(a, c);
+		return 0;
 	}
-	return distance;
+	if (x <= 0 && y >= 0)
+	{
+		return 1;
+	}
+	if (x >= 0 && y <= 0)
+	{
+		return 2;
+	}
+	if (x <= 0 && y <= 0)
+	{
+		return 3;
+	}
 }
 
 cv::Mat CodeFinder::drawApprox()
 {
-	vector<vector<Point>> approximatedPolygons;
-	/*
-	for (size_t i = 0; i < finderPatternContours.size(); i++) {
-		double epsilon = 0.1 * cv::arcLength(finderPatternContours[i], true);
-		vector<Point> approximatedPolygon;
-		approxPolyDP(finderPatternContours[i], approximatedPolygon, epsilon, true);
-		approximatedPolygons.push_back(approximatedPolygon);
-	}
-	*/
-	
+	vector<vector<Point>> points;
+
 	// TODO: Ensure that at this point only ever exactly three finder patterns are used.
 	if(finderPatternContours.size() == 3)
 	{
-		Point minX = finderPatternContours[0][0];
-		Point minY = finderPatternContours[0][0];
-		Point maxX = finderPatternContours[0][0];
-		Point maxY = finderPatternContours[0][0];
-
-		int count = 0;
-		for (vector<Point> vec : finderPatternContours)
+		for(vector<Point> contour : finderPatternContours)
 		{
-			for (Point p : vec)
+			int direction = 0;
+			int previousDirection = 0;
+
+			int i = 0;
+			while(i < contour.size() - 1)
 			{
-				//cout << count << ": " << p.x << ", " << p.y << endl;
-				count++;
-
-				if (p.x < minX.x)
-					minX = p;
-				if (p.x > maxX.x)
-					maxX = p;
-				if (p.y < minY.y)
-					minY = p;
-				if (p.y > maxY.y)
-					maxY = p;
-			}
-		}
-
-		vector<Point> massCenters;
-		for (vector<Point> vec : finderPatternContours)
-		{
-			massCenters.push_back(calculateMassCentres(vec));
-		}
-
-		double distMinX = squareDistanceToCenters(minX, massCenters);
-		double distMinY = squareDistanceToCenters(minY, massCenters);
-		double distMaxX = squareDistanceToCenters(maxX, massCenters);
-		double distMaxY = squareDistanceToCenters(maxY, massCenters);
-
-		count = 0;
-		for (vector<Point> vec : finderPatternContours)
-		{
-			for (Point p : vec)
-			{
-				if (p.x == minX.x && squareDistanceToCenters(p, massCenters) > distMinX)
+				vector<Point> segment;
+				while (i < contour.size() - 1)
 				{
-					minX = p;
-					distMinX = squareDistanceToCenters(p, massCenters);
-				}
-				if (p.x == maxX.x && squareDistanceToCenters(p, massCenters) > distMaxX)
-				{
-					maxX = p;
-					distMaxX = squareDistanceToCenters(p, massCenters);
-				}
-				if (p.y == minY.y && squareDistanceToCenters(p, massCenters) > distMinY)
-				{
-					minY = p;
-					distMinY = squareDistanceToCenters(p, massCenters);
-				}
-				if (p.y == maxY.y && squareDistanceToCenters(p, massCenters) > distMaxY)
-				{
-					maxY = p;
-					distMaxY = squareDistanceToCenters(p, massCenters);
-				}
-			}
-		}
-
-		vector<Point> min;
-		min.push_back(minX);
-		min.push_back(minY);
-		min.push_back(maxX);
-		min.push_back(maxY);
-
-		vector<Point> largestTriangle;
-		double maxArea = 0.0f;
-		for(int i = 0; i < min.size(); i++)
-		{
-			for (int j = i+1; j < min.size(); j++)
-			{
-				for (int k = j+1; k < min.size(); k++)
-				{
-					vector<Point> test;
-					test.push_back(min[i]);
-					test.push_back(min[j]);
-					test.push_back(min[k]);
-					double area = contourArea(test);
-					if (area > maxArea)
+					int xd = contour[i].x - contour[i + 1].x;
+					int yd = contour[i].y - contour[i + 1].y;
+					direction = getDirection(xd, yd);
+					if(direction == previousDirection)
 					{
-						largestTriangle = test;
-						maxArea = area;
+						segment.push_back(contour[i]);
+						i++;
 					}
+					else
+					{
+						previousDirection = direction;
+						break;
+					}
+
 				}
 			}
+
+
+			/*
+			Point center = calculateMassCentres(contour);
+
+			vector<double> distanceToCenter;
+			distanceToCenter.reserve(contour.size());
+
+			for(Point p : contour)
+			{
+				pair<Point, double> pairPointDistance(p, squareDistance(p, center));
+				distanceToCenter.push_back(squareDistance(p, center));
+			}
+
+			sort(distanceToCenter.begin(), distanceToCenter.end());
+
+			// Percentage of how many points are to be ignored.
+			float ignorePercentage = 0.1f;
+			int cutoffIndex = static_cast<float>(contour.size()) * ignorePercentage;
+
+			double cutoffDistance = distanceToCenter.at(cutoffIndex);
+
+			vector<Point> thinnedContour;
+			thinnedContour.reserve(contour.size() - cutoffIndex + 1);
+			for(int i = 0; i < contour.size(); i++)
+			{
+				if(cutoffDistance < squareDistance(contour[i], center))
+				{
+					thinnedContour.push_back(contour[i]);
+				}
+			}
+
+			points.push_back(thinnedContour);
+			*/
 		}
-
-		approximatedPolygons.push_back(largestTriangle);
-
-		cout << endl << endl;
-		cout << "minX: " << minX.x << ", " << minX.y << endl;
-		cout << "maxX: " << maxX.x << ", " << maxX.y << endl;
-		cout << "minY: " << minY.x << ", " << minY.y << endl;
-		cout << "maxY: " << maxY.x << ", " << maxY.y << endl;
 	}
 
-	return draw(approximatedPolygons);
+	Mat contourImage = draw(points);
+	/*
+	for(vector<Point> contour : finderPatternContours)
+	{
+		circle(contourImage, calculateMassCentres(contour), 3, Scalar(0, 0, 255));
+	}
+	*/
+
+	return contourImage;
 }
 
 cv::Mat CodeFinder::draw(std::vector<std::vector<cv::Point>>& vecs)
@@ -332,4 +307,131 @@ cv::Mat CodeFinder::draw(std::vector<std::vector<cv::Point>>& vecs)
 	}
 
 	return image;
+}
+
+
+
+
+// TODO: Remove. Only here for reference.
+double squareDistanceToCenters(Point a, vector<Point> centers)
+{
+	double distance = 0.0f;
+	for (Point c : centers)
+	{
+		distance += squareDistance(a, c);
+	}
+	return distance;
+}
+
+// TODO: Remove. Only here for reference.
+void CodeFinder::minMaxDetect()
+{
+	vector<vector<Point>> approximatedPolygons;
+	/*
+	for (size_t i = 0; i < finderPatternContours.size(); i++) {
+	double epsilon = 0.1 * cv::arcLength(finderPatternContours[i], true);
+	vector<Point> approximatedPolygon;
+	approxPolyDP(finderPatternContours[i], approximatedPolygon, epsilon, true);
+	approximatedPolygons.push_back(approximatedPolygon);
+	}
+	*/
+
+	Point minX = finderPatternContours[0][0];
+	Point minY = finderPatternContours[0][0];
+	Point maxX = finderPatternContours[0][0];
+	Point maxY = finderPatternContours[0][0];
+
+	int count = 0;
+	for (vector<Point> vec : finderPatternContours)
+	{
+		for (Point p : vec)
+		{
+			//cout << count << ": " << p.x << ", " << p.y << endl;
+			count++;
+
+			if (p.x < minX.x)
+				minX = p;
+			if (p.x > maxX.x)
+				maxX = p;
+			if (p.y < minY.y)
+				minY = p;
+			if (p.y > maxY.y)
+				maxY = p;
+		}
+	}
+
+	vector<Point> massCenters;
+	for (vector<Point> vec : finderPatternContours)
+	{
+		massCenters.push_back(calculateMassCentres(vec));
+	}
+
+	double distMinX = squareDistanceToCenters(minX, massCenters);
+	double distMinY = squareDistanceToCenters(minY, massCenters);
+	double distMaxX = squareDistanceToCenters(maxX, massCenters);
+	double distMaxY = squareDistanceToCenters(maxY, massCenters);
+
+	count = 0;
+	for (vector<Point> vec : finderPatternContours)
+	{
+		for (Point p : vec)
+		{
+			if (p.x == minX.x && squareDistanceToCenters(p, massCenters) > distMinX)
+			{
+				minX = p;
+				distMinX = squareDistanceToCenters(p, massCenters);
+			}
+			if (p.x == maxX.x && squareDistanceToCenters(p, massCenters) > distMaxX)
+			{
+				maxX = p;
+				distMaxX = squareDistanceToCenters(p, massCenters);
+			}
+			if (p.y == minY.y && squareDistanceToCenters(p, massCenters) > distMinY)
+			{
+				minY = p;
+				distMinY = squareDistanceToCenters(p, massCenters);
+			}
+			if (p.y == maxY.y && squareDistanceToCenters(p, massCenters) > distMaxY)
+			{
+				maxY = p;
+				distMaxY = squareDistanceToCenters(p, massCenters);
+			}
+		}
+	}
+
+	vector<Point> min;
+	min.push_back(minX);
+	min.push_back(minY);
+	min.push_back(maxX);
+	min.push_back(maxY);
+
+	vector<Point> largestTriangle;
+	double maxArea = 0.0f;
+	for (int i = 0; i < min.size(); i++)
+	{
+		for (int j = i + 1; j < min.size(); j++)
+		{
+			for (int k = j + 1; k < min.size(); k++)
+			{
+				vector<Point> test;
+				test.push_back(min[i]);
+				test.push_back(min[j]);
+				test.push_back(min[k]);
+				double area = contourArea(test);
+				if (area > maxArea)
+				{
+					largestTriangle = test;
+					maxArea = area;
+				}
+			}
+		}
+	}
+
+	approximatedPolygons.push_back(largestTriangle);
+
+	cout << endl << endl;
+	cout << "minX: " << minX.x << ", " << minX.y << endl;
+	cout << "maxX: " << maxX.x << ", " << maxX.y << endl;
+	cout << "minY: " << minY.x << ", " << minY.y << endl;
+	cout << "maxY: " << maxY.x << ", " << maxY.y << endl;
 }

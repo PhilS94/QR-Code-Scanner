@@ -12,7 +12,7 @@ public:
 	cv::Mat drawContours();
 	cv::Mat drawFinderPatterns();
 	cv::Mat drawApprox();
-
+	
 protected:
 	cv::Mat draw(std::vector<std::vector<cv::Point>>& vecs);
 
@@ -21,6 +21,8 @@ protected:
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 	bool isTrapez(std::vector<cv::Point> in);
+
+	void minMaxDetect();
 
 private:
 	cv::Mat originalImage;
