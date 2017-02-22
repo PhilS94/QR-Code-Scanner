@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp> // Philipp: Besser als das include #include <cv.h> (verursachte Fehlermeldungen)
-#include "ImageBinarization.hpp"
+#include "./Header/ImageBinarization.hpp"
 
 using namespace std;
 using namespace cv;

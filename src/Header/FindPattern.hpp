@@ -31,6 +31,8 @@ public:
 
     void getAllPatterns(std::vector<FinderPatternModel> &patterns);
 
+	void calculateForthPoint();
+
 
 private:
 	cv::Mat originalImage;

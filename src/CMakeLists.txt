@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.5.1)
 project(QRCode)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -9,17 +9,19 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt5Widgets)
 
 set(SOURCE_FILES
-        main.cpp
-        ImageBinarization.hpp
-        ImageBinarization.cpp
-        FindPattern.hpp
-        FindPattern.cpp
-        FinderPatternModel.cpp
-        FinderPatternModel.hpp
-        Filesystem.cpp
-        Filesystem.hpp
-        Generate.cpp
-        Generate.hpp)
+        ./Source/main.cpp
+        ./Header/ImageBinarization.hpp
+        ./Source/ImageBinarization.cpp
+        ./Header/FindPattern.hpp
+        ./Source/FindPattern.cpp
+        ./Source/FinderPatternModel.cpp
+        ./Header/FinderPatternModel.hpp
+        ./Source/Filesystem.cpp
+        ./Header/Filesystem.hpp
+        ./Source/Generator.cpp
+        ./Header/Generator.hpp
+        ./Header/CodeFinder.hpp
+        ./Source/CodeFinder.cpp)
 
 add_executable(main ${SOURCE_FILES})
 target_link_libraries( main ${OpenCV_LIBS} )

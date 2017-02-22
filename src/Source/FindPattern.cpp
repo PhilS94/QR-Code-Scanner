@@ -1,7 +1,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "FindPattern.hpp"
+#include "./Header/FindPattern.hpp"
 
 using namespace std;
 using namespace cv;
@@ -392,6 +392,43 @@ void FindPattern::getAllPatterns(vector<FinderPatternModel> &patterns) {
                                                      trueContoures[i++][trueContoures[i].size() - 1]));
         }
     }
+}
+
+void FindPattern::calculateForthPoint(){
+    Mat input(originalImage.rows, originalImage.cols, CV_8UC3, Scalar(0,0,0));
+    Mat dst,cdst;
+
+    for (int i = 0; i < trueContoures.size(); ++i) {
+        std::vector<cv::Point> outerContour = trueContoures[i][0];
+
+        for (size_t idx = 0; idx < trueContoures.size(); idx++) {
+            for (size_t idx2 = 0; idx2 < trueContoures.at(idx).size(); idx2++) {
+                cv::drawContours(input, trueContoures[idx], 0, Scalar(255,255,255));
+            }
+        }
+
+    }
+    Canny(input, dst, 50, 200, 3);
+    cvtColor(dst, cdst, CV_GRAY2BGR);
+    imshow("Test", dst);
+    waitKey(0);
+    vector<Vec4f> lines;
+    HoughLines(dst, lines, 1, CV_PI/180, 100, 0, 0 );
+    for( size_t i = 0; i < lines.size(); i++ )
+    {
+        float rho = lines[i][0], theta = lines[i][1];
+        Point pt1, pt2;
+        double a = cos(theta), b = sin(theta);
+        double x0 = a*rho, y0 = b*rho;
+        pt1.x = cvRound(x0 + 1000*(-b));
+        pt1.y = cvRound(y0 + 1000*(a));
+        pt2.x = cvRound(x0 - 1000*(-b));
+        pt2.y = cvRound(y0 - 1000*(a));
+        line( cdst, pt1, pt2, Scalar(0,0,255), 3, CV_AA);
+    }
+    imshow("Test", input);
+    imshow("Test2", cdst);
+    waitKey(0);
 }
 
 
