@@ -9,7 +9,9 @@ using namespace cv;
 
 Mat CodeFinder::find(Mat image, bool hasCode)
 {
-	// TODO: Remove resizing.
+	// TODO: Maybe ensure that all data is empty by reinitializing all structures.
+
+	// TODO: Remove resizing for release version.
 	image = image.clone();
 	if (image.cols > 2000 || image.rows > 2000) {
 		cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
@@ -23,14 +25,12 @@ Mat CodeFinder::find(Mat image, bool hasCode)
 	originalImage = image.clone();
 
 	cout << "Converting image to binary image..." << endl;
-	// Convert image to grayscale.
 	Mat grayscaleImage;
 	cvtColor(image, grayscaleImage, CV_BGR2GRAY);
 
 	// TODO: Implement repeated search if hasCode is true.
 	// TODO: Get rid of ImageBinarization and put it all in this class.
 	// TODO: Or get rid of transformations in this class and put them into a renamed Binarization.
-	// Binarize image.
 	ImageBinarization binarizer;
 	binarizedImage = binarizer.run(grayscaleImage);
 
@@ -39,16 +39,42 @@ Mat CodeFinder::find(Mat image, bool hasCode)
 
 	cout << "Finding all finder pattern candidates..." << endl;
 	findPatternContours();
+	// TODO: At this point, if there are less than three patterns, try again starting with binarization if hasCode is true or abort otherwise.
 
-	cout << "Finding edge lines for finder patterns..." << endl;
-	findPatternLinesApprox();
-	findPatternLinesHough();
+	cout << "Finding all edge lines for finder patterns..." << endl;
+	findPatternLines();
 
-	// If there are less than three patterns repeat.
+	cout << "Iterating all combinations of detected finder patterns..." << endl;
+	cout << "Number of detected patterns: " << patternContours.size() << endl;
+	bool isQRCode = false;
+	for(int a = 0; a < patternContours.size() - 2 && !isQRCode; a++)
+	{
+		for (int b = a + 1; b < patternContours.size() - 1 && !isQRCode; b++)
+		{
+			for (int c = b + 1; c < patternContours.size() && !isQRCode; c++)
+			{
+				cout << "Calculating combination (" << a << ", " << b << ", " << c << ")..." << endl;
 
-	// If there are more than three patterns try each combination until we find a qrcode and repeat if none is found.
+				cout << "Finding top left corner..." << endl;
+				// TODO: Identify top left corner using edge lines.
+				findTopLeftPattern();
 
-	// If there are exactly three check if it's a qrcode and if no repeat.
+				// TODO: Calculate for each line the divergence and merge near identical lines by recalcualting a new line with the help of both underlying segments.
+				// It appears like edge line detection is stable. => Line 1 of pattern 1 can only be a duplicate of line 1 of pattern 2 and so forth.
+
+				// TODO: Find the four corners using the edge line intersections.
+				// In case of obviously degenerate lines abort.
+
+				// TODO: Use perspective transform to extract the qrcode.
+
+				// TODO: Attempt calculation of true size of the qrcode.
+
+				// TODO: Resize to true size of qrcode.
+
+				// TODO: Verify that we have truly found a valid qrcode.
+			}
+		}
+	}
 
 	// Return codeNotFound in case of failure to locate qrcode.
 	Mat codeNotFound(1, 1, image.type());
@@ -137,6 +163,7 @@ void CodeFinder::findPatternContours()
 	}
 }
 
+// TODO: Either remove or test if this has possible applications or performance gains.
 void CodeFinder::findPatternLinesHough()
 {
 	Mat input(originalImage.rows, originalImage.cols, CV_8UC1, Scalar(0));
@@ -171,7 +198,7 @@ void CodeFinder::findPatternLinesHough()
 	waitKey(0);
 }
 
-void CodeFinder::findPatternLinesApprox()
+void CodeFinder::findPatternLines()
 {
 	for (int i = 0; i < patternContours.size(); i++) {
 		// Approximate the contour with a polygon.
@@ -208,22 +235,24 @@ void CodeFinder::findPatternLinesApprox()
 		}
 		sort(approxCut.begin(), approxCut.end());
 
-		int fit_type = CV_DIST_FAIR;
-		int fit_a = 0.01;
-		int fit_b = 0.01;
+		int fitType = CV_DIST_FAIR;
+		int fitReps = 0.01;
+		int fitAeps = 0.01;
+
+		float marginPercentage = 0.1;
 
 		// Use each cut segment for approximating a line fit.
 		for (int j = 0; j < 3; j++)
 		{
 			vector<Point> segment;
-			int margin = (approxCut[j + 1] - approxCut[j]) * 0.05;
+			int margin = (approxCut[j + 1] - approxCut[j]) * marginPercentage;
 			for (int index = approxCut[j] + margin; index < approxCut[j + 1] - margin; index++)
 			{
 				segment.push_back(patternContours[i][index]);
 			}
 
 			Vec4f line;
-			fitLine(segment, line, fit_type, 0, fit_a, fit_b);
+			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
 			lineSegments.push_back(segment);
 			patternLines.push_back(line);
 		}
@@ -231,24 +260,48 @@ void CodeFinder::findPatternLinesApprox()
 		// Special case for wraping around the end of the vector.
 		{
 			vector<Point> segment;
-			int margin = (approxCut[0] + patternContours[i].size() - approxCut[3]) * 0.2;
-			for (int index = approxCut[3] + margin; index < approxCut[0] - margin || index >= approxCut[3]; index++)
+			int margin = (approxCut[0] + patternContours[i].size() - approxCut[3]) * marginPercentage;
+			for (int index = approxCut[3] + margin; index < approxCut[0] + patternContours[i].size() - margin; index++)
 			{
-				if (index == patternContours[i].size())
-					index = 0;
-				if (index > patternContours[i].size())
-					index = margin - (patternContours[i].size() - approxCut[3]);
-				segment.push_back(patternContours[i][index]);
+				if (index >= patternContours[i].size())
+					segment.push_back(patternContours[i][index - patternContours[i].size()]);
+				else
+					segment.push_back(patternContours[i][index]);
 			}
 
 			Vec4f line;
-			fitLine(segment, line, fit_type, 0, fit_a, fit_b);
+			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
 			lineSegments.push_back(segment);
 			patternLines.push_back(line);
 		}
 	}
 }
 
+void CodeFinder::findTopLeftPattern()
+{
+	for(int a = 0; a < patternLines.size() - 1; a++)
+	{
+		for (int b = a + 1; b < patternLines.size(); b++)
+		{
+			// The pattern that has the four smallest distances will be the corner pattern.
+			cout << "Distance between Point " << a << " and Line" << b << ": " <<
+				pointToLineDistance(Vec2f(patternLines[a][2], patternLines[a][3]), patternLines[b]) << endl;
+		}
+	}
+}
+
+// The line has to be in the same format returned by fitLine.
+double CodeFinder::pointToLineDistance(Vec2f p, Vec4f line)
+{
+	Vec2f supportVector(line[2], line[3]);
+	// Vec2f direction(line[0], line[1]);
+
+	// Translate p so that supportVector moves into origin.
+	p -= supportVector;
+
+	// Calculate cross product between p and direction to get distance.
+	return p[0] * line[1] - p[1] * line[0];
+}
 
 Mat CodeFinder::drawBinaryImage()
 {
@@ -295,7 +348,7 @@ Mat CodeFinder::drawPatternLines()
 	return lineImage;
 }
 
-cv::Mat CodeFinder::drawLineSegmets()
+cv::Mat CodeFinder::drawLineSegments()
 {
 	Mat segmentImage = originalImage.clone();
 	Scalar color[4];

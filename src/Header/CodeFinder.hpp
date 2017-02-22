@@ -12,18 +12,22 @@ public:
 	cv::Mat drawContours();
 	cv::Mat drawPatternContours();
 	cv::Mat drawPatternLines();
-	cv::Mat drawLineSegmets();
+	cv::Mat drawLineSegments();
 	
 protected:
 	cv::Mat draw(std::vector<std::vector<cv::Point>>& vecs);
 
 	void findContours();
 	void findPatternContours();
-	void findPatternLinesHough();
-	void findPatternLinesApprox();
+	void findPatternLines();
+	void findTopLeftPattern();
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 	bool isTrapez(std::vector<cv::Point> in);
+
+	double pointToLineDistance(cv::Vec2f point, cv::Vec4f line);
+
+	void findPatternLinesHough();
 
 private:
 	cv::Mat originalImage;

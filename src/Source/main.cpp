@@ -302,7 +302,7 @@ void evaluationMode(const string &source, const string &dest) {
 	imshow("Contours", codeFinder.drawContours());
 	imshow("Patterns", codeFinder.drawPatternContours());
 	imshow("Approx", codeFinder.drawPatternLines());
-	imshow("Segments", codeFinder.drawLineSegmets());
+	imshow("Segments", codeFinder.drawLineSegments());
 	waitKey(0);
 
 	fs.saveImage(dest, outputImage);
