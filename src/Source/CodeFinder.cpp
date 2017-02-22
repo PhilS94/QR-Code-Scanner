@@ -1,9 +1,7 @@
-
-#include "./Header/CodeFinder.hpp"
-#include "./Header/ImageBinarization.hpp"
-
 #include <opencv2/contrib/contrib.hpp>
 #include <iostream>
+#include "../Header/CodeFinder.hpp"
+#include "../Header/ImageBinarization.hpp"
 
 using namespace std;
 using namespace cv;

@@ -2,8 +2,8 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/video/tracking.hpp>
 
-#include "./Header/Generator.hpp"
-#include "./Header/Filesystem.hpp"
+#include "../Header/Generator.hpp"
+#include "../Header/Filesystem.hpp"
 
 
 using namespace std;

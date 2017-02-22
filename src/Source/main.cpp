@@ -1,10 +1,10 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "./Header/ImageBinarization.hpp"
-#include "./Header/FindPattern.hpp"
-#include "./Header/Filesystem.hpp"
-#include "./Header/Generator.hpp"
-#include "./Header/CodeFinder.hpp"
+#include "../Header/ImageBinarization.hpp"
+#include "../Header/FindPattern.hpp"
+#include "../Header/Filesystem.hpp"
+#include "../Header/Generator.hpp"
+#include "../Header/CodeFinder.hpp"
 
 using namespace std;
 using namespace cv;

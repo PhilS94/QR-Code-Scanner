@@ -1,7 +1,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include "./Header/FindPattern.hpp"
+#include "../Header/FindPattern.hpp"
 
 using namespace std;
 using namespace cv;
