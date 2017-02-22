@@ -1,6 +1,6 @@
 
-#include "CodeFinder.hpp"
-#include "ImageBinarization.hpp"
+#include "./Header/CodeFinder.hpp"
+#include "./Header/ImageBinarization.hpp"
 
 #include <opencv2/contrib/contrib.hpp>
 #include <iostream>

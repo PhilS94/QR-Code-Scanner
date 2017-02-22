@@ -1,10 +1,10 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "ImageBinarization.hpp"
-#include "FindPattern.hpp"
-#include "Filesystem.hpp"
-#include "Generator.hpp"
-#include "CodeFinder.hpp"
+#include "./Header/ImageBinarization.hpp"
+#include "./Header/FindPattern.hpp"
+#include "./Header/Filesystem.hpp"
+#include "./Header/Generator.hpp"
+#include "./Header/CodeFinder.hpp"
 
 using namespace std;
 using namespace cv;
@@ -125,6 +125,7 @@ void cameraMode() {
         namedWindow("Konturen", WINDOW_AUTOSIZE);
         imshow("Konturen", contour);
 
+
         Mat filteredContours;
         filteredContours = pattern.findQRCodePatterns(binary);
 
@@ -205,12 +206,12 @@ void findQRCode(const string path) {
     FindPattern pattern(image);
     contour = pattern.findAllContours(binary);
 
-
     cout << "Now filtering Contours..." << endl;
     Mat filteredContours;
     filteredContours = pattern.findQRCodePatterns(binary);
     //    namedWindow(imageName+" Konturen #2", WINDOW_AUTOSIZE);
     //    imshow(imageName+" Konturen #2", filteredContours);
+    pattern.calculateForthPoint();
 
     cout << "Now getting all Patterns" << endl;
     vector<FinderPatternModel> fPattern;
@@ -283,6 +284,7 @@ void folderMode(const string &source) {
         for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
             findQRCode(*it);
         }
+
         cout << endl;
         cout << "Finished iterating through all Images." << endl;
     } else {
