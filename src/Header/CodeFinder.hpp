@@ -10,26 +10,30 @@ public:
 
 	cv::Mat drawBinaryImage();
 	cv::Mat drawContours();
-	cv::Mat drawFinderPatterns();
-	cv::Mat drawApprox();
+	cv::Mat drawPatternContours();
+	cv::Mat drawPatternLines();
+	cv::Mat drawLineSegmets();
 	
 protected:
 	cv::Mat draw(std::vector<std::vector<cv::Point>>& vecs);
 
 	void findContours();
-	void findFinderPatterns();
+	void findPatternContours();
+	void findPatternLinesHough();
+	void findPatternLinesApprox();
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 	bool isTrapez(std::vector<cv::Point> in);
-
-	void minMaxDetect();
 
 private:
 	cv::Mat originalImage;
 	cv::Mat binarizedImage;
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<double> contourAreas;
-	std::vector<std::vector<cv::Point>> finderPatternContours;
+	std::vector<std::vector<cv::Point>> patternContours;
+	std::vector<std::vector<cv::Point>> lineSegments;
+	std::vector<cv::Vec4f> patternLines;
+	std::vector<cv::Vec4f> patternLinesHough;
 };
 
 

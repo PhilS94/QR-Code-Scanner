@@ -2,6 +2,7 @@
 #include <iostream>
 #include "../Header/CodeFinder.hpp"
 #include "../Header/ImageBinarization.hpp"
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace std;
 using namespace cv;
@@ -37,7 +38,11 @@ Mat CodeFinder::find(Mat image, bool hasCode)
 	findContours();
 
 	cout << "Finding all finder pattern candidates..." << endl;
-	findFinderPatterns();
+	findPatternContours();
+
+	cout << "Finding edge lines for finder patterns..." << endl;
+	findPatternLinesApprox();
+	findPatternLinesHough();
 
 	// If there are less than three patterns repeat.
 
@@ -66,10 +71,9 @@ void CodeFinder::findContours()
 	image /= 255;
 
 	// TODO: Can we use the hierarchy for identifying finder patterns? If not replace RETR_TREE with RETR_LIST.
-	// TODO: Experiment with alternative approximation CV_CHAIN_APPROX_TC89_L1,CV_CHAIN_APPROX_TC89_KCOS
 	vector<vector<Point>> foundContours; 
 	vector<Vec4i> hierarchy;
-	cv::findContours(image, foundContours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	cv::findContours(image, foundContours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 
 	// Remove any contours below or above the thresholds.
 	contours.reserve(foundContours.size());
@@ -87,7 +91,6 @@ void CodeFinder::findContours()
 	contours.shrink_to_fit();
 	contourAreas.shrink_to_fit();
 }
-
 // TODO: Imrpove inside contour detection.
 bool CodeFinder::isContourInsideContour(vector<Point> in, vector<Point> out)
 {
@@ -105,14 +108,14 @@ bool CodeFinder::isContourInsideContour(vector<Point> in, vector<Point> out)
 bool CodeFinder::isTrapez(vector<Point> in)
 {
 	vector<Point> approximatedPolygon;
-	double epsilon = 0.1 * cv::arcLength(in, true);
+	double epsilon = 0.1 * arcLength(in, true);
 	approxPolyDP(in, approximatedPolygon, epsilon, true);
 	bool ret = (approximatedPolygon.size() == 4);
 	return ret;
 }
 
 // TODO: IMRPOVE!
-void CodeFinder::findFinderPatterns()
+void CodeFinder::findPatternContours()
 {
 	for (int i = 0; i < contours.size(); ++i) {
 		for (int j = 0; j < contours.size(); ++j) {
@@ -123,9 +126,9 @@ void CodeFinder::findFinderPatterns()
 						&& isContourInsideContour(contours.at(k), contours.at(i))) {
 						if (isTrapez(contours.at(j))) {
 							// Only save the outter contour.
-							finderPatternContours.push_back(contours.at(j));
-							//finderPatternContours.push_back(contours.at(i));
-							//finderPatternContours.push_back(contours.at(k));
+							patternContours.push_back(contours.at(j));
+							//patternContours.push_back(contours.at(i));
+							//patternContours.push_back(contours.at(k));
 						}
 					}
 				}
@@ -134,302 +137,195 @@ void CodeFinder::findFinderPatterns()
 	}
 }
 
-cv::Mat CodeFinder::drawBinaryImage()
+void CodeFinder::findPatternLinesHough()
+{
+	Mat input(originalImage.rows, originalImage.cols, CV_8UC1, Scalar(0));
+
+	cv::drawContours(input, patternContours, -1, Scalar(255));
+
+	//imshow("Contour", input);
+
+	vector<Vec2f> lines;
+	double step_rho = 0.5;
+	double step_theta = CV_PI / 180;
+	double threshold = 20;
+	HoughLines(input, lines, step_rho, step_theta, threshold, 0, 0);
+	
+	for (size_t i = 0; i < lines.size(); i++)
+	{
+		float rho = lines[i][0];
+		float theta = lines[i][1];
+		double a = cos(theta), b = sin(theta);
+		double x0 = a*rho, y0 = b*rho;
+
+		Point pt1, pt2;
+		pt1.x = cvRound(x0 + 1000 * (-b));
+		pt1.y = cvRound(y0 + 1000 * (a));
+		pt2.x = cvRound(x0 - 1000 * (-b));
+		pt2.y = cvRound(y0 - 1000 * (a));
+		line(input, pt1, pt2, Scalar(128));
+	}
+
+	//imshow("Hough", input);
+	cout << "Number of lines: " << lines.size();
+	waitKey(0);
+}
+
+void CodeFinder::findPatternLinesApprox()
+{
+	for (int i = 0; i < patternContours.size(); i++) {
+		// Approximate the contour with a polygon.
+		double epsilon = 0.1 * arcLength(patternContours[i], true);
+		vector<Point> approximatedPolygon;
+		approxPolyDP(patternContours[i], approximatedPolygon, epsilon, true);
+
+		// Use the approximated points as cuts for segmenting the contour.
+		// Find the indices of the cuts within the contour for that.
+		vector<int> approxCut;
+		for (Point ap : approximatedPolygon)
+		{
+			bool found = false;
+			for (int index = 0; index < patternContours[i].size(); index++)
+			{
+				if (ap == patternContours[i][index])
+				{
+					approxCut.push_back(index);
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+			{
+				// TODO: Verify that this assumption is always true.
+				throw exception(); // Assumption that the approximation always lies on a part of the contour did not hold true.
+			}
+		}
+
+		if (approxCut.size() != 4)
+		{
+			// TODO: Maybe do something so this doesn't kill the program.
+			throw exception(); // Assumption that the approximation is a quad did not hold true.
+		}
+		sort(approxCut.begin(), approxCut.end());
+
+		int fit_type = CV_DIST_FAIR;
+		int fit_a = 0.01;
+		int fit_b = 0.01;
+
+		// Use each cut segment for approximating a line fit.
+		for (int j = 0; j < 3; j++)
+		{
+			vector<Point> segment;
+			int margin = (approxCut[j + 1] - approxCut[j]) * 0.05;
+			for (int index = approxCut[j] + margin; index < approxCut[j + 1] - margin; index++)
+			{
+				segment.push_back(patternContours[i][index]);
+			}
+
+			Vec4f line;
+			fitLine(segment, line, fit_type, 0, fit_a, fit_b);
+			lineSegments.push_back(segment);
+			patternLines.push_back(line);
+		}
+
+		// Special case for wraping around the end of the vector.
+		{
+			vector<Point> segment;
+			int margin = (approxCut[0] + patternContours[i].size() - approxCut[3]) * 0.2;
+			for (int index = approxCut[3] + margin; index < approxCut[0] - margin || index >= approxCut[3]; index++)
+			{
+				if (index == patternContours[i].size())
+					index = 0;
+				if (index > patternContours[i].size())
+					index = margin - (patternContours[i].size() - approxCut[3]);
+				segment.push_back(patternContours[i][index]);
+			}
+
+			Vec4f line;
+			fitLine(segment, line, fit_type, 0, fit_a, fit_b);
+			lineSegments.push_back(segment);
+			patternLines.push_back(line);
+		}
+	}
+}
+
+
+Mat CodeFinder::drawBinaryImage()
 {
 	return binarizedImage;
 }
 
-cv::Mat CodeFinder::drawContours()
+Mat CodeFinder::drawContours()
 {
 	return draw(contours);
 }
 
-cv::Mat CodeFinder::drawFinderPatterns()
+Mat CodeFinder::drawPatternContours()
 {
-	return draw(finderPatternContours);
+	return draw(patternContours);
 }
 
+Mat CodeFinder::drawPatternLines()
+{
+	Mat lineImage = originalImage.clone();
 
-Point calculateMassCentres(std::vector<cv::Point> in) {
-
-	int xCoordinates[] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
-	int yCoordinates[] = { std::numeric_limits<int>::max(), std::numeric_limits<int>::min() };
-
-	//extremalwerte werden bestimmt
-	for (int i = 0; i < in.size(); i++) {
-		if (xCoordinates[0] > in.at(i).x) {
-			xCoordinates[0] = in.at(i).x;
-		}
-		if (xCoordinates[1] < in.at(i).x) {
-			xCoordinates[1] = in.at(i).x;
-		}
-
-		if (yCoordinates[0] > in.at(i).y) {
-			yCoordinates[0] = in.at(i).y;
-		}
-		if (yCoordinates[1] < in.at(i).y) {
-			yCoordinates[1] = in.at(i).y;
-		}
+	vector<vector<Point>> polygons;
+	for (int i = 0; i < patternContours.size(); i++) {
+		// Approximate the contour with a polygon.
+		double epsilon = 0.1 * arcLength(patternContours[i], true);
+		vector<Point> approximatedPolygon;
+		approxPolyDP(patternContours[i], approximatedPolygon, epsilon, true);
+		polygons.push_back(approximatedPolygon);
 	}
 
-	int _x = (xCoordinates[0] + xCoordinates[1]) / 2;
-	int _y = (yCoordinates[0] + yCoordinates[1]) / 2;
+	cv::drawContours(lineImage, polygons, -1, Scalar(255, 255, 0));
 
-	Point point;
-	point.x = _x;
-	point.y = _y;
+	for(Vec4f line : patternLines)
+	{
+		int factor = 10000;
+		float x = line[2];
+		float y = line[3];
+		float dx = line[0];
+		float dy = line[1];
+		Point p1(x - dx * factor, y - dy * factor);
+		Point p2(x + dx * factor, y + dy * factor);
+		cv::line(lineImage, p1, p2, Scalar(0,0,255));
+	}
 
-	return point;
+	return lineImage;
 }
 
-double squareDistance(Point a, Point b)
+cv::Mat CodeFinder::drawLineSegmets()
 {
-	int x = a.x - b.x;
-	int y = a.y - b.y;
+	Mat segmentImage = originalImage.clone();
+	Scalar color[4];
+	color[0] = Scalar(0, 0, 255);
+	color[1] = Scalar(0, 255, 0);
+	color[2] = Scalar(255, 0, 0);
+	color[3] = Scalar(255, 255, 0);
 
-	return x*x + y*y;
-}
-
-int getDirection(int x, int y)
-{
-	if (x >= 0 && y >= 0)
+	for(int i = 0; i < lineSegments.size(); i++)
 	{
-		return 0;
-	}
-	if (x <= 0 && y >= 0)
-	{
-		return 1;
-	}
-	if (x >= 0 && y <= 0)
-	{
-		return 2;
-	}
-	if (x <= 0 && y <= 0)
-	{
-		return 3;
-	}
-}
-
-cv::Mat CodeFinder::drawApprox()
-{
-	vector<vector<Point>> points;
-
-	// TODO: Ensure that at this point only ever exactly three finder patterns are used.
-	if(finderPatternContours.size() == 3)
-	{
-		for(vector<Point> contour : finderPatternContours)
+		for(Point p : lineSegments[i])
 		{
-			int direction = 0;
-			int previousDirection = 0;
-
-			int i = 0;
-			while(i < contour.size() - 1)
-			{
-				vector<Point> segment;
-				while (i < contour.size() - 1)
-				{
-					int xd = contour[i].x - contour[i + 1].x;
-					int yd = contour[i].y - contour[i + 1].y;
-					direction = getDirection(xd, yd);
-					if(direction == previousDirection)
-					{
-						segment.push_back(contour[i]);
-						i++;
-					}
-					else
-					{
-						previousDirection = direction;
-						break;
-					}
-
-				}
-			}
-
-
-			/*
-			Point center = calculateMassCentres(contour);
-
-			vector<double> distanceToCenter;
-			distanceToCenter.reserve(contour.size());
-
-			for(Point p : contour)
-			{
-				pair<Point, double> pairPointDistance(p, squareDistance(p, center));
-				distanceToCenter.push_back(squareDistance(p, center));
-			}
-
-			sort(distanceToCenter.begin(), distanceToCenter.end());
-
-			// Percentage of how many points are to be ignored.
-			float ignorePercentage = 0.1f;
-			int cutoffIndex = static_cast<float>(contour.size()) * ignorePercentage;
-
-			double cutoffDistance = distanceToCenter.at(cutoffIndex);
-
-			vector<Point> thinnedContour;
-			thinnedContour.reserve(contour.size() - cutoffIndex + 1);
-			for(int i = 0; i < contour.size(); i++)
-			{
-				if(cutoffDistance < squareDistance(contour[i], center))
-				{
-					thinnedContour.push_back(contour[i]);
-				}
-			}
-
-			points.push_back(thinnedContour);
-			*/
+			circle(segmentImage, p, 1, color[i % 4]);
 		}
 	}
 
-	Mat contourImage = draw(points);
-	/*
-	for(vector<Point> contour : finderPatternContours)
-	{
-		circle(contourImage, calculateMassCentres(contour), 3, Scalar(0, 0, 255));
-	}
-	*/
-
-	return contourImage;
+	return segmentImage;
 }
 
-cv::Mat CodeFinder::draw(std::vector<std::vector<cv::Point>>& vecs)
+Mat CodeFinder::draw(vector<vector<Point>>& vecs)
 {
-	cv::Mat image = originalImage.clone();
-	cv::Scalar color[3];
-	color[0] = cv::Scalar(0, 0, 255);
-	color[1] = cv::Scalar(0, 255, 0);
-	color[2] = cv::Scalar(255, 0, 0);
+	Mat image = originalImage.clone();
+	Scalar color[3];
+	color[0] = Scalar(0, 0, 255);
+	color[1] = Scalar(0, 255, 0);
+	color[2] = Scalar(255, 0, 0);
 
 	for (size_t idx = 0; idx < vecs.size(); idx++) {
 		cv::drawContours(image, vecs, idx, color[idx % 3]);
 	}
 
 	return image;
-}
-
-
-
-
-// TODO: Remove. Only here for reference.
-double squareDistanceToCenters(Point a, vector<Point> centers)
-{
-	double distance = 0.0f;
-	for (Point c : centers)
-	{
-		distance += squareDistance(a, c);
-	}
-	return distance;
-}
-
-// TODO: Remove. Only here for reference.
-void CodeFinder::minMaxDetect()
-{
-	vector<vector<Point>> approximatedPolygons;
-	/*
-	for (size_t i = 0; i < finderPatternContours.size(); i++) {
-	double epsilon = 0.1 * cv::arcLength(finderPatternContours[i], true);
-	vector<Point> approximatedPolygon;
-	approxPolyDP(finderPatternContours[i], approximatedPolygon, epsilon, true);
-	approximatedPolygons.push_back(approximatedPolygon);
-	}
-	*/
-
-	Point minX = finderPatternContours[0][0];
-	Point minY = finderPatternContours[0][0];
-	Point maxX = finderPatternContours[0][0];
-	Point maxY = finderPatternContours[0][0];
-
-	int count = 0;
-	for (vector<Point> vec : finderPatternContours)
-	{
-		for (Point p : vec)
-		{
-			//cout << count << ": " << p.x << ", " << p.y << endl;
-			count++;
-
-			if (p.x < minX.x)
-				minX = p;
-			if (p.x > maxX.x)
-				maxX = p;
-			if (p.y < minY.y)
-				minY = p;
-			if (p.y > maxY.y)
-				maxY = p;
-		}
-	}
-
-	vector<Point> massCenters;
-	for (vector<Point> vec : finderPatternContours)
-	{
-		massCenters.push_back(calculateMassCentres(vec));
-	}
-
-	double distMinX = squareDistanceToCenters(minX, massCenters);
-	double distMinY = squareDistanceToCenters(minY, massCenters);
-	double distMaxX = squareDistanceToCenters(maxX, massCenters);
-	double distMaxY = squareDistanceToCenters(maxY, massCenters);
-
-	count = 0;
-	for (vector<Point> vec : finderPatternContours)
-	{
-		for (Point p : vec)
-		{
-			if (p.x == minX.x && squareDistanceToCenters(p, massCenters) > distMinX)
-			{
-				minX = p;
-				distMinX = squareDistanceToCenters(p, massCenters);
-			}
-			if (p.x == maxX.x && squareDistanceToCenters(p, massCenters) > distMaxX)
-			{
-				maxX = p;
-				distMaxX = squareDistanceToCenters(p, massCenters);
-			}
-			if (p.y == minY.y && squareDistanceToCenters(p, massCenters) > distMinY)
-			{
-				minY = p;
-				distMinY = squareDistanceToCenters(p, massCenters);
-			}
-			if (p.y == maxY.y && squareDistanceToCenters(p, massCenters) > distMaxY)
-			{
-				maxY = p;
-				distMaxY = squareDistanceToCenters(p, massCenters);
-			}
-		}
-	}
-
-	vector<Point> min;
-	min.push_back(minX);
-	min.push_back(minY);
-	min.push_back(maxX);
-	min.push_back(maxY);
-
-	vector<Point> largestTriangle;
-	double maxArea = 0.0f;
-	for (int i = 0; i < min.size(); i++)
-	{
-		for (int j = i + 1; j < min.size(); j++)
-		{
-			for (int k = j + 1; k < min.size(); k++)
-			{
-				vector<Point> test;
-				test.push_back(min[i]);
-				test.push_back(min[j]);
-				test.push_back(min[k]);
-				double area = contourArea(test);
-				if (area > maxArea)
-				{
-					largestTriangle = test;
-					maxArea = area;
-				}
-			}
-		}
-	}
-
-	approximatedPolygons.push_back(largestTriangle);
-
-	cout << endl << endl;
-	cout << "minX: " << minX.x << ", " << minX.y << endl;
-	cout << "maxX: " << maxX.x << ", " << maxX.y << endl;
-	cout << "minY: " << minY.x << ", " << minY.y << endl;
-	cout << "maxY: " << maxY.x << ", " << maxY.y << endl;
 }

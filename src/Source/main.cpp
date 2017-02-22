@@ -300,8 +300,9 @@ void evaluationMode(const string &source, const string &dest) {
 	Mat outputImage = codeFinder.find(inputImage, true);
 
 	imshow("Contours", codeFinder.drawContours());
-	imshow("Patterns", codeFinder.drawFinderPatterns());
-	imshow("Approx", codeFinder.drawApprox());
+	imshow("Patterns", codeFinder.drawPatternContours());
+	imshow("Approx", codeFinder.drawPatternLines());
+	imshow("Segments", codeFinder.drawLineSegmets());
 	waitKey(0);
 
 	fs.saveImage(dest, outputImage);
