@@ -7,10 +7,9 @@
 using namespace std;
 using namespace cv;
 
-Mat CodeFinder::find(Mat image, bool hasCode)
+CodeFinder::CodeFinder(cv::Mat image, bool hasCode)
+	: hasCode(hasCode)
 {
-	// TODO: Maybe ensure that all data is empty by reinitializing all structures.
-
 	// TODO: Remove resizing for release version.
 	image = image.clone();
 	if (image.cols > 2000 || image.rows > 2000) {
@@ -23,6 +22,11 @@ Mat CodeFinder::find(Mat image, bool hasCode)
 
 	// Saving original image.
 	originalImage = image.clone();
+}
+
+Mat CodeFinder::find()
+{
+	Mat image = originalImage.clone();
 
 	cout << "Converting image to binary image..." << endl;
 	Mat grayscaleImage;
@@ -45,19 +49,25 @@ Mat CodeFinder::find(Mat image, bool hasCode)
 	findPatternLines();
 
 	cout << "Iterating all combinations of detected finder patterns..." << endl;
-	cout << "Number of detected patterns: " << patternContours.size() << endl;
+	cout << "Number of detected patterns: " << finderPatterns.size() << endl;
 	bool isQRCode = false;
-	for(int a = 0; a < patternContours.size() - 2 && !isQRCode; a++)
+	for(int a = 0; a < finderPatterns.size() - 2 && !isQRCode; a++)
 	{
-		for (int b = a + 1; b < patternContours.size() - 1 && !isQRCode; b++)
+		for (int b = a + 1; b < finderPatterns.size() - 1 && !isQRCode; b++)
 		{
-			for (int c = b + 1; c < patternContours.size() && !isQRCode; c++)
+			for (int c = b + 1; c < finderPatterns.size() && !isQRCode; c++)
 			{
 				cout << "Calculating combination (" << a << ", " << b << ", " << c << ")..." << endl;
 
-				cout << "Finding top left corner..." << endl;
-				// TODO: Identify top left corner using edge lines.
-				findTopLeftPattern();
+				FinderPattern fpTopLeft = finderPatterns[a];
+				FinderPattern fpTopRight = finderPatterns[b];
+				FinderPattern fpBottomLeft = finderPatterns[c];
+
+				cout << "Finding clockwise pattern order..." << endl;
+				findClockwiseOrder(fpTopLeft, fpTopRight, fpBottomLeft);
+
+				cout << "Finding top left corner pattern..." << endl;
+				findTopLeftPattern(fpTopLeft, fpTopRight, fpBottomLeft);
 
 				// TODO: Calculate for each line the divergence and merge near identical lines by recalcualting a new line with the help of both underlying segments.
 				// It appears like edge line detection is stable. => Line 1 of pattern 1 can only be a duplicate of line 1 of pattern 2 and so forth.
@@ -102,20 +112,20 @@ void CodeFinder::findContours()
 	cv::findContours(image, foundContours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
 
 	// Remove any contours below or above the thresholds.
-	contours.reserve(foundContours.size());
-	contourAreas.reserve(foundContours.size());
+	allContours.reserve(foundContours.size());
+	allContourAreas.reserve(foundContours.size());
 	// TODO: If the hierarchy can be used, this will probably break it.
 	for(int i = 0; i < foundContours.size(); i++)
 	{
 		double area = contourArea(foundContours[i]);
 		if(minArea < area && area < maxArea)
 		{
-			contours.push_back(foundContours[i]);
-			contourAreas.push_back(area);
+			allContours.push_back(foundContours[i]);
+			allContourAreas.push_back(area);
 		}
 	}
-	contours.shrink_to_fit();
-	contourAreas.shrink_to_fit();
+	allContours.shrink_to_fit();
+	allContourAreas.shrink_to_fit();
 }
 // TODO: Imrpove inside contour detection.
 bool CodeFinder::isContourInsideContour(vector<Point> in, vector<Point> out)
@@ -143,18 +153,19 @@ bool CodeFinder::isTrapez(vector<Point> in)
 // TODO: IMRPOVE!
 void CodeFinder::findPatternContours()
 {
-	for (int i = 0; i < contours.size(); ++i) {
-		for (int j = 0; j < contours.size(); ++j) {
-			if (contourAreas.at(i) < contourAreas.at(j)
-				&& isContourInsideContour(contours.at(i), contours.at(j))) {
-				for (int k = 0; k < contours.size(); ++k) {
-					if (contourAreas.at(k) < contourAreas.at(j)
-						&& isContourInsideContour(contours.at(k), contours.at(i))) {
-						if (isTrapez(contours.at(j))) {
-							// Only save the outter contour.
-							patternContours.push_back(contours.at(j));
-							//patternContours.push_back(contours.at(i));
-							//patternContours.push_back(contours.at(k));
+	for (int i = 0; i < allContours.size(); ++i) {
+		for (int j = 0; j < allContours.size(); ++j) {
+			if (allContourAreas.at(i) < allContourAreas.at(j)
+				&& isContourInsideContour(allContours.at(i), allContours.at(j))) {
+				for (int k = 0; k < allContours.size(); ++k) {
+					if (allContourAreas.at(k) < allContourAreas.at(j)
+						&& isContourInsideContour(allContours.at(k), allContours.at(i))) {
+						if (isTrapez(allContours.at(j))) {
+							// k lies within i and i lies within j.
+							// Only save outter most contour.
+							FinderPattern pattern;
+							pattern.contour = allContours.at(j);
+							finderPatterns.push_back(pattern);
 						}
 					}
 				}
@@ -163,58 +174,23 @@ void CodeFinder::findPatternContours()
 	}
 }
 
-// TODO: Either remove or test if this has possible applications or performance gains.
-void CodeFinder::findPatternLinesHough()
-{
-	Mat input(originalImage.rows, originalImage.cols, CV_8UC1, Scalar(0));
-
-	cv::drawContours(input, patternContours, -1, Scalar(255));
-
-	//imshow("Contour", input);
-
-	vector<Vec2f> lines;
-	double step_rho = 0.5;
-	double step_theta = CV_PI / 180;
-	double threshold = 20;
-	HoughLines(input, lines, step_rho, step_theta, threshold, 0, 0);
-	
-	for (size_t i = 0; i < lines.size(); i++)
-	{
-		float rho = lines[i][0];
-		float theta = lines[i][1];
-		double a = cos(theta), b = sin(theta);
-		double x0 = a*rho, y0 = b*rho;
-
-		Point pt1, pt2;
-		pt1.x = cvRound(x0 + 1000 * (-b));
-		pt1.y = cvRound(y0 + 1000 * (a));
-		pt2.x = cvRound(x0 - 1000 * (-b));
-		pt2.y = cvRound(y0 - 1000 * (a));
-		line(input, pt1, pt2, Scalar(128));
-	}
-
-	//imshow("Hough", input);
-	cout << "Number of lines: " << lines.size();
-	waitKey(0);
-}
-
 void CodeFinder::findPatternLines()
 {
-	for (int i = 0; i < patternContours.size(); i++) {
+	for (FinderPattern& pattern : finderPatterns) {
 		// Approximate the contour with a polygon.
-		double epsilon = 0.1 * arcLength(patternContours[i], true);
+		double epsilon = 0.1 * arcLength(pattern.contour, true);
 		vector<Point> approximatedPolygon;
-		approxPolyDP(patternContours[i], approximatedPolygon, epsilon, true);
+		approxPolyDP(pattern.contour, approximatedPolygon, epsilon, true);
 
 		// Use the approximated points as cuts for segmenting the contour.
 		// Find the indices of the cuts within the contour for that.
 		vector<int> approxCut;
-		for (Point ap : approximatedPolygon)
+		for (Point& approxPoint : approximatedPolygon)
 		{
 			bool found = false;
-			for (int index = 0; index < patternContours[i].size(); index++)
+			for (int index = 0; index < pattern.contour.size(); index++)
 			{
-				if (ap == patternContours[i][index])
+				if (approxPoint == pattern.contour[index])
 				{
 					approxCut.push_back(index);
 					found = true;
@@ -248,49 +224,113 @@ void CodeFinder::findPatternLines()
 			int margin = (approxCut[j + 1] - approxCut[j]) * marginPercentage;
 			for (int index = approxCut[j] + margin; index < approxCut[j + 1] - margin; index++)
 			{
-				segment.push_back(patternContours[i][index]);
+				segment.push_back(pattern.contour[index]);
 			}
 
 			Vec4f line;
 			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
-			lineSegments.push_back(segment);
-			patternLines.push_back(line);
+			pattern.segments.push_back(segment);
+			pattern.lines.push_back(line);
 		}
 
 		// Special case for wraping around the end of the vector.
 		{
 			vector<Point> segment;
-			int margin = (approxCut[0] + patternContours[i].size() - approxCut[3]) * marginPercentage;
-			for (int index = approxCut[3] + margin; index < approxCut[0] + patternContours[i].size() - margin; index++)
+			int margin = (approxCut[0] + pattern.contour.size() - approxCut[3]) * marginPercentage;
+			for (int index = approxCut[3] + margin; index < approxCut[0] + pattern.contour.size() - margin; index++)
 			{
-				if (index >= patternContours[i].size())
-					segment.push_back(patternContours[i][index - patternContours[i].size()]);
+				if (index >= pattern.contour.size())
+					segment.push_back(pattern.contour[index - pattern.contour.size()]);
 				else
-					segment.push_back(patternContours[i][index]);
+					segment.push_back(pattern.contour[index]);
 			}
 
 			Vec4f line;
 			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
-			lineSegments.push_back(segment);
-			patternLines.push_back(line);
+			pattern.segments.push_back(segment);
+			pattern.lines.push_back(line);
 		}
 	}
 }
 
-void CodeFinder::findTopLeftPattern()
+void CodeFinder::findClockwiseOrder(FinderPattern& a, FinderPattern& b, FinderPattern& c)
 {
-	for(int a = 0; a < patternLines.size() - 1; a++)
+	// TODO: Make sure this always works!
+	// Use shoelace algorithm (Gaußsche Trapezformel) to find winding order.
+	int area = 0;
+
+	Point pa = a.contour[0];
+	Point pb = b.contour[0];
+	Point pc = c.contour[0];
+
+	area += pa.x * (pb.y - pc.y);
+	area += pb.x * (pc.y - pa.y);
+	area += pc.x * (pa.y - pb.y);
+
+	// If area is less than zero, reverse pattern order.
+	if (area < 0)
 	{
-		for (int b = a + 1; b < patternLines.size(); b++)
-		{
-			// The pattern that has the four smallest distances will be the corner pattern.
-			cout << "Distance between Point " << a << " and Line" << b << ": " <<
-				pointToLineDistance(Vec2f(patternLines[a][2], patternLines[a][3]), patternLines[b]) << endl;
-		}
+		FinderPattern temp = a;
+		a = b;
+		b = temp;
 	}
 }
 
-// The line has to be in the same format returned by fitLine.
+void CodeFinder::findTopLeftPattern(FinderPattern& a, FinderPattern& b, FinderPattern& c)
+{
+	// Compare the distances between each line for each finder pattern.
+	vector<double> distanceA;
+	vector<double> distanceB;
+	vector<double> distanceC;
+
+	patternLineDistance(a, b, distanceA, distanceB);
+	patternLineDistance(a, c, distanceA, distanceC);
+	patternLineDistance(b, c, distanceB, distanceC);
+
+	sort(distanceA.begin(), distanceA.end());
+	sort(distanceB.begin(), distanceB.end());
+	sort(distanceC.begin(), distanceC.end());
+
+	// Every distance got essantially pushed twice so we have eight small values for
+	// the top left pattern. Therefore compare the eighth value of each pattern.
+	Mat topLeftImage;
+	vector<vector<Point>> contours;
+	if(distanceA[7] < distanceB[7] && distanceA[7] < distanceC[7])
+	{
+		// A is the top left pattern.
+		contours.push_back(a.contour);
+		contours.push_back(b.contour);
+		contours.push_back(c.contour);
+		topLeftImage = draw(contours);
+	}
+	if (distanceB[7] < distanceA[7] && distanceB[7] < distanceC[7])
+	{
+		// B is the top left pattern.
+		contours.push_back(b.contour);
+		contours.push_back(c.contour);
+		contours.push_back(a.contour);
+		topLeftImage = draw(contours);
+		FinderPattern temp = a;
+		a = b;
+		b = c;
+		c = temp;
+	}
+	if (distanceC[7] < distanceA[7] && distanceC[7] < distanceB[7])
+	{
+		// C is the top left pattern.
+		contours.push_back(c.contour);
+		contours.push_back(a.contour);
+		contours.push_back(b.contour);
+		topLeftImage = draw(contours);
+		FinderPattern temp = b;
+		a = c;
+		b = a;
+		c = temp;
+	}
+	imshow("Top Left", topLeftImage);
+}
+
+// The line has to be in the same format as returned by fitLine.
 double CodeFinder::pointToLineDistance(Vec2f p, Vec4f line)
 {
 	Vec2f supportVector(line[2], line[3]);
@@ -299,8 +339,26 @@ double CodeFinder::pointToLineDistance(Vec2f p, Vec4f line)
 	// Translate p so that supportVector moves into origin.
 	p -= supportVector;
 
-	// Calculate cross product between p and direction to get distance.
-	return p[0] * line[1] - p[1] * line[0];
+	// Calculate cross product between p and direction and get absolute distance.
+	return abs(p[0] * line[1] - p[1] * line[0]);
+}
+
+void CodeFinder::patternLineDistance(FinderPattern& one, FinderPattern& two,
+	vector<double>& distanceOne, vector<double>& distanceTwo)
+{
+	for (Vec4f lineOne : one.lines)
+	{
+		for (Vec4f lineTwo : two.lines)
+		{
+			// TODO: Is it enough only to look in one direction?
+			double distOne = pointToLineDistance(Vec2f(lineTwo[2], lineTwo[3]), lineOne);
+			double distTwo = pointToLineDistance(Vec2f(lineOne[2], lineOne[3]), lineTwo);
+			distanceOne.push_back(distOne);
+			distanceOne.push_back(distTwo);
+			distanceTwo.push_back(distOne);
+			distanceTwo.push_back(distTwo);
+		}
+	}
 }
 
 Mat CodeFinder::drawBinaryImage()
@@ -310,11 +368,16 @@ Mat CodeFinder::drawBinaryImage()
 
 Mat CodeFinder::drawContours()
 {
-	return draw(contours);
+	return draw(allContours);
 }
 
 Mat CodeFinder::drawPatternContours()
 {
+	std::vector<std::vector<cv::Point>> patternContours;
+	for(FinderPattern& pattern : finderPatterns)
+	{
+		patternContours.push_back(pattern.contour);
+	}
 	return draw(patternContours);
 }
 
@@ -323,32 +386,65 @@ Mat CodeFinder::drawPatternLines()
 	Mat lineImage = originalImage.clone();
 
 	vector<vector<Point>> polygons;
-	for (int i = 0; i < patternContours.size(); i++) {
+	for (FinderPattern& pattern : finderPatterns) {
 		// Approximate the contour with a polygon.
-		double epsilon = 0.1 * arcLength(patternContours[i], true);
+		double epsilon = 0.1 * arcLength(pattern.contour, true);
 		vector<Point> approximatedPolygon;
-		approxPolyDP(patternContours[i], approximatedPolygon, epsilon, true);
+		approxPolyDP(pattern.contour, approximatedPolygon, epsilon, true);
 		polygons.push_back(approximatedPolygon);
 	}
 
 	cv::drawContours(lineImage, polygons, -1, Scalar(255, 255, 0));
 
-	for(Vec4f line : patternLines)
-	{
-		int factor = 10000;
-		float x = line[2];
-		float y = line[3];
-		float dx = line[0];
-		float dy = line[1];
-		Point p1(x - dx * factor, y - dy * factor);
-		Point p2(x + dx * factor, y + dy * factor);
-		cv::line(lineImage, p1, p2, Scalar(0,0,255));
+	for (FinderPattern& pattern : finderPatterns) {
+		for (Vec4f& line : pattern.lines)
+		{
+			int factor = 10000;
+			float x = line[2];
+			float y = line[3];
+			float dx = line[0];
+			float dy = line[1];
+			Point p1(x - dx * factor, y - dy * factor);
+			Point p2(x + dx * factor, y + dy * factor);
+			cv::line(lineImage, p1, p2, Scalar(0, 0, 255));
+		}
 	}
 
 	return lineImage;
 }
 
-cv::Mat CodeFinder::drawLineSegments()
+cv::Mat CodeFinder::drawCoarseCenter()
+{
+	Mat coarseImage = originalImage.clone();
+
+	for(FinderPattern& pattern : finderPatterns)
+	{
+		circle(coarseImage, pattern.contour[0], 5, Scalar(0, 0, 255), 3);
+	}
+
+	for (int a = 0; a < finderPatterns.size() - 2; a++)
+	{
+		for (int b = a + 1; b < finderPatterns.size() - 1; b++)
+		{
+			for (int c = b + 1; c < finderPatterns.size(); c++)
+			{
+				FinderPattern& fpA = finderPatterns[a];
+				FinderPattern& fpB = finderPatterns[b];
+				FinderPattern& fpC = finderPatterns[c];
+
+				Point2f coarseCenter = (fpA.contour[0] + fpB.contour[0] + fpC.contour[0]);
+				coarseCenter.x /= 3;
+				coarseCenter.y /= 3;
+
+				circle(coarseImage, coarseCenter, 5, Scalar(255, 0, 255), 3);
+			}
+		}
+	}
+
+	return coarseImage;
+}
+
+cv::Mat CodeFinder::drawPatternSegments()
 {
 	Mat segmentImage = originalImage.clone();
 	Scalar color[4];
@@ -357,11 +453,14 @@ cv::Mat CodeFinder::drawLineSegments()
 	color[2] = Scalar(255, 0, 0);
 	color[3] = Scalar(255, 255, 0);
 
-	for(int i = 0; i < lineSegments.size(); i++)
+	for(FinderPattern& pattern : finderPatterns)
 	{
-		for(Point p : lineSegments[i])
+		for(int i = 0; i < pattern.segments.size(); i++)
 		{
-			circle(segmentImage, p, 1, color[i % 4]);
+			for (Point& p : pattern.segments[i])
+			{
+				circle(segmentImage, p, 1, color[i % 4]);
+			}
 		}
 	}
 
@@ -374,7 +473,7 @@ Mat CodeFinder::draw(vector<vector<Point>>& vecs)
 	Scalar color[3];
 	color[0] = Scalar(0, 0, 255);
 	color[1] = Scalar(0, 255, 0);
-	color[2] = Scalar(255, 0, 0);
+	color[2] = Scalar(255, 0, 255);
 
 	for (size_t idx = 0; idx < vecs.size(); idx++) {
 		cv::drawContours(image, vecs, idx, color[idx % 3]);

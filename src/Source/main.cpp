@@ -292,24 +292,27 @@ void folderMode(const string &source) {
     }
 }
 
-void evaluationMode(const string &source, const string &dest) {
+void evaluationMode(const string &source, const string &dest)
+{
 	FileSystem fs;
-	CodeFinder codeFinder;
-
 	Mat inputImage = fs.readImage(source);
-	Mat outputImage = codeFinder.find(inputImage, true);
+
+	CodeFinder codeFinder(inputImage, true);
+	Mat outputImage = codeFinder.find();
 
 	imshow("Contours", codeFinder.drawContours());
 	imshow("Patterns", codeFinder.drawPatternContours());
-	imshow("Approx", codeFinder.drawPatternLines());
-	imshow("Segments", codeFinder.drawLineSegments());
+	imshow("Segments", codeFinder.drawPatternSegments());
+	imshow("Lines", codeFinder.drawPatternLines());
+	imshow("CoarseCenter", codeFinder.drawCoarseCenter());
 	waitKey(0);
 
 	fs.saveImage(dest, outputImage);
 }
 
 
-void generateMode(const string &source, const string &dest) {
+void generateMode(const string &source, const string &dest)
+{
     cout << "Source     : " << source << endl;
     cout << "Destination: " << dest << endl;
 

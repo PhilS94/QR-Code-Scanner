@@ -14,5 +14,12 @@ public:
 	cv::Point bottomleft;
 };
 
+struct FinderPattern
+{
+	std::vector<cv::Point> contour;
+	std::vector<std::vector<cv::Point>> segments;
+	std::vector<cv::Vec4f> lines;
+};
+
 
 #endif //QRCODE_PATTERNORIENTATION_H
