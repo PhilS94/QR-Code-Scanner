@@ -22,6 +22,13 @@ CodeFinder::CodeFinder(cv::Mat image, bool hasCode)
 
 	// Saving original image.
 	originalImage = image.clone();
+
+	// Initializing default debug draw colors.
+	debuggingColors.push_back(Scalar(0, 0, 255));
+	debuggingColors.push_back(Scalar(0, 255, 0));
+	debuggingColors.push_back(Scalar(255, 0, 0));
+	debuggingColors.push_back(Scalar(255, 0, 255));
+	debuggingColors.push_back(Scalar(255, 255, 0));
 }
 
 Mat CodeFinder::find()
@@ -39,7 +46,7 @@ Mat CodeFinder::find()
 	binarizedImage = binarizer.run(grayscaleImage);
 
 	cout << "Finding all contours..." << endl;
-	findContours();
+	findAllContours();
 
 	cout << "Finding all finder pattern candidates..." << endl;
 	findPatternContours();
@@ -49,31 +56,32 @@ Mat CodeFinder::find()
 	findPatternLines();
 
 	cout << "Iterating all combinations of detected finder patterns..." << endl;
-	cout << "Number of detected patterns: " << finderPatterns.size() << endl;
+	cout << "Number of detected patterns: " << allFinderPatterns.size() << endl;
 	bool isQRCode = false;
-	for(int a = 0; a < finderPatterns.size() - 2 && !isQRCode; a++)
+	for(int a = 0; a < allFinderPatterns.size() - 2 && !isQRCode; a++)
 	{
-		for (int b = a + 1; b < finderPatterns.size() - 1 && !isQRCode; b++)
+		for (int b = a + 1; b < allFinderPatterns.size() - 1 && !isQRCode; b++)
 		{
-			for (int c = b + 1; c < finderPatterns.size() && !isQRCode; c++)
+			for (int c = b + 1; c < allFinderPatterns.size() && !isQRCode; c++)
 			{
-				cout << "Calculating combination (" << a << ", " << b << ", " << c << ")..." << endl;
-
-				FinderPattern fpTopLeft = finderPatterns[a];
-				FinderPattern fpTopRight = finderPatterns[b];
-				FinderPattern fpBottomLeft = finderPatterns[c];
+				cout << "Examining combination (" << a << ", " << b << ", " << c << ")..." << endl;
+				QRCode code;
+				// TODO: Maybe don't copy here but instead use references.
+				code.topLeft = allFinderPatterns[a];
+				code.topRight = allFinderPatterns[b];
+				code.bottomLeft = allFinderPatterns[c];
 
 				cout << "Finding clockwise pattern order..." << endl;
-				findClockwiseOrder(fpTopLeft, fpTopRight, fpBottomLeft);
+				findClockwiseOrder(code);
 
 				cout << "Finding top left corner pattern..." << endl;
-				findTopLeftPattern(fpTopLeft, fpTopRight, fpBottomLeft);
+				findTopLeftPattern(code);
 
-				// TODO: Calculate for each line the divergence and merge near identical lines by recalcualting a new line with the help of both underlying segments.
-				// It appears like edge line detection is stable. => Line 1 of pattern 1 can only be a duplicate of line 1 of pattern 2 and so forth.
+				cout << "Finding merged lines..." << endl;
+				findMergedLines(code);
 
-				// TODO: Find the four corners using the edge line intersections.
-				// In case of obviously degenerate lines abort.
+				cout << "Finding QRCode corners..." << endl;
+				findCorners(code);
 
 				// TODO: Use perspective transform to extract the qrcode.
 
@@ -82,6 +90,8 @@ Mat CodeFinder::find()
 				// TODO: Resize to true size of qrcode.
 
 				// TODO: Verify that we have truly found a valid qrcode.
+
+				allCodes.push_back(code);
 			}
 		}
 	}
@@ -92,9 +102,9 @@ Mat CodeFinder::find()
 	return codeNotFound;
 }
 
-void CodeFinder::findContours()
+void CodeFinder::findAllContours()
 {
-	// Clone image, because it will be directly manipulated by findContours.
+	// Clone image, because it will be directly manipulated by findAllContours.
 	// TODO: Maybe don't do this because it wont be used again anway.
 	Mat image = binarizedImage.clone();
 
@@ -165,7 +175,7 @@ void CodeFinder::findPatternContours()
 							// Only save outter most contour.
 							FinderPattern pattern;
 							pattern.contour = allContours.at(j);
-							finderPatterns.push_back(pattern);
+							allFinderPatterns.push_back(pattern);
 						}
 					}
 				}
@@ -176,7 +186,7 @@ void CodeFinder::findPatternContours()
 
 void CodeFinder::findPatternLines()
 {
-	for (FinderPattern& pattern : finderPatterns) {
+	for (FinderPattern& pattern : allFinderPatterns) {
 		// Approximate the contour with a polygon.
 		double epsilon = 0.1 * arcLength(pattern.contour, true);
 		vector<Point> approximatedPolygon;
@@ -210,10 +220,6 @@ void CodeFinder::findPatternLines()
 			throw exception(); // Assumption that the approximation is a quad did not hold true.
 		}
 		sort(approxCut.begin(), approxCut.end());
-
-		int fitType = CV_DIST_FAIR;
-		int fitReps = 0.01;
-		int fitAeps = 0.01;
 
 		float marginPercentage = 0.1;
 
@@ -253,15 +259,15 @@ void CodeFinder::findPatternLines()
 	}
 }
 
-void CodeFinder::findClockwiseOrder(FinderPattern& a, FinderPattern& b, FinderPattern& c)
+void CodeFinder::findClockwiseOrder(QRCode& code)
 {
 	// TODO: Make sure this always works!
 	// Use shoelace algorithm (Gauﬂsche Trapezformel) to find winding order.
 	int area = 0;
 
-	Point pa = a.contour[0];
-	Point pb = b.contour[0];
-	Point pc = c.contour[0];
+	Point& pa = code.topLeft.contour[0];
+	Point& pb = code.topRight.contour[0];
+	Point& pc = code.bottomLeft.contour[0];
 
 	area += pa.x * (pb.y - pc.y);
 	area += pb.x * (pc.y - pa.y);
@@ -270,22 +276,22 @@ void CodeFinder::findClockwiseOrder(FinderPattern& a, FinderPattern& b, FinderPa
 	// If area is less than zero, reverse pattern order.
 	if (area < 0)
 	{
-		FinderPattern temp = a;
-		a = b;
-		b = temp;
+		FinderPattern temp = code.topLeft;
+		code.topLeft = code.topRight;
+		code.topRight = temp;
 	}
 }
 
-void CodeFinder::findTopLeftPattern(FinderPattern& a, FinderPattern& b, FinderPattern& c)
+void CodeFinder::findTopLeftPattern(QRCode& code)
 {
 	// Compare the distances between each line for each finder pattern.
 	vector<double> distanceA;
 	vector<double> distanceB;
 	vector<double> distanceC;
 
-	patternLineDistance(a, b, distanceA, distanceB);
-	patternLineDistance(a, c, distanceA, distanceC);
-	patternLineDistance(b, c, distanceB, distanceC);
+	patternPatternLineDistances(code.topLeft, code.topRight, distanceA, distanceB);
+	patternPatternLineDistances(code.topLeft, code.bottomLeft, distanceA, distanceC);
+	patternPatternLineDistances(code.topRight, code.bottomLeft, distanceB, distanceC);
 
 	sort(distanceA.begin(), distanceA.end());
 	sort(distanceB.begin(), distanceB.end());
@@ -293,45 +299,100 @@ void CodeFinder::findTopLeftPattern(FinderPattern& a, FinderPattern& b, FinderPa
 
 	// Every distance got essantially pushed twice so we have eight small values for
 	// the top left pattern. Therefore compare the eighth value of each pattern.
-	Mat topLeftImage;
-	vector<vector<Point>> contours;
 	if(distanceA[7] < distanceB[7] && distanceA[7] < distanceC[7])
 	{
 		// A is the top left pattern.
-		contours.push_back(a.contour);
-		contours.push_back(b.contour);
-		contours.push_back(c.contour);
-		topLeftImage = draw(contours);
 	}
 	if (distanceB[7] < distanceA[7] && distanceB[7] < distanceC[7])
 	{
 		// B is the top left pattern.
-		contours.push_back(b.contour);
-		contours.push_back(c.contour);
-		contours.push_back(a.contour);
-		topLeftImage = draw(contours);
-		FinderPattern temp = a;
-		a = b;
-		b = c;
-		c = temp;
+		FinderPattern temp = code.topLeft;
+		code.topLeft = code.topRight;
+		code.topRight = code.bottomLeft;
+		code.bottomLeft = temp;
 	}
 	if (distanceC[7] < distanceA[7] && distanceC[7] < distanceB[7])
 	{
 		// C is the top left pattern.
-		contours.push_back(c.contour);
-		contours.push_back(a.contour);
-		contours.push_back(b.contour);
-		topLeftImage = draw(contours);
-		FinderPattern temp = b;
-		a = c;
-		b = a;
-		c = temp;
+		FinderPattern temp = code.topRight;
+		code.topLeft = code.bottomLeft;
+		code.topRight = code.topLeft;
+		code.bottomLeft = temp;
 	}
+
+	Mat topLeftImage;
+	vector<vector<Point>> contours;
+	contours.push_back(code.topLeft.contour);
+	contours.push_back(code.topRight.contour);
+	contours.push_back(code.bottomLeft.contour);
+	topLeftImage = drawContours(contours);
 	imshow("Top Left", topLeftImage);
 }
 
+void CodeFinder::findMergedLines(QRCode& code)
+{
+	// TODO: Ensure that the following assumption is correct!
+	// It appears like edge line detection is stable. => Line 1 of pattern 1 can only be a duplicate of line 1 of pattern 2 and so forth.
+
+	FinderPattern& tl = code.topLeft;
+	FinderPattern& tr = code.topRight;
+	FinderPattern& bl = code.bottomLeft;
+
+	// Merge each line of the top left pattern with one line of either top right or bottom left.
+	for(int a = 0; a < tl.lines.size(); a++)
+	{
+		double distTR = lineLineDistance(tl.lines[a], tr.lines[a]);
+		double distBL = lineLineDistance(tl.lines[a], bl.lines[a]);
+
+		// Decide who to merge with by going for the smallest distance between two lines.
+		Vec4f line;
+		vector<Point> mergedSegment;
+		if(distTR < distBL)
+		{
+			// Merge with top right.
+			mergedSegment.reserve(tl.segments[a].size() + tr.segments[a].size());
+			for(Point& p : tl.segments[a])
+			{
+				mergedSegment.push_back(p);
+			}
+			for (Point& p : tr.segments[a])
+			{
+				mergedSegment.push_back(p);
+			}
+			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
+			code.horizontalLines.push_back(line);
+
+			// Simply add bottom left.
+			code.horizontalLines.push_back(bl.lines[a]);
+		}
+		else
+		{
+			// Merge with bottom left.
+			mergedSegment.reserve(tl.segments[a].size() + bl.segments[a].size());
+			for (Point& p : tl.segments[a])
+			{
+				mergedSegment.push_back(p);
+			}
+			for (Point& p : bl.segments[a])
+			{
+				mergedSegment.push_back(p);
+			}
+			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
+			code.verticalLines.push_back(line);
+
+			// Simply add top right.
+			code.verticalLines.push_back(tr.lines[a]);
+		}
+	}
+}
+
+void CodeFinder::findCorners(QRCode& code)
+{
+
+}
+
 // The line has to be in the same format as returned by fitLine.
-double CodeFinder::pointToLineDistance(Vec2f p, Vec4f line)
+double CodeFinder::pointLineDistance(Vec2f p, Vec4f line)
 {
 	Vec2f supportVector(line[2], line[3]);
 	// Vec2f direction(line[0], line[1]);
@@ -343,20 +404,24 @@ double CodeFinder::pointToLineDistance(Vec2f p, Vec4f line)
 	return abs(p[0] * line[1] - p[1] * line[0]);
 }
 
-void CodeFinder::patternLineDistance(FinderPattern& one, FinderPattern& two,
+double CodeFinder::lineLineDistance(cv::Vec4f lineOne, cv::Vec4f lineTwo)
+{
+	double distOne = pointLineDistance(Vec2f(lineTwo[2], lineTwo[3]), lineOne);
+	double distTwo = pointLineDistance(Vec2f(lineOne[2], lineOne[3]), lineTwo);
+
+	return min(distOne, distTwo);
+}
+
+void CodeFinder::patternPatternLineDistances(FinderPattern& one, FinderPattern& two,
 	vector<double>& distanceOne, vector<double>& distanceTwo)
 {
 	for (Vec4f lineOne : one.lines)
 	{
 		for (Vec4f lineTwo : two.lines)
 		{
-			// TODO: Is it enough only to look in one direction?
-			double distOne = pointToLineDistance(Vec2f(lineTwo[2], lineTwo[3]), lineOne);
-			double distTwo = pointToLineDistance(Vec2f(lineOne[2], lineOne[3]), lineTwo);
-			distanceOne.push_back(distOne);
-			distanceOne.push_back(distTwo);
-			distanceTwo.push_back(distOne);
-			distanceTwo.push_back(distTwo);
+			double dist = lineLineDistance(lineOne, lineTwo);
+			distanceOne.push_back(dist);
+			distanceTwo.push_back(dist);
 		}
 	}
 }
@@ -366,27 +431,27 @@ Mat CodeFinder::drawBinaryImage()
 	return binarizedImage;
 }
 
-Mat CodeFinder::drawContours()
+Mat CodeFinder::drawAllContours()
 {
-	return draw(allContours);
+	return drawContours(allContours);
 }
 
 Mat CodeFinder::drawPatternContours()
 {
 	std::vector<std::vector<cv::Point>> patternContours;
-	for(FinderPattern& pattern : finderPatterns)
+	for(FinderPattern& pattern : allFinderPatterns)
 	{
 		patternContours.push_back(pattern.contour);
 	}
-	return draw(patternContours);
+	return drawContours(patternContours);
 }
 
 Mat CodeFinder::drawPatternLines()
 {
 	Mat lineImage = originalImage.clone();
-
+	
 	vector<vector<Point>> polygons;
-	for (FinderPattern& pattern : finderPatterns) {
+	for (FinderPattern& pattern : allFinderPatterns) {
 		// Approximate the contour with a polygon.
 		double epsilon = 0.1 * arcLength(pattern.contour, true);
 		vector<Point> approximatedPolygon;
@@ -394,54 +459,41 @@ Mat CodeFinder::drawPatternLines()
 		polygons.push_back(approximatedPolygon);
 	}
 
-	cv::drawContours(lineImage, polygons, -1, Scalar(255, 255, 0));
+	vector<Scalar> colorsPolygons;
+	colorsPolygons.push_back(Scalar(255, 255, 0));
 
-	for (FinderPattern& pattern : finderPatterns) {
-		for (Vec4f& line : pattern.lines)
-		{
-			int factor = 10000;
-			float x = line[2];
-			float y = line[3];
-			float dx = line[0];
-			float dy = line[1];
-			Point p1(x - dx * factor, y - dy * factor);
-			Point p2(x + dx * factor, y + dy * factor);
-			cv::line(lineImage, p1, p2, Scalar(0, 0, 255));
-		}
+	drawContours(polygons, &lineImage, &colorsPolygons);
+
+	vector<Scalar> colorsLines;
+	colorsLines.push_back(Scalar(0, 0, 255));
+
+	for (FinderPattern& pattern : allFinderPatterns) {
+		drawLines(pattern.lines, &lineImage, &colorsLines);
 	}
 
 	return lineImage;
 }
 
-cv::Mat CodeFinder::drawCoarseCenter()
+cv::Mat CodeFinder::drawMergedLines()
 {
-	Mat coarseImage = originalImage.clone();
+	Mat lineImage = originalImage.clone();
 
-	for(FinderPattern& pattern : finderPatterns)
+	std::vector<cv::Scalar> colorsHorizontal;
+	colorsHorizontal.push_back(Scalar(0, 0, 255));
+
+	std::vector<cv::Scalar> colorsVertical;
+	colorsVertical.push_back(Scalar(0, 255, 0));
+
+	for(QRCode& code : allCodes)
 	{
-		circle(coarseImage, pattern.contour[0], 5, Scalar(0, 0, 255), 3);
+		drawLines(code.horizontalLines, &lineImage, &colorsHorizontal);
+	}
+	for (QRCode& code : allCodes)
+	{
+		drawLines(code.verticalLines, &lineImage, &colorsVertical);
 	}
 
-	for (int a = 0; a < finderPatterns.size() - 2; a++)
-	{
-		for (int b = a + 1; b < finderPatterns.size() - 1; b++)
-		{
-			for (int c = b + 1; c < finderPatterns.size(); c++)
-			{
-				FinderPattern& fpA = finderPatterns[a];
-				FinderPattern& fpB = finderPatterns[b];
-				FinderPattern& fpC = finderPatterns[c];
-
-				Point2f coarseCenter = (fpA.contour[0] + fpB.contour[0] + fpC.contour[0]);
-				coarseCenter.x /= 3;
-				coarseCenter.y /= 3;
-
-				circle(coarseImage, coarseCenter, 5, Scalar(255, 0, 255), 3);
-			}
-		}
-	}
-
-	return coarseImage;
+	return lineImage;
 }
 
 cv::Mat CodeFinder::drawPatternSegments()
@@ -453,7 +505,7 @@ cv::Mat CodeFinder::drawPatternSegments()
 	color[2] = Scalar(255, 0, 0);
 	color[3] = Scalar(255, 255, 0);
 
-	for(FinderPattern& pattern : finderPatterns)
+	for(FinderPattern& pattern : allFinderPatterns)
 	{
 		for(int i = 0; i < pattern.segments.size(); i++)
 		{
@@ -467,17 +519,47 @@ cv::Mat CodeFinder::drawPatternSegments()
 	return segmentImage;
 }
 
-Mat CodeFinder::draw(vector<vector<Point>>& vecs)
+Mat CodeFinder::drawContours(vector<vector<Point>>& vecs, Mat* image, vector<Scalar>* colors)
 {
-	Mat image = originalImage.clone();
-	Scalar color[3];
-	color[0] = Scalar(0, 0, 255);
-	color[1] = Scalar(0, 255, 0);
-	color[2] = Scalar(255, 0, 255);
+	Mat drawImage;
+	if (!image)
+		drawImage = originalImage.clone();
+	else
+		drawImage = *image;
 
-	for (size_t idx = 0; idx < vecs.size(); idx++) {
-		cv::drawContours(image, vecs, idx, color[idx % 3]);
+	if (!colors)
+		colors = &debuggingColors;
+
+	for (int idx = 0; idx < vecs.size(); idx++) {
+		cv::drawContours(drawImage, vecs, idx, (*colors)[idx % colors->size()]);
 	}
 
-	return image;
+	return drawImage;
+}
+
+Mat CodeFinder::drawLines(vector<Vec4f>& lines, Mat* image, vector<Scalar>* colors)
+{
+	Mat drawImage;
+	if (!image)
+		drawImage = originalImage.clone();
+	else
+		drawImage = *image;
+
+	if (!colors)
+		colors = &debuggingColors;
+
+	for (int idx = 0; idx < lines.size(); idx++)
+	{
+		Vec4f& line = lines[idx];
+		int factor = 10000;
+		float x = line[2];
+		float y = line[3];
+		float dx = line[0];
+		float dy = line[1];
+		Point p1(x - dx * factor, y - dy * factor);
+		Point p2(x + dx * factor, y + dy * factor);
+		cv::line(drawImage, p1, p2, (*colors)[idx % colors->size()]);
+	}
+
+	return drawImage;
 }

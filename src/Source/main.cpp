@@ -300,11 +300,11 @@ void evaluationMode(const string &source, const string &dest)
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
 
-	imshow("Contours", codeFinder.drawContours());
+	imshow("Contours", codeFinder.drawAllContours());
 	imshow("Patterns", codeFinder.drawPatternContours());
 	imshow("Segments", codeFinder.drawPatternSegments());
-	imshow("Lines", codeFinder.drawPatternLines());
-	imshow("CoarseCenter", codeFinder.drawCoarseCenter());
+	imshow("All Lines", codeFinder.drawPatternLines());
+	imshow("Merged Lines", codeFinder.drawMergedLines());
 	waitKey(0);
 
 	fs.saveImage(dest, outputImage);

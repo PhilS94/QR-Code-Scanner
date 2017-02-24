@@ -11,26 +11,32 @@ public:
 	cv::Mat find();
 
 	cv::Mat drawBinaryImage();
-	cv::Mat drawContours();
+	cv::Mat drawAllContours();
 	cv::Mat drawPatternContours();
 	cv::Mat drawPatternSegments();
 	cv::Mat drawPatternLines();
-	cv::Mat drawCoarseCenter();
+	cv::Mat drawMergedLines();
 	
 protected:
-	cv::Mat draw(std::vector<std::vector<cv::Point>>& vecs);
+	cv::Mat drawContours(std::vector<std::vector<cv::Point>>& vecs,
+		cv::Mat* image = nullptr, std::vector<cv::Scalar>* colors = nullptr);
+	cv::Mat drawLines(std::vector<cv::Vec4f>& lines,
+		cv::Mat* image = nullptr, std::vector<cv::Scalar>* colors = nullptr);
 
-	void findContours();
+	void findAllContours();
 	void findPatternContours();
 	void findPatternLines();
-	void findClockwiseOrder(FinderPattern& a, FinderPattern& b, FinderPattern& c);
-	void findTopLeftPattern(FinderPattern& a, FinderPattern& b, FinderPattern& c);
+	void findClockwiseOrder(QRCode& code);
+	void findTopLeftPattern(QRCode& code);
+	void findMergedLines(QRCode& code);
+	void findCorners(QRCode& code);
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 	bool isTrapez(std::vector<cv::Point> in);
 
-	double pointToLineDistance(cv::Vec2f point, cv::Vec4f line);
-	void patternLineDistance(FinderPattern& one, FinderPattern& two,
+	double pointLineDistance(cv::Vec2f point, cv::Vec4f line);
+	double lineLineDistance(cv::Vec4f lineOne, cv::Vec4f lineTwo);
+	void patternPatternLineDistances(FinderPattern& one, FinderPattern& two,
 		std::vector<double>& distanceOne, std::vector<double>& distanceTwo);
 
 private:
@@ -39,7 +45,15 @@ private:
 	cv::Mat binarizedImage;
 	std::vector<std::vector<cv::Point>> allContours;
 	std::vector<double> allContourAreas;
-	std::vector<FinderPattern> finderPatterns;
+	std::vector<FinderPattern> allFinderPatterns;
+	std::vector<QRCode> allCodes;
+
+	// Constants used for line fitting.
+	static const int fitType = CV_DIST_FAIR;
+	static const int fitReps = 0.01;
+	static const int fitAeps = 0.01;
+
+	std::vector<cv::Scalar> debuggingColors;
 };
 
 
