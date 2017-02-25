@@ -87,40 +87,43 @@ Mat CodeFinder::find()
 	cout << "Iterating all combinations of detected finder patterns..." << endl;
 	cout << "Number of detected patterns: " << allFinderPatterns.size() << endl;
 	bool isQRCode = false;
-	for(int a = 0; a < allFinderPatterns.size() - 2 && !isQRCode; a++)
+	if (allFinderPatterns.size() >= 3)
 	{
-		for (int b = a + 1; b < allFinderPatterns.size() - 1 && !isQRCode; b++)
+		for (int a = 0; a < allFinderPatterns.size() - 2 && !isQRCode; a++)
 		{
-			for (int c = b + 1; c < allFinderPatterns.size() && !isQRCode; c++)
+			for (int b = a + 1; b < allFinderPatterns.size() - 1 && !isQRCode; b++)
 			{
-				cout << "Examining combination (" << a << ", " << b << ", " << c << ")..." << endl;
-				QRCode code;
-				// TODO: Maybe don't copy here but instead use references.
-				code.topLeft = allFinderPatterns[a];
-				code.topRight = allFinderPatterns[b];
-				code.bottomLeft = allFinderPatterns[c];
+				for (int c = b + 1; c < allFinderPatterns.size() && !isQRCode; c++)
+				{
+					cout << "Examining combination (" << a << ", " << b << ", " << c << ")..." << endl;
+					QRCode code;
+					// TODO: Maybe don't copy here but instead use references.
+					code.topLeft = allFinderPatterns[a];
+					code.topRight = allFinderPatterns[b];
+					code.bottomLeft = allFinderPatterns[c];
 
-				cout << "Finding clockwise pattern order..." << endl;
-				findClockwiseOrder(code);
+					cout << "Finding clockwise pattern order..." << endl;
+					findClockwiseOrder(code);
 
-				cout << "Finding top left corner pattern..." << endl;
-				findTopLeftPattern(code);
+					cout << "Finding top left corner pattern..." << endl;
+					findTopLeftPattern(code);
 
-				cout << "Finding merged lines..." << endl;
-				findMergedLines(code);
+					cout << "Finding merged lines..." << endl;
+					findMergedLines(code);
 
-				cout << "Finding QRCode corners..." << endl;
-				findCorners(code);
+					cout << "Finding QRCode corners..." << endl;
+					findCorners(code);
 
-				// TODO: Use perspective transform to extract the qrcode.
+					// TODO: Use perspective transform to extract the qrcode.
 
-				// TODO: Attempt calculation of true size of the qrcode.
+					// TODO: Attempt calculation of true size of the qrcode.
 
-				// TODO: Resize to true size of qrcode.
+					// TODO: Resize to true size of qrcode.
 
-				// TODO: Verify that we have truly found a valid qrcode.
+					// TODO: Verify that we have truly found a valid qrcode.
 
-				allPatternCombinations.push_back(code);
+					allCodes.push_back(code);
+				}
 			}
 		}
 	}
@@ -166,7 +169,8 @@ void CodeFinder::findAllContours()
 	allContours.shrink_to_fit();
 	allContourAreas.shrink_to_fit();
 }
-// TODO: Imrpove inside contour detection.
+
+// TODO: This is incredibly slow because of the many points needed later for the segments.
 bool CodeFinder::isContourInsideContour(vector<Point> in, vector<Point> out)
 {
 	if (in.size() > 0 && out.size() > 0) {
@@ -192,20 +196,23 @@ bool CodeFinder::isTrapez(vector<Point> in)
 // TODO: IMRPOVE!
 void CodeFinder::findPatternContours()
 {
+	// TODO: Instead of this monster, use the hierarchy function!
 	for (int i = 0; i < allContours.size(); ++i) {
 		for (int j = 0; j < allContours.size(); ++j) {
 			if (allContourAreas.at(i) < allContourAreas.at(j)
+				&& isTrapez(allContours.at(j))
+				&& isTrapez(allContours.at(i))
 				&& isContourInsideContour(allContours.at(i), allContours.at(j))) {
 				for (int k = 0; k < allContours.size(); ++k) {
 					if (allContourAreas.at(k) < allContourAreas.at(j)
-						&& isContourInsideContour(allContours.at(k), allContours.at(i))) {
-						if (isTrapez(allContours.at(j))) {
-							// k lies within i and i lies within j.
-							// Only save outter most contour.
-							FinderPattern pattern;
-							pattern.contour = allContours.at(j);
-							allFinderPatterns.push_back(pattern);
-						}
+						&& isTrapez(allContours.at(k))
+						&& isContourInsideContour(allContours.at(k), allContours.at(i))) 
+					{
+						// k lies within i and i lies within j.
+						// Only save outter most contour.
+						FinderPattern pattern;
+						pattern.contour = allContours.at(j);
+						allFinderPatterns.push_back(pattern);
 					}
 				}
 			}
@@ -344,8 +351,8 @@ void CodeFinder::findTopLeftPattern(QRCode& code)
 	{
 		// C is the top left pattern.
 		FinderPattern temp = code.topRight;
-		code.topLeft = code.bottomLeft;
 		code.topRight = code.topLeft;
+		code.topLeft = code.bottomLeft;
 		code.bottomLeft = temp;
 	}
 
@@ -355,68 +362,116 @@ void CodeFinder::findTopLeftPattern(QRCode& code)
 	contours.push_back(code.topRight.contour);
 	contours.push_back(code.bottomLeft.contour);
 	topLeftImage = drawContours(contours);
-	imshow("Top Left", topLeftImage);
+	//imshow("Top Left", topLeftImage);
+}
+
+template<typename T>
+vector<T> merge(vector<T>& a, vector<T>& b) {
+	vector<T> result;
+	result.reserve(a.size() + b.size());
+	result.insert(result.end(), a.begin(), a.end());
+	result.insert(result.end(), b.begin(), b.end());
+	return result;
 }
 
 void CodeFinder::findMergedLines(QRCode& code)
 {
-	// TODO: Ensure that the following assumption is correct!
-	// It appears like edge line detection is stable. => Line 1 of pattern 1 can only be a duplicate of line 1 of pattern 2 and so forth.
-
 	FinderPattern& tl = code.topLeft;
 	FinderPattern& tr = code.topRight;
 	FinderPattern& bl = code.bottomLeft;
 
-	vector<Vec4f> topLeftMergedLines;
+	// Keeps track of how the lines for the top left pattern look after merging.
+	vector<Vec4f> mergedLines;
+	// Keeps track of which lines already have been used.
+	vector<Vec4f> usedLines;
+
+	mergedLines.reserve(tl.lines.size());
+	usedLines.reserve(tl.lines.size() * 2);
 
 	// Merge each line of the top left pattern with one line of either top right or bottom left.
 	for(int a = 0; a < tl.lines.size(); a++)
 	{
-		double distTR = lineLineDistance(tl.lines[a], tr.lines[a]);
-		double distBL = lineLineDistance(tl.lines[a], bl.lines[a]);
+		// Find the line with the smallest distance to the current line.
+		double minDistance = lineLineDistance(tl.lines[a], tr.lines[0]);
+		int index = 0;
+		bool isTopRight = true;
 
-		// Decide who to merge with by going for the smallest distance between two lines.
+		// Search in top right.
+		for(int i = 0; i < tr.lines.size(); i++)
+		{
+			double currentDistance = lineLineDistance(tl.lines[a], tr.lines[i]);
+			if(currentDistance < minDistance)
+			{
+				minDistance = currentDistance;
+				index = i;
+				isTopRight = true;
+			}
+		}
+		// Search in bottom left.
+		for (int i = 0; i < bl.lines.size(); i++)
+		{
+			double currentDistance = lineLineDistance(tl.lines[a], bl.lines[i]);
+			if (currentDistance < minDistance)
+			{
+				minDistance = currentDistance;
+				index = i;
+				isTopRight = false;
+			}
+		}
+
+		// Once found, merge the underlying segments and fit a new line.
 		Vec4f line;
 		vector<Point> mergedSegment;
-		if(distTR < distBL)
+		if(isTopRight)
 		{
-			// Merge with top right.
-			mergedSegment.reserve(tl.segments[a].size() + tr.segments[a].size());
-			// TODO: Try using the std::merge function here. For some reason it throws an error.
-			for(Point& p : tl.segments[a])
-			{
-				mergedSegment.push_back(p);
-			}
-			for (Point& p : tr.segments[a])
-			{
-				mergedSegment.push_back(p);
-			}
+			mergedSegment = merge(tl.segments[a], tr.segments[index]);
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
-			code.hLines.push_back(line);
-			topLeftMergedLines.push_back(line);
 
-			// Simply add bottom left.
-			code.hLines.push_back(bl.lines[a]);
+			code.hLines.push_back(line);
+			mergedLines.push_back(line);
+			usedLines.push_back(tl.lines[a]);
+			usedLines.push_back(tr.lines[index]);
 		}
 		else
 		{
-			// Merge with bottom left.
-			mergedSegment.reserve(tl.segments[a].size() + bl.segments[a].size());
-			for (Point& p : tl.segments[a])
-			{
-				mergedSegment.push_back(p);
-			}
-			for (Point& p : bl.segments[a])
-			{
-				mergedSegment.push_back(p);
-			}
+			mergedSegment = merge(tl.segments[a], bl.segments[index]);
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
-			code.vLines.push_back(line);
-			topLeftMergedLines.push_back(line);
 
-			// Simply add top right.
-			code.vLines.push_back(tr.lines[a]);
+			code.vLines.push_back(line);
+			mergedLines.push_back(line);
+			usedLines.push_back(tl.lines[a]);
+			usedLines.push_back(bl.lines[index]);
 		}
+	}
+
+	// TODO: Gracefully shutdown instead of throwing an exception.
+	if (code.hLines.size() != 2 || code.vLines.size() != 2)
+		throw exception(); // Each pattern should have contributed two lines.
+
+	// Add all lines we have not used for merging yet.
+	for(Vec4f line : tr.lines)
+	{
+		bool used = false;
+		for(Vec4f trLine : usedLines)
+		{
+			used = line == trLine;
+			if (used)
+				break;
+		}
+		if (!used)
+			code.vLines.push_back(line);
+	}
+	for (Vec4f line : bl.lines)
+	{
+		bool used = false;
+		for (Vec4f blLine : usedLines)
+		{
+			used = line == blLine;
+			if (used)
+				break;
+		}
+		if (!used)
+			code.hLines.push_back(line);
 	}
 
 	// Now sort the lines within qrcode coordinate system from top left to bottom right.
@@ -424,7 +479,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 	sortLinesAlongAxis(code.hLines, code.vLines[0]);
 	
 	bool isReversed = true;
-	for(Vec4f line : topLeftMergedLines)
+	for(Vec4f line : mergedLines)
 	{
 		if(code.hLines[0] == line)
 		{
@@ -432,14 +487,13 @@ void CodeFinder::findMergedLines(QRCode& code)
 			break;
 		}
 	}
-
 	if(isReversed)
 	{
 		reverse(code.hLines.begin(), code.hLines.end());
 	}
 
 	isReversed = true;
-	for (Vec4f line : topLeftMergedLines)
+	for (Vec4f line : mergedLines)
 	{
 		if (code.vLines[0] == line)
 		{
@@ -447,7 +501,6 @@ void CodeFinder::findMergedLines(QRCode& code)
 			break;
 		}
 	}
-
 	if (isReversed)
 	{
 		reverse(code.vLines.begin(), code.vLines.end());
@@ -456,39 +509,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 
 void CodeFinder::findCorners(QRCode& code)
 {
-	Mat lineImage = drawLines(code.hLines);
-	drawLines(code.vLines, &lineImage);
 
-	for(int a = 0; a < code.hLines.size(); a++)
-	{
-		for (int b = 0; b < code.vLines.size(); b++)
-		{
-			Point2f intersection;
-			if (lineIntersection(code.hLines[a], code.vLines[b], intersection))
-			{
-				circle(lineImage, intersection, 5, Scalar(255, 255, 0), 3);
-			}
-		}
-	}
-
-	Point2f intersection;
-	if (lineIntersection(code.hLines[0], code.vLines[0], intersection))
-	{
-		circle(lineImage, intersection, 5, Scalar(255, 0, 255), 3);
-	}
-	if (lineIntersection(code.hLines[3], code.vLines[0], intersection))
-	{
-		circle(lineImage, intersection, 5, Scalar(0, 0, 255), 3);
-	}
-	if (lineIntersection(code.hLines[0], code.vLines[3], intersection))
-	{
-		circle(lineImage, intersection, 5, Scalar(0, 255, 0), 3);
-	}
-	if (lineIntersection(code.hLines[3], code.vLines[3], intersection))
-	{
-		circle(lineImage, intersection, 5, Scalar(255, 0, 0), 3);
-	}
-	imshow("Intersections", lineImage);
 }
 
 // The line has to be in the same format as returned by fitLine.
@@ -586,7 +607,7 @@ Mat CodeFinder::drawPatternContours()
 	return drawContours(patternContours);
 }
 
-Mat CodeFinder::drawPatternLines()
+Mat CodeFinder::drawAllLines()
 {
 	Mat lineImage = originalImage.clone();
 	
@@ -614,29 +635,49 @@ Mat CodeFinder::drawPatternLines()
 	return lineImage;
 }
 
-cv::Mat CodeFinder::drawMergedLines()
+cv::Mat CodeFinder::drawMergedLinesAndIntersections()
 {
 	Mat lineImage = originalImage.clone();
-
-	std::vector<cv::Scalar> colorsHorizontal;
-	colorsHorizontal.push_back(Scalar(0, 0, 255));
-
-	std::vector<cv::Scalar> colorsVertical;
-	colorsVertical.push_back(Scalar(0, 255, 0));
-
-	for(QRCode& code : allPatternCombinations)
+	for(QRCode code : allCodes)
 	{
-		drawLines(code.hLines, &lineImage, &colorsHorizontal);
-	}
-	for (QRCode& code : allPatternCombinations)
-	{
-		drawLines(code.vLines, &lineImage, &colorsVertical);
+		drawLines(code.hLines, &lineImage);
+		drawLines(code.vLines, &lineImage);
+
+		for (int a = 0; a < code.hLines.size(); a++)
+		{
+			for (int b = 0; b < code.vLines.size(); b++)
+			{
+				Point2f intersection;
+				if (lineIntersection(code.hLines[a], code.vLines[b], intersection))
+				{
+					circle(lineImage, intersection, 3, Scalar(255, 255, 0), 2);
+				}
+			}
+		}
+
+		Point2f intersection;
+		if (lineIntersection(code.hLines[0], code.vLines[0], intersection))
+		{
+			circle(lineImage, intersection, 5, Scalar(255, 0, 255), 3);
+		}
+		if (lineIntersection(code.hLines[3], code.vLines[0], intersection))
+		{
+			circle(lineImage, intersection, 5, Scalar(0, 0, 255), 3);
+		}
+		if (lineIntersection(code.hLines[0], code.vLines[3], intersection))
+		{
+			circle(lineImage, intersection, 5, Scalar(0, 255, 0), 3);
+		}
+		if (lineIntersection(code.hLines[3], code.vLines[3], intersection))
+		{
+			circle(lineImage, intersection, 5, Scalar(255, 0, 0), 3);
+		}
 	}
 
 	return lineImage;
 }
 
-cv::Mat CodeFinder::drawPatternSegments()
+cv::Mat CodeFinder::drawAllSegments()
 {
 	Mat segmentImage = originalImage.clone();
 	Scalar color[4];

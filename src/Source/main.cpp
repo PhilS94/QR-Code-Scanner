@@ -267,7 +267,7 @@ void findQRCode(const string path) {
 void folderMode(const string &source) {
     cout << "Reading all Files in " << source << " ..." << endl;
 
-    vector<std::string> imageFiles = FileSystem::allImagesAtPath(source);
+    vector<string> imageFiles = FileSystem::allImagesAtPath(source);
 
     cout << "Found the following valid Files: " << endl;
     for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
@@ -281,8 +281,13 @@ void folderMode(const string &source) {
 
     if (confirm == 'y') {
         cout << "Now start iterating through all Images.." << endl;
-        for (auto it = imageFiles.begin(); it != imageFiles.end(); ++it) {
-            findQRCode(*it);
+        for (int i = 0; i < imageFiles.size(); i++) {
+            //findQRCode(imageFiles[i]);
+			cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
+			cout << "Path: " << imageFiles[i] << endl;
+			Mat image = FileSystem::readImage(imageFiles[i]);
+			CodeFinder(image, false).find();
+			cout << endl;
         }
 
         cout << endl;
@@ -294,20 +299,19 @@ void folderMode(const string &source) {
 
 void evaluationMode(const string &source, const string &dest)
 {
-	FileSystem fs;
-	Mat inputImage = fs.readImage(source);
+	Mat inputImage = FileSystem::readImage(source);
 
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
 
-	imshow("Contours", codeFinder.drawAllContours());
-	imshow("Patterns", codeFinder.drawPatternContours());
-	imshow("Segments", codeFinder.drawPatternSegments());
-	imshow("All Lines", codeFinder.drawPatternLines());
-	imshow("Merged Lines", codeFinder.drawMergedLines());
+	imshow("All Contours", codeFinder.drawAllContours());
+	imshow("Pattern Contours", codeFinder.drawPatternContours());
+	imshow("All Segments", codeFinder.drawAllSegments());
+	imshow("All Lines", codeFinder.drawAllLines());
+	imshow("Merged Lines And Intersections", codeFinder.drawMergedLinesAndIntersections());
 	waitKey(0);
 
-	fs.saveImage(dest, outputImage);
+	FileSystem::saveImage(dest, outputImage);
 }
 
 

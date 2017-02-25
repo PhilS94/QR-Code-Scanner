@@ -13,9 +13,9 @@ public:
 	cv::Mat drawBinaryImage();
 	cv::Mat drawAllContours();
 	cv::Mat drawPatternContours();
-	cv::Mat drawPatternSegments();
-	cv::Mat drawPatternLines();
-	cv::Mat drawMergedLines();
+	cv::Mat drawAllSegments();
+	cv::Mat drawAllLines();
+	cv::Mat drawMergedLinesAndIntersections();
 	
 protected:
 	cv::Mat drawContours(std::vector<std::vector<cv::Point>>& vecs,
@@ -49,7 +49,7 @@ private:
 	std::vector<std::vector<cv::Point>> allContours;
 	std::vector<double> allContourAreas;
 	std::vector<FinderPattern> allFinderPatterns;
-	std::vector<QRCode> allPatternCombinations;
+	std::vector<QRCode> allCodes;
 
 	// Constants used for line fitting.
 	static const int fitType = CV_DIST_FAIR;
