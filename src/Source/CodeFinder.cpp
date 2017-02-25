@@ -367,6 +367,8 @@ void CodeFinder::findMergedLines(QRCode& code)
 	FinderPattern& tr = code.topRight;
 	FinderPattern& bl = code.bottomLeft;
 
+	vector<Vec4f> topLeftMergedLines;
+
 	// Merge each line of the top left pattern with one line of either top right or bottom left.
 	for(int a = 0; a < tl.lines.size(); a++)
 	{
@@ -391,6 +393,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 			}
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
 			code.hLines.push_back(line);
+			topLeftMergedLines.push_back(line);
 
 			// Simply add bottom left.
 			code.hLines.push_back(bl.lines[a]);
@@ -409,6 +412,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 			}
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
 			code.vLines.push_back(line);
+			topLeftMergedLines.push_back(line);
 
 			// Simply add top right.
 			code.vLines.push_back(tr.lines[a]);
@@ -420,7 +424,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 	sortLinesAlongAxis(code.hLines, code.vLines[0]);
 	
 	bool isReversed = true;
-	for(Vec4f line : code.topLeft.lines)
+	for(Vec4f line : topLeftMergedLines)
 	{
 		if(code.hLines[0] == line)
 		{
@@ -435,7 +439,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 	}
 
 	isReversed = true;
-	for (Vec4f line : code.topLeft.lines)
+	for (Vec4f line : topLeftMergedLines)
 	{
 		if (code.vLines[0] == line)
 		{
