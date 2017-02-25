@@ -7,6 +7,35 @@
 using namespace std;
 using namespace cv;
 
+
+/**
+ * \brief Used for sorting lines along an axis.
+ * \param left Axis intersection of the line and line itself.
+ * \param right Axis intersection of the line and line itself.
+ * \return True if right is larger than left. False otherwise.
+ */
+bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right)
+{
+	if (left.first.x > right.first.x)
+	{
+		return true;
+	}
+	
+	if (left.first.x == right.first.x)
+	{
+		if (left.first.y > right.first.y)
+		{
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	
+	return false;
+}
+
 CodeFinder::CodeFinder(cv::Mat image, bool hasCode)
 	: hasCode(hasCode)
 {
@@ -91,7 +120,7 @@ Mat CodeFinder::find()
 
 				// TODO: Verify that we have truly found a valid qrcode.
 
-				allCodes.push_back(code);
+				allPatternCombinations.push_back(code);
 			}
 		}
 	}
@@ -351,6 +380,7 @@ void CodeFinder::findMergedLines(QRCode& code)
 		{
 			// Merge with top right.
 			mergedSegment.reserve(tl.segments[a].size() + tr.segments[a].size());
+			// TODO: Try using the std::merge function here. For some reason it throws an error.
 			for(Point& p : tl.segments[a])
 			{
 				mergedSegment.push_back(p);
@@ -360,10 +390,10 @@ void CodeFinder::findMergedLines(QRCode& code)
 				mergedSegment.push_back(p);
 			}
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
-			code.horizontalLines.push_back(line);
+			code.hLines.push_back(line);
 
 			// Simply add bottom left.
-			code.horizontalLines.push_back(bl.lines[a]);
+			code.hLines.push_back(bl.lines[a]);
 		}
 		else
 		{
@@ -378,17 +408,83 @@ void CodeFinder::findMergedLines(QRCode& code)
 				mergedSegment.push_back(p);
 			}
 			fitLine(mergedSegment, line, fitType, 0, fitReps, fitAeps);
-			code.verticalLines.push_back(line);
+			code.vLines.push_back(line);
 
 			// Simply add top right.
-			code.verticalLines.push_back(tr.lines[a]);
+			code.vLines.push_back(tr.lines[a]);
 		}
+	}
+
+	// Now sort the lines within qrcode coordinate system from top left to bottom right.
+	sortLinesAlongAxis(code.vLines, code.hLines[0]);
+	sortLinesAlongAxis(code.hLines, code.vLines[0]);
+	
+	bool isReversed = true;
+	for(Vec4f line : code.topLeft.lines)
+	{
+		if(code.hLines[0] == line)
+		{
+			isReversed = false;
+			break;
+		}
+	}
+
+	if(isReversed)
+	{
+		reverse(code.hLines.begin(), code.hLines.end());
+	}
+
+	isReversed = true;
+	for (Vec4f line : code.topLeft.lines)
+	{
+		if (code.vLines[0] == line)
+		{
+			isReversed = false;
+			break;
+		}
+	}
+
+	if (isReversed)
+	{
+		reverse(code.vLines.begin(), code.vLines.end());
 	}
 }
 
 void CodeFinder::findCorners(QRCode& code)
 {
+	Mat lineImage = drawLines(code.hLines);
+	drawLines(code.vLines, &lineImage);
 
+	for(int a = 0; a < code.hLines.size(); a++)
+	{
+		for (int b = 0; b < code.vLines.size(); b++)
+		{
+			Point2f intersection;
+			if (lineIntersection(code.hLines[a], code.vLines[b], intersection))
+			{
+				circle(lineImage, intersection, 5, Scalar(255, 255, 0), 3);
+			}
+		}
+	}
+
+	Point2f intersection;
+	if (lineIntersection(code.hLines[0], code.vLines[0], intersection))
+	{
+		circle(lineImage, intersection, 5, Scalar(255, 0, 255), 3);
+	}
+	if (lineIntersection(code.hLines[3], code.vLines[0], intersection))
+	{
+		circle(lineImage, intersection, 5, Scalar(0, 0, 255), 3);
+	}
+	if (lineIntersection(code.hLines[0], code.vLines[3], intersection))
+	{
+		circle(lineImage, intersection, 5, Scalar(0, 255, 0), 3);
+	}
+	if (lineIntersection(code.hLines[3], code.vLines[3], intersection))
+	{
+		circle(lineImage, intersection, 5, Scalar(255, 0, 0), 3);
+	}
+	imshow("Intersections", lineImage);
 }
 
 // The line has to be in the same format as returned by fitLine.
@@ -423,6 +519,46 @@ void CodeFinder::patternPatternLineDistances(FinderPattern& one, FinderPattern& 
 			distanceOne.push_back(dist);
 			distanceTwo.push_back(dist);
 		}
+	}
+}
+
+bool CodeFinder::lineIntersection(Vec4f line1, Vec4f line2, Point2f& result)
+{
+	Point2f x = Point2f(line2[2], line2[3]) - Point2f(line1[2], line1[3]);
+	Point2f d1 = Point2f(line1[0], line1[1]);
+	Point2f d2 = Point2f(line2[0], line2[1]);
+
+	float cross = d1.x*d2.y - d1.y*d2.x;
+	if (abs(cross) < /*EPS*/1e-8)
+		return false;
+
+	double t1 = (x.x * d2.y - x.y * d2.x) / cross;
+	result = Point2f(line1[2], line1[3]) + d1 * t1;
+	return true;
+}
+
+void CodeFinder::sortLinesAlongAxis(vector<Vec4f>& lines, Vec4f axis)
+{
+	vector<pair<Point2f, Vec4f>> sortedLines;
+	for(Vec4f& line : lines)
+	{
+		Point2f intersect;
+		if(lineIntersection(line, axis, intersect))
+		{
+			sortedLines.push_back(pair<Point2f, Vec4f>(intersect, line));
+		}
+	}
+
+	// TODO: Instead of an exception gracefully shutdown.
+	if (sortedLines.size() != lines.size())
+		throw exception();
+
+	sort(sortedLines.begin(), sortedLines.end(), compareLineAlongAxis);
+	lines.clear();
+
+	for (pair<Point2f, Vec4f>& pair : sortedLines)
+	{
+		lines.push_back(pair.second);
 	}
 }
 
@@ -484,13 +620,13 @@ cv::Mat CodeFinder::drawMergedLines()
 	std::vector<cv::Scalar> colorsVertical;
 	colorsVertical.push_back(Scalar(0, 255, 0));
 
-	for(QRCode& code : allCodes)
+	for(QRCode& code : allPatternCombinations)
 	{
-		drawLines(code.horizontalLines, &lineImage, &colorsHorizontal);
+		drawLines(code.hLines, &lineImage, &colorsHorizontal);
 	}
-	for (QRCode& code : allCodes)
+	for (QRCode& code : allPatternCombinations)
 	{
-		drawLines(code.verticalLines, &lineImage, &colorsVertical);
+		drawLines(code.vLines, &lineImage, &colorsVertical);
 	}
 
 	return lineImage;

@@ -38,6 +38,9 @@ protected:
 	double lineLineDistance(cv::Vec4f lineOne, cv::Vec4f lineTwo);
 	void patternPatternLineDistances(FinderPattern& one, FinderPattern& two,
 		std::vector<double>& distanceOne, std::vector<double>& distanceTwo);
+	bool lineIntersection(cv::Vec4f o1, cv::Vec4f o2, cv::Point2f &result);
+
+	void sortLinesAlongAxis(std::vector<cv::Vec4f>& lines, cv::Vec4f axis);
 
 private:
 	bool hasCode;
@@ -46,7 +49,7 @@ private:
 	std::vector<std::vector<cv::Point>> allContours;
 	std::vector<double> allContourAreas;
 	std::vector<FinderPattern> allFinderPatterns;
-	std::vector<QRCode> allCodes;
+	std::vector<QRCode> allPatternCombinations;
 
 	// Constants used for line fitting.
 	static const int fitType = CV_DIST_FAIR;

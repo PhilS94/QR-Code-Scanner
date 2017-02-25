@@ -27,8 +27,8 @@ struct QRCode
 	FinderPattern topRight;
 	FinderPattern bottomLeft;
 
-	std::vector<cv::Vec4f> horizontalLines;
-	std::vector<cv::Vec4f> verticalLines;
+	std::vector<cv::Vec4f> hLines;
+	std::vector<cv::Vec4f> vLines;
 };
 
 
