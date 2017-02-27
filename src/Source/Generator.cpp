@@ -30,7 +30,7 @@ void Generator::border() {
 
 
     for (auto path : workingFiles) {
-        Mat image = fs.readImage(path);
+        Mat image = fs.loadImage(path);
 
         int borderSize = image.cols * 0.25;
         Mat borderImage(image.cols + 2 * borderSize, image.rows + 2 * borderSize, image.type());
@@ -74,7 +74,7 @@ void Generator::scale() {
         // TODO: Experiment with different scale values and step sizes.
         for (float scale = 6.0f; scale < 10.1f; scale += (2.0f / 3.0f)) {
             for (auto path : workingFiles) {
-                Mat image = fs.readImage(path);
+                Mat image = fs.loadImage(path);
                 Mat scaledImage;
 
                 Size scaled = image.size();
@@ -125,7 +125,7 @@ void Generator::rotate() {
             if (count % skip)
                 continue;
 
-            Mat image = fs.readImage(path);
+            Mat image = fs.loadImage(path);
             Mat rotatedImage;
 
             Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
@@ -176,7 +176,7 @@ void Generator::perspective() {
     vector<Point2f> vecsrc;
     vector<Point2f> vecdst;
     for (auto path : workingFiles) {
-        const Mat image = fs.readImage(path);
+        const Mat image = fs.loadImage(path);
         Point2f topLeft(0, 0);
         Point2f topRight(image.cols - 1, 0);
         Point2f bottomLeft(0, image.rows - 1);

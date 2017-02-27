@@ -10,7 +10,7 @@
 
 using namespace std;
 
-cv::Mat FileSystem::readImage(const string &fullPath) {
+cv::Mat FileSystem::loadImage(const string &fullPath) {
     cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_ANYCOLOR);
 	if(!image.data)
 		throw exception(); // Unable to load file.

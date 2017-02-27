@@ -177,7 +177,7 @@ void findQRCode(const string path) {
     cout << endl;
 
     cout << "Now Loading Image: " << imageName << endl;
-    Mat image = fs.readImage(path);
+    Mat image = fs.loadImage(path);
 
 	// TODO: Remove resizing in final version.
     if (image.cols > 2000 || image.rows > 2000) {
@@ -285,7 +285,7 @@ void folderMode(const string &source) {
             //findQRCode(imageFiles[i]);
 			cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
 			cout << "Path: " << imageFiles[i] << endl;
-			Mat image = FileSystem::readImage(imageFiles[i]);
+			Mat image = FileSystem::loadImage(imageFiles[i]);
 			CodeFinder(image, false).find();
 			cout << endl;
         }
@@ -299,7 +299,7 @@ void folderMode(const string &source) {
 
 void evaluationMode(const string &source, const string &dest)
 {
-	Mat inputImage = FileSystem::readImage(source);
+	Mat inputImage = FileSystem::loadImage(source);
 
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
@@ -308,7 +308,19 @@ void evaluationMode(const string &source, const string &dest)
 	imshow("Pattern Contours", codeFinder.drawPatternContours());
 	imshow("All Segments", codeFinder.drawAllSegments());
 	imshow("All Lines", codeFinder.drawAllLines());
-	imshow("Merged Lines And Intersections", codeFinder.drawMergedLinesAndIntersections());
+
+	vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
+	for(int i = 0; i < merged.size(); i++)
+	{
+		imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
+	}
+
+	vector<Mat> extracted = codeFinder.drawExtractedCodes();
+	for (int i = 0; i < extracted.size(); i++)
+	{
+		imshow(string("Extracted_") + to_string(i), extracted[i]);
+	}
+
 	waitKey(0);
 
 	FileSystem::saveImage(dest, outputImage);

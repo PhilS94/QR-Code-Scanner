@@ -26,7 +26,7 @@ public:
 
     static std::vector<std::string> allImagesAtPath(const std::string &folderPath);
 
-    static cv::Mat readImage(const std::string &fullPath);
+    static cv::Mat loadImage(const std::string &fullPath);
 
 	static void saveImage(const std::string &fullPath, const cv::Mat &mat);
 

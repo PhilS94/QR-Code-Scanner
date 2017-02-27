@@ -15,21 +15,25 @@ public:
 	cv::Mat drawPatternContours();
 	cv::Mat drawAllSegments();
 	cv::Mat drawAllLines();
-	cv::Mat drawMergedLinesAndIntersections();
+	std::vector<cv::Mat> drawMergedLinesAndIntersections();
+	std::vector<cv::Mat> drawExtractedCodes();
 	
 protected:
 	cv::Mat drawContours(std::vector<std::vector<cv::Point>>& vecs,
 		cv::Mat* image = nullptr, std::vector<cv::Scalar>* colors = nullptr);
 	cv::Mat drawLines(std::vector<cv::Vec4f>& lines,
 		cv::Mat* image = nullptr, std::vector<cv::Scalar>* colors = nullptr);
+	cv::Mat drawNotFound();
 
 	void findAllContours();
 	void findPatternContours();
 	void findPatternLines();
 	void findClockwiseOrder(QRCode& code);
 	void findTopLeftPattern(QRCode& code);
-	void findMergedLines(QRCode& code);
+	bool findMergedLines(QRCode& code);
 	void findCorners(QRCode& code);
+	void findExtraction(QRCode& code);
+	void findTrueSize(QRCode& code);
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 	bool isTrapez(std::vector<cv::Point> in);
