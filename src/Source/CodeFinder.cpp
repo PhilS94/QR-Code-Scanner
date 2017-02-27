@@ -11,8 +11,8 @@ using namespace cv;
 
 /**
  * \brief Used for sorting lines along an axis.
- * \param left Axis intersection of the line and line itself.
- * \param right Axis intersection of the line and line itself.
+ * \param left The point is the axis intersection and the vector describes the line.
+ * \param right The point is the axis intersection and the vector describes the line.
  * \return True if right is larger than left. False otherwise.
  */
 bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right)
@@ -81,7 +81,7 @@ Mat CodeFinder::find()
 	cout << "Finding all finder pattern candidates..." << endl;
 	findPatternContours();
 	cout << "Number of detected patterns: " << allFinderPatterns.size() << endl;
-	if(allFinderPatterns.size() <= 2)
+	if(allFinderPatterns.size() < 3)
 	{
 		// TODO: In case of hasCode==true don't stop here but try again starting with binarize.
 		return drawNotFound();
@@ -118,13 +118,14 @@ Mat CodeFinder::find()
 					continue;
 				}
 
-				cout << "Finding QRCode corners..." << endl;
+				cout << "Finding corners..." << endl;
 				findCorners(code);
 
-				cout << "Extracting QRCode..." << endl;
-				findExtraction(code);
+				cout << "Finding perspective transform..." << endl;
+				findPerspectiveTransform(code);
 
-				// TODO: Attempt calculation of true size of the qrcode.
+				cout << "Finding true size..." << endl;
+				findTrueSize(code);
 
 				// TODO: Resize to true size of qrcode.
 
@@ -522,7 +523,7 @@ void CodeFinder::findCorners(QRCode& code)
 	}
 }
 
-void CodeFinder::findExtraction(QRCode& code)
+void CodeFinder::findPerspectiveTransform(QRCode& code)
 {
 	vector<Point2f> sourceQuad;
 	sourceQuad.reserve(4);
@@ -551,11 +552,14 @@ void CodeFinder::findExtraction(QRCode& code)
 	targetQuad.push_back(Point2f(distance, 0));
 	targetQuad.push_back(Point2f(distance, distance));
 
-	Mat transform = getPerspectiveTransform(sourceQuad, targetQuad);
+	code.transform = getPerspectiveTransform(sourceQuad, targetQuad);
 
 	// TODO: Experiment with different interpolation types!
-	warpPerspective(binarizedImage, code.extractedImage, transform,
+	warpPerspective(binarizedImage, code.extractedImage, code.transform,
 		Size(distance, distance), INTER_NEAREST);
+
+	// TODO: The distortion of point (2, 2) can be used to more accurately extract the image.
+	perspectiveTransform(code.corners, code.transformedCorners, code.transform);
 }
 
 void CodeFinder::findTrueSize(QRCode& code)
@@ -738,6 +742,55 @@ vector<Mat> CodeFinder::drawExtractedCodes()
 	for (QRCode& code : allCodes)
 	{
 		images.push_back(code.extractedImage);
+	}
+
+	return images;
+}
+
+vector<Mat> CodeFinder::drawExtractedCodeGrids()
+{
+	vector<Mat> images;
+	for (QRCode& code : allCodes)
+	{
+		Mat image;
+		cvtColor(code.extractedImage, image, CV_GRAY2BGR);
+		for (int a = 0; a < 4; a++)
+		{
+			for (int b = 0; b < 4; b++)
+			{
+				circle(image, code.transformedCorners.at<Point2f>(a, b), 3, Scalar(0, 0, 255), 2);
+			}
+		}
+
+		Point2f step28 = code.transformedCorners.at<Point2f>(1, 1);
+		step28 += code.transformedCorners.at<Point2f>(3, 3) - code.transformedCorners.at<Point2f>(2, 2);
+		step28 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
+		step28 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
+
+		Point2f step;
+		step.x = step28.x / 28;
+		step.y = step28.y / 28;
+
+		// TODO: There needs to be a way to deduce the correct size of one cell.
+		step.x = float(image.cols) / 21.0f;
+		step.y = float(image.rows) / 21.0f;
+
+		circle(image, step, 3, Scalar(0, 255, 0), 2);
+
+		Point2f sv = code.transformedCorners.at<Point2f>(1, 1);
+		vector<Vec4f> lines;
+		for (int i = -7; (i * step.x) < image.cols || (i * step.y) < image.rows; i++)
+		{
+			lines.push_back(Vec4f(0, 1, step.x * i + sv.x, step.y * i + sv.y));
+		}
+		for (int i = -7; (i * step.x) < image.cols || (i * step.y) < image.rows; i++)
+		{
+			lines.push_back(Vec4f(1, 0, step.x * i + sv.x, step.y * i + sv.y));
+		}
+
+		drawLines(lines, &image);
+
+		images.push_back(image);
 	}
 
 	return images;

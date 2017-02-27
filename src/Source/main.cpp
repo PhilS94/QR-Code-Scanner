@@ -321,6 +321,12 @@ void evaluationMode(const string &source, const string &dest)
 		imshow(string("Extracted_") + to_string(i), extracted[i]);
 	}
 
+	vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
+	for (int i = 0; i < extracted.size(); i++)
+	{
+		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
+	}
+
 	waitKey(0);
 
 	FileSystem::saveImage(dest, outputImage);

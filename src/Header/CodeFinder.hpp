@@ -17,6 +17,7 @@ public:
 	cv::Mat drawAllLines();
 	std::vector<cv::Mat> drawMergedLinesAndIntersections();
 	std::vector<cv::Mat> drawExtractedCodes();
+	std::vector<cv::Mat> drawExtractedCodeGrids();
 	
 protected:
 	cv::Mat drawContours(std::vector<std::vector<cv::Point>>& vecs,
@@ -32,7 +33,7 @@ protected:
 	void findTopLeftPattern(QRCode& code);
 	bool findMergedLines(QRCode& code);
 	void findCorners(QRCode& code);
-	void findExtraction(QRCode& code);
+	void findPerspectiveTransform(QRCode& code);
 	void findTrueSize(QRCode& code);
 
 	bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);

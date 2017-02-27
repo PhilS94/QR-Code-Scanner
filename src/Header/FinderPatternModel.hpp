@@ -30,6 +30,8 @@ struct QRCode
 	std::vector<cv::Vec4f> vLines;
 
 	cv::Mat corners;
+	cv::Mat transform;
+	cv::Mat transformedCorners;
 	cv::Mat extractedImage;
 };
 
