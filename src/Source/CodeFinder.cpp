@@ -545,8 +545,8 @@ void CodeFinder::findNumberOfModules(QRCode& code)
 
 	// The result is the version, the number of modules and the step size for the qrcode.
 	code.modules = 17 + 4 * code.version;
-	code.gridStepSize.x = code.extractedImage.cols / code.modules;
-	code.gridStepSize.y = code.extractedImage.rows / code.modules;
+	code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
+	code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 }
 
 void CodeFinder::findResize(QRCode& code)
@@ -554,7 +554,8 @@ void CodeFinder::findResize(QRCode& code)
 	code.qrcodeImage = Mat(code.modules, code.modules, CV_8UC1, Scalar(255));
 
 	cout << "Modules: " << code.modules << endl;
-
+	cout << "GridStepSize: " << code.gridStepSize.x << ", " << code.gridStepSize.y << endl;
+	cout << "ExtractedSize: " << code.extractedImage.cols << ", " << code.extractedImage.rows << endl;
 	for(int a = 0; a < code.modules; a++)
 	{
 		for (int b = 0; b < code.modules; b++)
@@ -568,9 +569,9 @@ void CodeFinder::findResize(QRCode& code)
 			int blackCount = 0;
 			for (int x = beginX; x < endX && x < code.extractedImage.cols; x++)
 			{
-				for (int y = beginY; y < (b + 1) * endY && y  < code.extractedImage.rows; y++)
+				for (int y = beginY; y < endY && y  < code.extractedImage.rows; y++)
 				{
-					unsigned char pixel = code.extractedImage.at<unsigned char>(x, y);
+					uint8_t pixel = code.extractedImage.at<uint8_t>(x, y);
 
 					if(pixel == 0)
 					{
@@ -583,14 +584,14 @@ void CodeFinder::findResize(QRCode& code)
 			if(totalCount * 0.5 < blackCount)
 			{
 				// Set to black.
-				code.qrcodeImage.at<unsigned char>(a, b) = 0;
-				cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
+				code.qrcodeImage.at<uint8_t>(a, b) = 0;
+				//cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
 			}
 			else
 			{
 				// Set to white.
-				code.qrcodeImage.at<unsigned char>(a, b) = 255;
-				cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
+				code.qrcodeImage.at<uint8_t>(a, b) = 255;
+				//cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
 			}
 		}
 	}
