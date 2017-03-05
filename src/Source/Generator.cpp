@@ -132,7 +132,7 @@ void Generator::rotate() {
 
 			Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
 			Mat rot_mat = getRotationMatrix2D(image_center, degree, 1.0);
-			warpAffine(image, rotatedImage, rot_mat, image.size());
+			warpAffine(image, rotatedImage, rot_mat, image.size(),1,0,cv::Scalar(255));
 
 			string filename =
 				fs.toFileName(path) + "-r" + to_string(degree).substr(0, to_string(degree).find_last_of(".")) +
@@ -166,7 +166,7 @@ void Generator::perspective() {
 
 	int count = 0;
 	int desiredFiles = 1000;
-	int estimatedFiles = workingFiles.size() * (1 / pow(step_size, 2));
+	int estimatedFiles = workingFiles.size() * pow(((0.5 / step_size) - 1), 2);
 	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
 	if (estimatedFiles < desiredFiles) {
 		estimatedFiles = desiredFiles;
@@ -211,7 +211,7 @@ void Generator::perspective() {
 					continue;
 				}
 
-				Point2f stepPointY(0,stepY *image.rows - 1);
+				Point2f stepPointY(0, stepY *image.rows - 1);
 				Point2f vectorFromTopLeftToTopRight(topRight - stepPointY);
 				Point2f stepPointX = stepX*vectorFromTopLeftToTopRight;
 
@@ -226,8 +226,8 @@ void Generator::perspective() {
 				vecdst.push_back(bottomRight);
 
 				Mat homographyMatrix = findHomography(vecsrc, vecdst);
-				Mat warpedImage = Mat(image.size(), image.type());
-				warpPerspective(image, warpedImage, homographyMatrix, image.size());
+				Mat warpedImage = Mat(image.size(), image.type(), Scalar(255));
+				warpPerspective(image, warpedImage, homographyMatrix, image.size(),1,0,Scalar(255));
 				string s = "0." + to_string(cvRound(stepX * 10)) + "X" + "0." + to_string(cvRound(stepY * 10)) + "Y";
 				string filename = fs.toFileName(path) + "-p" + s + fs.toExtension(path, true);
 				fs.saveImage(saveFolder, filename, warpedImage);
@@ -248,6 +248,70 @@ void Generator::perspective() {
 
 
 void Generator::synthetic() {
+	cout << "Reading all BGImages in " << source + separator + "99_bg" << " ..." << endl;
+	bgFiles = FileSystem::allImagesAtPath(source + separator + "99_bg");
+
+	cout << "Found the following image Files: " << endl;
+	for (auto it : bgFiles) {
+		cout << it << endl;
+	}
+	cout << endl;
+
+	cout << "Generating syntethic images from warped images..." << endl;
+	vector<string> generated;
+	FileSystem fs;
+
+	string saveFolder = fs.makeDir(dest, "04_synthetic");
+
+	int count = 0;
+	int desiredFiles = 100;
+	int estimatedFiles = workingFiles.size() * bgFiles.size();
+	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
+	if (estimatedFiles < desiredFiles) {
+		estimatedFiles = desiredFiles;
+	}
+
+	int skip = estimatedFiles / desiredFiles;
+	cout << "Use every " << skip << ". image." << endl;
+
+	for (auto path : workingFiles) {
+		for (auto bgPath : bgFiles) {
+			count++;
+
+			//Only use every skip-th Image in order to get the desired amount of Images
+			if (count % skip) {
+				continue;
+			}
+
+			Mat qrImage = fs.loadImage(path);
+			cvtColor(qrImage, qrImage, CV_GRAY2BGR);
+			Mat bgImage = fs.loadImage(bgPath);
+			Mat syntheticImage = bgImage.clone();
+
+			int size = cvRound(0.2*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 20%
+
+			Mat qrResizedImage = Mat(size, size, qrImage.type());
+			resize(qrImage, qrResizedImage, qrResizedImage.size(), 0, 0, INTER_LINEAR);	//TODO: Resizen, obwohl bereits bewusst verschieden resized wurde? Fragwürdig
+			
+			//Randomize the position of the QRImage inside syntheticImage
+			int x = rand() % (syntheticImage.cols - size);
+			int y = rand() % (syntheticImage.rows - size);
+			qrResizedImage.copyTo(syntheticImage(cv::Rect(x, y, size, size)));
+
+			string filename = fs.toFileName(path) + "-syn" + fs.toFileName(bgPath) + fs.toExtension(path, true);
+			fs.saveImage(saveFolder, filename, syntheticImage);
+
+			generated.push_back(fs.toPath(saveFolder, filename));
+		}
+	}
+
+	for (auto path : generated) {
+		cout << path << endl;
+	}
+	cout << "Generated " << to_string(generated.size()) << " synthetic images." << endl << endl;
+
+	workingFiles = generated;
+
 }
 
 void Generator::blur() {
