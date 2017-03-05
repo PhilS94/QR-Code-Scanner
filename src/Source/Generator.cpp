@@ -288,7 +288,7 @@ void Generator::synthetic() {
 			Mat bgImage = fs.loadImage(bgPath);
 			Mat syntheticImage = bgImage.clone();
 
-			int size = cvRound(0.2*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 20%
+			int size = cvRound(0.4*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 20%
 
 			Mat qrResizedImage = Mat(size, size, qrImage.type());
 			resize(qrImage, qrResizedImage, qrResizedImage.size(), 0, 0, INTER_LINEAR);	//TODO: Resizen, obwohl bereits bewusst verschieden resized wurde? Fragwürdig

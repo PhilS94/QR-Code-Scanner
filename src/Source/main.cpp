@@ -148,16 +148,61 @@ void folderMode(const string &source) {
 
     if (confirm == 'y') {
         cout << "Now start iterating through all Images.." << endl;
+		float evaluateAverage = 0;
+		float detected = 0;
+		FileSystem fs;
+		string debugFolder = fs.makeDir(source, "Scan");
         for (int i = 0; i < imageFiles.size(); i++) {
             cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
             cout << "Path: " << imageFiles[i] << endl;
-            Mat image = FileSystem::loadImage(imageFiles[i]);
-            CodeFinder(image, false).find();
-            cout << endl;
+            Mat image = fs.loadImage(imageFiles[i]);
+			CodeFinder codeFinder(image, false);
+            Mat outputImage = codeFinder.find();
+
+			// Code for debugging and evaluating.
+			if(outputImage.size().width != 1)
+			{
+				float result = evaluate(imageFiles[i], outputImage);
+				if(result != -1)
+				{
+					evaluateAverage += result;
+				}
+				detected++;
+			}
+			cout << endl;
+
+			Mat contour = codeFinder.drawAllContoursBinarized();
+			string debugFileName = fs.toFileName(imageFiles[i]) + "___CONTOUR___" + fs.toExtension(imageFiles[i], true);
+			fs.saveImage(fs.toPath(debugFolder, debugFileName), contour);
+
+			vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
+			for (int a = 0; a < merged.size(); a++) {
+				debugFileName = fs.toFileName(imageFiles[i]) + "___MERGED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				fs.saveImage(fs.toPath(debugFolder, debugFileName), merged[a]);
+			}
+
+			vector<Mat> extracted = codeFinder.drawExtractedCodes();
+			for (int a = 0; a < extracted.size(); a++) {
+				debugFileName = fs.toFileName(imageFiles[i]) + "___EXTRACTED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				fs.saveImage(fs.toPath(debugFolder, debugFileName), extracted[a]);
+			}
+
+			vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
+			for (int a = 0; a < extracted.size(); a++) {
+				debugFileName = fs.toFileName(imageFiles[i]) + "___GRID___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				fs.saveImage(fs.toPath(debugFolder, debugFileName), grid[a]);
+			}
+
+			debugFileName = fs.toFileName(imageFiles[i]) + "___RESULT___" + fs.toExtension(imageFiles[i], true);
+
+			fs.saveImage(fs.toPath(debugFolder, debugFileName), outputImage);
+
         }
 
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
+		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
+			" AverageQuality: " << evaluateAverage << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;
@@ -170,6 +215,7 @@ void evaluationMode(const string &source, const string &dest) {
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
 
+	// TODO: Remove debug images for release version.
 	imshow("All Contours", codeFinder.drawAllContours());
 	imshow("Pattern Contours", codeFinder.drawPatternContours());
 	imshow("All Segments", codeFinder.drawAllSegments());
@@ -196,14 +242,13 @@ void evaluationMode(const string &source, const string &dest) {
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
 
+	// TODO: Remove evaluate function for release version.
 	evaluate(source, outputImage);
 	
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
 
 	waitKey(0);
-
-	FileSystem::saveImage(dest, outputImage);
 }
 
 
@@ -221,20 +266,21 @@ void generateMode(const string &source, const string &dest) {
 
 float evaluate(const string &source, const Mat &outputImage) {
 
-	float equality;
-	string filename = FileSystem::toFileName(source, false);
-	string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
-	string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
+	cout << "Source: " << source << endl;
 
-	string groundTruthImage = FileSystem::toFolderPath(source, true) + ".." + separator + "00_ground_truth" + separator + groundtruthFilename + ".png";
+	float equality;
+	string filename = FileSystem::toFileName(source);
+	int secondDash = filename.find_first_of("-", filename.find_first_of("-") + 1);
+	string groundtruthFilename = filename.substr(0, secondDash);
+
+	string groundTruthImage = FileSystem::toFolderPath(source, true) + ".." +
+		separator + "00_ground_truth" + separator + groundtruthFilename + ".png";
 
     Mat groundTruth = FileSystem::loadImage(groundTruthImage);
-	cvtColor(groundTruth, groundTruth, CV_BGR2GRAY);
 
 	int pixelcount;
 	int equalpixels;
 
-	cout << "Source: " << source << endl;
 	cout << "Ground Truth File Name: " << groundtruthFilename << endl;
     //QR Code extraction failed
     if (groundTruth.size != outputImage.size)

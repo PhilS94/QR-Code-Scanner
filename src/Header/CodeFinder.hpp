@@ -12,6 +12,7 @@ public:
 
 	cv::Mat drawBinaryImage();
 	cv::Mat drawAllContours();
+	cv::Mat drawAllContoursBinarized();
 	cv::Mat drawPatternContours();
 	cv::Mat drawAllSegments();
 	cv::Mat drawAllLines();

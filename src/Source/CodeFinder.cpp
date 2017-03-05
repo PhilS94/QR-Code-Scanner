@@ -536,6 +536,8 @@ void CodeFinder::findNumberOfModules(QRCode& code)
 	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
 	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
 
+	cout << cellsX << endl << cellsY << endl;
+
 	// Now find the version of the qrcode by snapping to the clostest module number that is allowed.
 	double totalDistance = abs(cellsX - 21) + abs(cellsY - 21);
 	code.version = 2;
@@ -566,9 +568,6 @@ void CodeFinder::findResize(QRCode& code)
 {
 	code.qrcodeImage = Mat(code.modules, code.modules, CV_8UC1, Scalar(255));
 
-	cout << "Modules: " << code.modules << endl;
-	cout << "GridStepSize: " << code.gridStepSize.x << ", " << code.gridStepSize.y << endl;
-	cout << "ExtractedSize: " << code.extractedImage.cols << ", " << code.extractedImage.rows << endl;
 	for(int a = 0; a < code.modules; a++)
 	{
 		for (int b = 0; b < code.modules; b++)
@@ -598,13 +597,11 @@ void CodeFinder::findResize(QRCode& code)
 			{
 				// Set to black.
 				code.qrcodeImage.at<uint8_t>(a, b) = 0;
-				//cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
 			}
 			else
 			{
 				// Set to white.
 				code.qrcodeImage.at<uint8_t>(a, b) = 255;
-				//cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
 			}
 		}
 	}
@@ -679,6 +676,13 @@ Mat CodeFinder::drawBinaryImage() {
 
 Mat CodeFinder::drawAllContours() {
     return drawContours(allContours);
+}
+
+cv::Mat CodeFinder::drawAllContoursBinarized()
+{
+	Mat image = binarizedImage.clone();
+	cvtColor(image, image, CV_GRAY2BGR);
+	return drawContours(allContours, &image);
 }
 
 Mat CodeFinder::drawPatternContours() {
