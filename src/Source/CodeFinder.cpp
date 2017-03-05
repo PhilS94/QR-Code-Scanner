@@ -123,8 +123,21 @@ Mat CodeFinder::find() {
         }
     }
 
-    // Return codeNotFound in case of failure to locate qrcode.
-    return drawNotFound();
+	if(allCodes.size() == 0)
+	{
+		// Return codeNotFound in case of failure to locate qrcode.
+		return drawNotFound();
+	}
+	else
+	{
+		vector<Mat> codes;
+		for(QRCode& code : allCodes)
+		{
+			codes.push_back(code.qrcodeImage);
+		}
+		// TODO: Consider returning all.
+		return codes[0];
+	}
 }
 
 void CodeFinder::findAllContours() {

@@ -16,7 +16,7 @@ void evaluationMode(const string &source, const string &dest);
 
 void generateMode(const string &source, const string &dest);
 
-float evaluate(const string &groundTruthImage, const Mat &exractedImage);
+float evaluate(const string &source, const Mat &outputImage);
 
 
 void printLogo() {
@@ -145,7 +145,6 @@ void folderMode(const string &source) {
     if (confirm == 'y') {
         cout << "Now start iterating through all Images.." << endl;
         for (int i = 0; i < imageFiles.size(); i++) {
-            //findQRCode(imageFiles[i]);
             cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
             cout << "Path: " << imageFiles[i] << endl;
             Mat image = FileSystem::loadImage(imageFiles[i]);
@@ -191,19 +190,9 @@ void evaluationMode(const string &source, const string &dest) {
 	{
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
-	/*
-    float equality;
-    string filename = FileSystem::toFileName(source, false);
-    string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
-    string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
 
-    equality = evaluate(FileSystem::toFolderPath(source, true) + "/../../" + groundtruthFilename + ".png", outputImage);
-
-    if (equality == -1)
-        cout << "This Image has not the expected Size! No equality." << endl;
-    else
-        cout << "Equality: " << equality << "%" << endl;
-	*/
+	evaluate(source, outputImage);
+	
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
 
@@ -222,33 +211,50 @@ void generateMode(const string &source, const string &dest) {
     gen.perspective();
 }
 
-float evaluate(const string &groundTruthImage, const Mat &exractedImage) {
+float evaluate(const string &source, const Mat &outputImage) {
+
+	float equality;
+	string filename = FileSystem::toFileName(source, false);
+	string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
+	string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
+
+	string groundTruthImage = FileSystem::toFolderPath(source, true) + ".." + separator + "00_ground_truth" + separator + groundtruthFilename + ".png";
 
     Mat groundTruth = FileSystem::loadImage(groundTruthImage);
-    Mat extracted = exractedImage;
+	cvtColor(groundTruth, groundTruth, CV_BGR2GRAY);
 
     int pixelcount;
     int equalpixels;
 
+	cout << "Source: " << source << endl;
+	cout << "Ground Truth File Name: " << groundtruthFilename << endl;
     //QR Code extraction failed
-    if (groundTruth.size != extracted.size)
-        return -1;
+    if (groundTruth.size != outputImage.size)
+    {
+		cout << "Ground Truth Size: " << groundTruth.size() << endl;
+		cout << "Output Size: " << outputImage.size() << endl;
+		cout << "This Image has not the expected Size! No equality." << endl;
+		return -1;
+    }
 
     pixelcount = groundTruth.cols * groundTruth.rows;
     equalpixels = 0;
-    Vec3f groundtruthPixelValue;
-    Vec3f exatractedPixelValue;
+	uint8_t groundtruthPixelValue;
+	uint8_t exatractedPixelValue;
 
     //iteration over all Pixel in the Image and check
     //the equality of the images
     for (int i = 0; i < groundTruth.cols; ++i) {
         for (int j = 0; j < groundTruth.rows; ++j) {
-            groundtruthPixelValue = groundTruth.at<Vec3f>(i, j);
-            exatractedPixelValue = extracted.at<Vec3f>(i, j);
+            groundtruthPixelValue = groundTruth.at<uint8_t>(i, j);
+            exatractedPixelValue = outputImage.at<uint8_t>(i, j);
             if (groundtruthPixelValue == exatractedPixelValue)
                 equalpixels++;
         }
     }
 
-    return equalpixels / pixelcount;
+    equality = (float(equalpixels) / float(pixelcount)) * 100;
+
+	cout << "Equality: " << equality << "% - Total Pixel: " << pixelcount << " - Equal Pixel: " << equalpixels << endl;
+	return equality;
 }
