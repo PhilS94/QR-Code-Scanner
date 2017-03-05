@@ -5,28 +5,30 @@
 #ifdef _WIN32
 #include <direct.h>
 #else
+
 #include <sys/stat.h>
+
 #endif
 
 using namespace std;
 
 cv::Mat FileSystem::loadImage(const string &fullPath) {
     cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_ANYCOLOR);
-	if(!image.data)
-		throw exception(); // Unable to load file.
-	return image;
+    if (!image.data)
+        throw exception(); // Unable to load file.
+    return image;
 }
 
 void FileSystem::saveImage(const string &fullPath, const cv::Mat &mat) {
-	if (!cv::imwrite(fullPath, mat))
-		throw exception(); // Unable to save file.
+    if (!cv::imwrite(fullPath, mat))
+        throw exception(); // Unable to save file.
 }
 
 string FileSystem::saveImage(const string &folderPath, const string &fileName, const cv::Mat &mat) {
-	string fullPath = folderPath + separator + fileName;
-	if (!cv::imwrite(fullPath, mat))
-		throw exception(); // Unable to save file.
-	return fullPath;
+    string fullPath = folderPath + separator + fileName;
+    if (!cv::imwrite(fullPath, mat))
+        throw exception(); // Unable to save file.
+    return fullPath;
 }
 
 string FileSystem::toExtension(const string &fullPath, bool keepDot) {
@@ -63,7 +65,7 @@ string FileSystem::toPath(const string &folderPath, const string &fileName, cons
 
 vector<string> FileSystem::allFilesAtPath(const string &folderPath) {
     vector<string> result;
-	// Use cv::String because opencv 3 will throw exceptions otherwise.
+    // Use cv::String because opencv 3 will throw exceptions otherwise.
     vector<cv::String> tempResult;
     cv::glob(folderPath, tempResult, false);
     for (auto it = tempResult.begin(); it != tempResult.end(); ++it) {

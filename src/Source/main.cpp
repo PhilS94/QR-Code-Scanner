@@ -1,7 +1,6 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "../Header/ImageBinarization.hpp"
-#include "../Header/FindPattern.hpp"
 #include "../Header/Filesystem.hpp"
 #include "../Header/Generator.hpp"
 #include "../Header/CodeFinder.hpp"
@@ -9,11 +8,15 @@
 using namespace std;
 using namespace cv;
 
-void findQRCode(const string path);
 void cameraMode();
+
 void folderMode(const string &path);
+
 void evaluationMode(const string &source, const string &dest);
+
 void generateMode(const string &source, const string &dest);
+
+float evaluate(const string &groundTruthImage, const Mat &exractedImage);
 
 
 void printLogo() {
@@ -70,13 +73,13 @@ int main(int argc, const char *argv[]) {
         folderMode(argv[1]);
     } else if (argc == 3) {
         cout << "Starting Evaluation Mode..." << endl;
-		evaluationMode(argv[1], argv[2]);
+        evaluationMode(argv[1], argv[2]);
     } else if (argc == 4 && string(argv[1]) == "-generate") {
         cout << "Starting Generate Mode..." << endl;
         generateMode(argv[2], argv[3]);
     } else {
         printUsage();
-		cout << endl << endl << "Failed to select mode. Printing Arguments:" << endl << endl;
+        cout << endl << endl << "Failed to select mode. Printing Arguments:" << endl << endl;
         for (int i = 0; i < argc; i++) {
             cout << argv[i] << endl;
         }
@@ -106,163 +109,23 @@ void cameraMode() {
         cap >> frame;         // get a new frame from camera
         imshow("Video", frame);
 
+        CodeFinder codeFinder(frame, false);
+        Mat outputImage = codeFinder.find();
 
-        Mat grayscale;
-        cv::cvtColor(frame, grayscale, CV_BGR2GRAY);
-        namedWindow("Grayscale", WINDOW_AUTOSIZE);
-        imshow("Grayscale", grayscale);
-
-        Mat binary;
-        ImageBinarization binarizedImage;
-        binary = binarizedImage.run(grayscale);
-        namedWindow("Binaer", WINDOW_AUTOSIZE);
-        imshow("Binaer", binary);
-
-
-        Mat contour;
-        FindPattern pattern(frame);
-        contour = pattern.findAllContours(binary);
-        namedWindow("Konturen", WINDOW_AUTOSIZE);
-        imshow("Konturen", contour);
-
-
-        Mat filteredContours;
-        filteredContours = pattern.findQRCodePatterns(binary);
-
-        //DEBUG
-        cout << "Now getting all Patterns" << endl;
-        vector<FinderPatternModel> fPattern;
-        pattern.getAllPatterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
-
-        cv::Scalar color[3];
-        color[0] = cv::Scalar(0, 0, 255);
-        color[1] = cv::Scalar(0, 255, 0);
-        color[2] = cv::Scalar(255, 0, 0);
-
-        for (int i = 0; i < fPattern.size(); ++i) {
-            circle(frame, fPattern[i].topleft, 3, color[0], 2, 8, 0);
-            circle(frame, fPattern[i].topright, 3, color[1], 2, 8, 0);
-            circle(frame, fPattern[i].bottomleft, 3, color[2], 2, 8, 0);
+        vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
+        for (int i = 0; i < merged.size(); i++) {
+            imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
         }
 
-        //namedWindow(imageName+" Tracked Image", WINDOW_AUTOSIZE);
-        //imshow(imageName+" Tracked Image", image);
-
-        cout << "Now tiltCorrecting Image...: " << endl;
-
-        //Philipp: fPattern enthï¿½lt nicht immer 3 Elemente->Vector out of bounds error, tatsï¿½chlich immer nur 0 oder 1 Element. vorzeitige Lï¿½sung:
-        if (fPattern.size() > 0) {
-            frame = pattern.tiltCorrection(frame, fPattern[0]);
+        vector<Mat> extracted = codeFinder.drawExtractedCodes();
+        for (int i = 0; i < extracted.size(); i++) {
+            imshow(string("Extracted_") + to_string(i), extracted[i]);
         }
-
-        string saveImageName = "QRScanned";
-
-        if (!frame.empty()) {
-            imshow(saveImageName, frame); // Speichere momentan nur image1..
-        }
-        //DEBUG
 
         // Press 'c' to escape
         if (waitKey(30) == 'c') break;
     }
 }
-
-
-void findQRCode(const string path) {
-
-    FileSystem fs;
-
-    std::string imageName = fs.toFileName(path);
-    std::string currentDir = fs.toFolderPath(path, true);
-    cout << endl;
-
-    cout << "Now Loading Image: " << imageName << endl;
-    Mat image = fs.loadImage(path);
-
-	// TODO: Remove resizing in final version.
-    if (image.cols > 2000 || image.rows > 2000) {
-        cout << "Now resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
-        Mat resizedImage(0.25 * image.rows, 0.25 * image.cols, image.type());
-        resize(image, resizedImage, resizedImage.size(), 0.25, 0.25, INTER_LINEAR);
-        image = resizedImage;
-        cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
-    }
-
-    cout << "Now Converting Image to Grayscale..." << endl;
-    Mat grayscale;
-    cvtColor(image, grayscale, CV_BGR2GRAY);
-    //    namedWindow(imageName+" Grayscale", WINDOW_AUTOSIZE );
-    //    imshow(imageName+" Grayscale", grayscale);
-
-    cout << "Now binarizing Image..." << endl;
-    Mat binary;
-    ImageBinarization binarizedImage;
-    binary = binarizedImage.run(grayscale);
-    //    namedWindow(imageName+" Binaer", WINDOW_AUTOSIZE );
-    //    imshow(imageName+" Binaer", binary);
-
-    cout << "Now finding Contours..." << endl;
-    Mat contour;
-    FindPattern pattern(image);
-    contour = pattern.findAllContours(binary);
-
-    cout << "Now filtering Contours..." << endl;
-    Mat filteredContours;
-    filteredContours = pattern.findQRCodePatterns(binary);
-    //    namedWindow(imageName+" Konturen #2", WINDOW_AUTOSIZE);
-    //    imshow(imageName+" Konturen #2", filteredContours);
-    pattern.calculateForthPoint();
-
-    cout << "Now getting all Patterns" << endl;
-    vector<FinderPatternModel> fPattern;
-    pattern.getAllPatterns(fPattern); //Philipp: Liefert nicht immer Vector mit 3Elementen, sondern mit 0 oder 1 Elementen.
-
-    cv::Scalar color[3];
-    color[0] = cv::Scalar(0, 0, 255);
-    color[1] = cv::Scalar(0, 255, 0);
-    color[2] = cv::Scalar(255, 0, 0);
-
-    for (int i = 0; i < fPattern.size(); ++i) {
-        circle(image, fPattern[i].topleft, 3, color[i % 3], 2, 8, 0);
-        circle(image, fPattern[i].topright, 3, color[i % 3], 2, 8, 0);
-        circle(image, fPattern[i].bottomleft, 3, color[i % 3], 2, 8, 0);
-    }
-
-    //namedWindow(imageName+" Tracked Image", WINDOW_AUTOSIZE);
-    //imshow(imageName+" Tracked Image", image);
-
-    cout << "Now tiltCorrecting Image...: " << endl;
-
-    //Philipp: fPattern enthält nicht immer 3 Elemente->Vector out of bounds error, tatsächlich immer nur 0 oder 1 Element. vorzeitige Lösung:
-    Mat QRCode;
-    Mat QRCodeTrueSize;
-    if (fPattern.size() > 0) {
-        QRCode = pattern.tiltCorrection(image, fPattern[0]);
-        QRCodeTrueSize = pattern.normalize(QRCode);
-        //namedWindow(imageName + " QR Code1", WINDOW_AUTOSIZE);
-        //imshow(imageName + " QR Code1", QRCode);
-    }
-
-    string saveDir = fs.makeDir(currentDir, "ScannedQR");
-
-
-    string saveImageName = imageName + "_1_QRScanned.jpg";
-    cout << "Saving QR-Tracked Image in " << saveDir + separator + saveImageName << endl;
-    fs.saveImage(saveDir, saveImageName, image);
-
-    if (!QRCode.empty()) {
-        string saveImageExtractedName = imageName + "_2_QRExtracted.jpg";
-        cout << "Saving QR-Extracted Image in " << saveDir + separator + saveImageExtractedName << endl;
-        fs.saveImage(saveDir, saveImageExtractedName, QRCode);
-    }
-
-    if (!QRCodeTrueSize.empty()) {
-        string saveQRTrueSizeName = imageName + "_3_QRTrueSize.jpg";
-        cout << "Saving QR-Extracted Image in " << saveDir + separator + saveQRTrueSizeName << endl;
-        fs.saveImage(saveDir, saveQRTrueSizeName, QRCodeTrueSize);
-    }
-}
-
 
 void folderMode(const string &source) {
     cout << "Reading all Files in " << source << " ..." << endl;
@@ -283,11 +146,11 @@ void folderMode(const string &source) {
         cout << "Now start iterating through all Images.." << endl;
         for (int i = 0; i < imageFiles.size(); i++) {
             //findQRCode(imageFiles[i]);
-			cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
-			cout << "Path: " << imageFiles[i] << endl;
-			Mat image = FileSystem::loadImage(imageFiles[i]);
-			CodeFinder(image, false).find();
-			cout << endl;
+            cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
+            cout << "Path: " << imageFiles[i] << endl;
+            Mat image = FileSystem::loadImage(imageFiles[i]);
+            CodeFinder(image, false).find();
+            cout << endl;
         }
 
         cout << endl;
@@ -297,41 +160,51 @@ void folderMode(const string &source) {
     }
 }
 
-void evaluationMode(const string &source, const string &dest)
-{
-	Mat inputImage = FileSystem::loadImage(source);
+void evaluationMode(const string &source, const string &dest) {
+    Mat inputImage = FileSystem::loadImage(source);
 
-	CodeFinder codeFinder(inputImage, true);
-	Mat outputImage = codeFinder.find();
+    CodeFinder codeFinder(inputImage, true);
+    Mat outputImage = codeFinder.find();
 
-	imshow("All Contours", codeFinder.drawAllContours());
-	imshow("Pattern Contours", codeFinder.drawPatternContours());
-	imshow("All Segments", codeFinder.drawAllSegments());
-	imshow("All Lines", codeFinder.drawAllLines());
+    imshow("All Contours", codeFinder.drawAllContours());
+    imshow("Pattern Contours", codeFinder.drawPatternContours());
+    imshow("All Segments", codeFinder.drawAllSegments());
+    imshow("All Lines", codeFinder.drawAllLines());
 
-	vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
-	for(int i = 0; i < merged.size(); i++)
-	{
-		imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
-	}
+    vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
+    for (int i = 0; i < merged.size(); i++) {
+        imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
+    }
 
-	vector<Mat> extracted = codeFinder.drawExtractedCodes();
-	for (int i = 0; i < extracted.size(); i++)
-	{
-		imshow(string("Extracted_") + to_string(i), extracted[i]);
-	}
+    vector<Mat> extracted = codeFinder.drawExtractedCodes();
+    for (int i = 0; i < extracted.size(); i++) {
+        imshow(string("Extracted_") + to_string(i), extracted[i]);
+    }
 
-	vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
-	for (int i = 0; i < extracted.size(); i++)
-	{
-		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
-	}
+    vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
+    for (int i = 0; i < extracted.size(); i++) {
+        imshow(string("Extracted Grid_") + to_string(i), grid[i]);
+    }
 
 	vector<Mat> qrcodes = codeFinder.drawResized();
 	for (int i = 0; i < extracted.size(); i++)
 	{
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
+    float equality;
+    string filename = FileSystem::toFileName(source, false);
+    string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
+    string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
+
+    equality = evaluate(FileSystem::toFolderPath(source, true) + "/./../" + groundtruthFilename + ".png", outputImage);
+
+    if (equality == -1)
+        cout << "This Image has not the expected Size! No equality." << endl;
+    else
+        cout << "Equality: " << equality << "%" << endl;
+
+
+    waitKey(0);
 
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
@@ -340,8 +213,7 @@ void evaluationMode(const string &source, const string &dest)
 }
 
 
-void generateMode(const string &source, const string &dest)
-{
+void generateMode(const string &source, const string &dest) {
     cout << "Source     : " << source << endl;
     cout << "Destination: " << dest << endl;
 
@@ -350,4 +222,35 @@ void generateMode(const string &source, const string &dest)
     gen.scale();
     gen.rotate();
     gen.perspective();
+}
+
+float evaluate(const string &groundTruthImage, const Mat &exractedImage) {
+
+    Mat groundTruth = FileSystem::loadImage(groundTruthImage);
+    Mat extracted = exractedImage;
+
+    int pixelcount;
+    int equalpixels;
+
+    //QR Code extraction failed
+    if (groundTruth.size != extracted.size)
+        return -1;
+
+    pixelcount = groundTruth.cols * groundTruth.rows;
+    equalpixels = 0;
+    Vec3f groundtruthPixelValue;
+    Vec3f exatractedPixelValue;
+
+    //iteration over all Pixel in the Image and check
+    //the equality of the images
+    for (int i = 0; i < groundTruth.cols; ++i) {
+        for (int j = 0; j < groundTruth.rows; ++j) {
+            groundtruthPixelValue = groundTruth.at<Vec3f>(i, j);
+            exatractedPixelValue = extracted.at<Vec3f>(i, j);
+            if (groundtruthPixelValue == exatractedPixelValue)
+                equalpixels++;
+        }
+    }
+
+    return equalpixels / pixelcount;
 }
