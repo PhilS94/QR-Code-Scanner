@@ -191,21 +191,19 @@ void evaluationMode(const string &source, const string &dest) {
 	{
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
+
     float equality;
     string filename = FileSystem::toFileName(source, false);
     string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
     string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
 
-    equality = evaluate(FileSystem::toFolderPath(source, true) + "/./../" + groundtruthFilename + ".png", outputImage);
+    equality = evaluate(FileSystem::toFolderPath(source, true) + "/../../" + groundtruthFilename + ".png", outputImage);
 
     if (equality == -1)
         cout << "This Image has not the expected Size! No equality." << endl;
     else
         cout << "Equality: " << equality << "%" << endl;
-
-
-    waitKey(0);
-
+	
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
 
