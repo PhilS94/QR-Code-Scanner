@@ -26,6 +26,7 @@ private:
     std::string source;
     std::string dest;
     std::vector<std::string> workingFiles;
+	std::vector<std::string> bgFiles;
 };
 
 
