@@ -191,21 +191,21 @@ void evaluationMode(const string &source, const string &dest) {
 	{
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
-	/*
+
     float equality;
     string filename = FileSystem::toFileName(source, false);
     string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
     string groundtruthFilename = filename.substr(0, temp.find_first_of("-") + 1 + (filename.size() - temp.size()));
 
-    equality = evaluate(FileSystem::toFolderPath(source, true) + "/../../" + groundtruthFilename + ".png", outputImage);
+    equality = evaluate(FileSystem::toFolderPath(source, true) + "/./../" + groundtruthFilename + ".png", outputImage);
 
     if (equality == -1)
         cout << "This Image has not the expected Size! No equality." << endl;
     else
         cout << "Equality: " << equality << "%" << endl;
-	*/
+
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
-	FileSystem::saveImage(dest, outputImage);
+	//FileSystem::saveImage(dest, outputImage);
 
 	waitKey(0);
 }
@@ -231,8 +231,12 @@ float evaluate(const string &groundTruthImage, const Mat &exractedImage) {
     int equalpixels;
 
     //QR Code extraction failed
-    if (groundTruth.size != extracted.size)
+    if ((groundTruth.cols != extracted.cols) && (groundTruth.rows != extracted.rows)){
+        cout << "groundTruth.cols:" << groundTruth.cols <<"\t groundTruth.rows:" << groundTruth.rows <<endl;
+        cout << "extracted.cols:" << extracted.cols <<"\t extracted.rows:" << extracted.rows <<endl;
         return -1;
+    }
+
 
     pixelcount = groundTruth.cols * groundTruth.rows;
     equalpixels = 0;

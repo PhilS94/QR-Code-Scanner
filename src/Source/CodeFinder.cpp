@@ -568,9 +568,9 @@ void CodeFinder::findResize(QRCode& code)
 			int blackCount = 0;
 			for (int x = beginX; x < endX && x < code.extractedImage.cols; x++)
 			{
-				for (int y = beginY; y < (b + 1) * endY && y  < code.extractedImage.rows; y++)
+				for (int y = beginY; y < endY && y  < code.extractedImage.rows; y++)
 				{
-					unsigned char pixel = code.extractedImage.at<unsigned char>(x, y);
+					uchar pixel = code.extractedImage.at<uchar>(x, y);
 
 					if(pixel == 0)
 					{
@@ -583,14 +583,14 @@ void CodeFinder::findResize(QRCode& code)
 			if(totalCount * 0.5 < blackCount)
 			{
 				// Set to black.
-				code.qrcodeImage.at<unsigned char>(a, b) = 0;
-				cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
+				code.qrcodeImage.at<uchar>(a, b) = 0;
+				//cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
 			}
 			else
 			{
 				// Set to white.
-				code.qrcodeImage.at<unsigned char>(a, b) = 255;
-				cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
+				code.qrcodeImage.at<uchar>(a, b) = 255;
+				//cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
 			}
 		}
 	}
