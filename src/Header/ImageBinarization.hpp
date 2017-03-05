@@ -6,10 +6,9 @@
 #define QRCODE_IMAGEBINARIZATION_H
 
 
-
 class ImageBinarization {
 public:
-	cv::Mat run(cv::Mat image);
+    cv::Mat run(cv::Mat image);
 
     void computeSmoothing();
 
@@ -20,10 +19,10 @@ public:
     void computeThreshold();
 
 private:
-	cv::Mat image;
-	cv::Mat blurredImage;
-	cv::Mat binarizedImage;
-	cv::Mat hist;
+    cv::Mat image;
+    cv::Mat blurredImage;
+    cv::Mat binarizedImage;
+    cv::Mat hist;
     int histSize = 256;
     double m = (hist.rows * hist.cols) / 2;
     int bin = 0;

@@ -12,9 +12,6 @@ set(SOURCE_FILES
         ./Source/main.cpp
         ./Header/ImageBinarization.hpp
         ./Source/ImageBinarization.cpp
-        ./Header/FindPattern.hpp
-        ./Source/FindPattern.cpp
-        ./Source/FinderPatternModel.cpp
         ./Header/FinderPatternModel.hpp
         ./Source/Filesystem.cpp
         ./Header/Filesystem.hpp
