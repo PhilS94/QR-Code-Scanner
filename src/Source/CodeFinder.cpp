@@ -551,7 +551,7 @@ void CodeFinder::findNumberOfModules(QRCode& code)
 
 void CodeFinder::findResize(QRCode& code)
 {
-	code.qrcodeImage = Mat(code.modules, code.modules, DataType<char>::type, Scalar(255));
+	code.qrcodeImage = Mat(code.modules, code.modules, CV_8UC1, Scalar(255));
 
 	cout << "Modules: " << code.modules << endl;
 
@@ -570,7 +570,7 @@ void CodeFinder::findResize(QRCode& code)
 			{
 				for (int y = beginY; y < (b + 1) * endY && y  < code.extractedImage.rows; y++)
 				{
-					char pixel = code.extractedImage.at<char>(x, y);
+					unsigned char pixel = code.extractedImage.at<unsigned char>(x, y);
 
 					if(pixel == 0)
 					{
@@ -583,13 +583,13 @@ void CodeFinder::findResize(QRCode& code)
 			if(totalCount * 0.5 < blackCount)
 			{
 				// Set to black.
-				code.qrcodeImage.at<char>(a, b) = 0;
+				code.qrcodeImage.at<unsigned char>(a, b) = 0;
 				cout << "A: " << a+1 << " B: " << b+1 << " is black." << endl;
 			}
 			else
 			{
 				// Set to white.
-				code.qrcodeImage.at<char>(a, b) = 255;
+				code.qrcodeImage.at<unsigned char>(a, b) = 255;
 				cout << "A: " << a+1 << " B: " << b+1 << " is white." << endl;
 			}
 		}
