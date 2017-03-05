@@ -5,8 +5,6 @@
 #ifndef QRCODE_IMAGEBINARIZATION_H
 #define QRCODE_IMAGEBINARIZATION_H
 
-#include <opencv2/contrib/contrib.hpp>
-
 class ImageBinarization {
 public:
 	cv::Mat run(cv::Mat image);

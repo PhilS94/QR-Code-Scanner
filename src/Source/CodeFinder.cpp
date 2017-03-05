@@ -1,4 +1,3 @@
-#include <opencv2/contrib/contrib.hpp>
 #include <iostream>
 #include "../Header/CodeFinder.hpp"
 #include "../Header/ImageBinarization.hpp"
@@ -124,10 +123,11 @@ Mat CodeFinder::find()
 				cout << "Finding perspective transform..." << endl;
 				findPerspectiveTransform(code);
 
-				cout << "Finding true size..." << endl;
-				findTrueSize(code);
+				cout << "Finding number of modules..." << endl;
+				findNumberOfModules(code);
 
-				// TODO: Resize to true size of qrcode.
+				cout << "Finding resized image..." << endl;
+				findResize(code);
 
 				// TODO: Verify that we have truly found a valid qrcode.
 
@@ -395,7 +395,7 @@ bool CodeFinder::findMergedLines(QRCode& code)
 		bool isTopRight = true;
 
 		// Search in top right.
-		for(int i = 0; i < tr.lines.size(); i++)
+		for(int i = 1; i < tr.lines.size(); i++)
 		{
 			double currentDistance = lineLineDistance(tl.lines[a], tr.lines[i]);
 			if(currentDistance < minDistance)
@@ -534,7 +534,8 @@ void CodeFinder::findPerspectiveTransform(QRCode& code)
 
 	// Find the longest distance and use it as the target size.
 	double distance = 0.0f;
-	for(Point2f& p1 : sourceQuad)
+
+	for (Point2f& p1 : sourceQuad)
 	{
 		for (Point2f& p2 : sourceQuad)
 		{
@@ -562,16 +563,94 @@ void CodeFinder::findPerspectiveTransform(QRCode& code)
 	perspectiveTransform(code.corners, code.transformedCorners, code.transform);
 }
 
-void CodeFinder::findTrueSize(QRCode& code)
+void CodeFinder::findNumberOfModules(QRCode& code)
 {
+	// For each finder pattern deduce how large seven modules are.
+	Point2f step21 = code.transformedCorners.at<Point2f>(1, 1);
+	step21 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
+	step21 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
 
+	// Average the step size for a single module.
+	code.gridStepSize.x = step21.x / 21;
+	code.gridStepSize.y = step21.y / 21;
+
+	// Calculate how many cells there would be with the current step size.
+	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
+	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
+
+	// Now find the version of the qrcode by snapping to the clostest module number that is allowed.
+	double totalDistance = abs(cellsX - 21) + abs(cellsY - 21);
+	code.version = 2;
+	while (code.version <= 40)
+	{
+		code.modules = 17 + 4 * code.version;
+		double newTotalDistance = abs(cellsX - code.modules) + abs(cellsY - code.modules);
+
+		if (newTotalDistance < totalDistance)
+		{
+			totalDistance = newTotalDistance;
+			code.version++;
+		}
+		else
+		{
+			code.version--;
+			break;
+		}
+	}
+
+	// The result is the version, the number of modules and the step size for the qrcode.
+	code.modules = 17 + 4 * code.version;
+	code.gridStepSize.x = code.extractedImage.cols / code.modules;
+	code.gridStepSize.y = code.extractedImage.rows / code.modules;
+}
+
+void CodeFinder::findResize(QRCode& code)
+{
+	code.qrcodeImage = Mat(code.modules, code.modules, DataType<char>::type);
+
+	for(int a = 0; a < code.modules; a++)
+	{
+		for (int b = 0; b < code.modules; b++)
+		{
+			int beginX = a * code.gridStepSize.x;
+			int endX = (a + 1) * code.gridStepSize.x;
+
+			int beginY = b * code.gridStepSize.y;
+			int endY = (b + 1) * code.gridStepSize.y;
+
+			int blackCount = 0;
+			for (int x = beginX; x < endX && x < code.extractedImage.cols; x++)
+			{
+				for (int y = beginY; y < (b + 1) * endY && y  < code.extractedImage.rows; y++)
+				{
+					char pixel = code.extractedImage.at<char>(x, y);
+
+					if(pixel == 0)
+					{
+						blackCount++;
+					}
+				}
+			}
+			int totalCount = (endX - beginX) * (endY - beginY);
+
+			if(totalCount * 0.5 < blackCount)
+			{
+				// Set to black.
+				code.qrcodeImage.at<char>(a, b) = 0;
+			}
+			else
+			{
+				// Set to white.
+				code.qrcodeImage.at<char>(a, b) = 255;
+			}
+		}
+	}
 }
 
 // The line has to be in the same format as returned by fitLine.
 double CodeFinder::pointLineDistance(Vec2f p, Vec4f line)
 {
 	Vec2f supportVector(line[2], line[3]);
-	// Vec2f direction(line[0], line[1]);
 
 	// Translate p so that supportVector moves into origin.
 	p -= supportVector;
@@ -762,38 +841,38 @@ vector<Mat> CodeFinder::drawExtractedCodeGrids()
 			}
 		}
 
-		Point2f step28 = code.transformedCorners.at<Point2f>(1, 1);
-		step28 += code.transformedCorners.at<Point2f>(3, 3) - code.transformedCorners.at<Point2f>(2, 2);
-		step28 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
-		step28 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
+		circle(image, code.gridStepSize, 3, Scalar(0, 255, 0), 2);
 
-		Point2f step;
-		step.x = step28.x / 28;
-		step.y = step28.y / 28;
-
-		// TODO: There needs to be a way to deduce the correct size of one cell.
-		step.x = float(image.cols) / 21.0f;
-		step.y = float(image.rows) / 21.0f;
-
-		circle(image, step, 3, Scalar(0, 255, 0), 2);
-
-		Point2f sv = code.transformedCorners.at<Point2f>(1, 1);
 		vector<Vec4f> lines;
-		for (int i = -7; (i * step.x) < image.cols || (i * step.y) < image.rows; i++)
+		for (int i = -7; (i * code.gridStepSize.x) < image.cols || (i * code.gridStepSize.y) < image.rows; i++)
 		{
-			lines.push_back(Vec4f(0, 1, step.x * i + sv.x, step.y * i + sv.y));
+			lines.push_back(Vec4f(0, 1, code.gridStepSize.x * i, code.gridStepSize.y * i));
 		}
-		for (int i = -7; (i * step.x) < image.cols || (i * step.y) < image.rows; i++)
+		for (int i = -7; (i * code.gridStepSize.x) < image.cols || (i * code.gridStepSize.y) < image.rows; i++)
 		{
-			lines.push_back(Vec4f(1, 0, step.x * i + sv.x, step.y * i + sv.y));
+			lines.push_back(Vec4f(1, 0, code.gridStepSize.x * i, code.gridStepSize.y * i));
 		}
 
-		drawLines(lines, &image);
+		vector<Scalar> colors;
+		colors.push_back(Scalar(255, 0, 255));
+
+		drawLines(lines, &image, &colors);
 
 		images.push_back(image);
 	}
 
 	return images;
+}
+
+vector<Mat> CodeFinder::drawResized()
+{
+	vector<Mat> images;
+	for (QRCode& code : allCodes)
+	{
+		images.push_back(code.qrcodeImage);
+	}
+
+	return  images;
 }
 
 Mat CodeFinder::drawAllSegments()

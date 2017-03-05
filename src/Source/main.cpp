@@ -327,9 +327,16 @@ void evaluationMode(const string &source, const string &dest)
 		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
 	}
 
-	waitKey(0);
+	vector<Mat> qrcodes = codeFinder.drawResized();
+	for (int i = 0; i < extracted.size(); i++)
+	{
+		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
+	}
 
+	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
+
+	waitKey(0);
 }
 
 

@@ -33,6 +33,11 @@ struct QRCode
 	cv::Mat transform;
 	cv::Mat transformedCorners;
 	cv::Mat extractedImage;
+	int version;
+	int modules;
+	cv::Point2f gridStepSize;
+
+	cv::Mat qrcodeImage;
 };
 
 
