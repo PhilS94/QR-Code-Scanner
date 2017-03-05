@@ -14,6 +14,7 @@ void cameraMode();
 void folderMode(const string &path);
 void evaluationMode(const string &source, const string &dest);
 void generateMode(const string &source, const string &dest);
+float evaluate(const string &groundTruthImage, const Mat &exractedImage);
 
 
 void printLogo() {
@@ -327,7 +328,20 @@ void evaluationMode(const string &source, const string &dest)
 		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
 	}
 
-	waitKey(0);
+    float equality;
+    string filename = FileSystem::toFileName(source, false);
+    string temp = filename.substr(filename.find_first_of("-"), filename.find_last_of("-"));
+    string groundtruthFilename = filename.substr(0 , temp.find_first_of("-")+ 1 + (filename.size() - temp.size()));
+
+    equality = evaluate(FileSystem::toFolderPath(source,true)+"/./../"+groundtruthFilename+".png", outputImage);
+
+    if (equality == -1)
+        cout << "This Image has not the expected Size! No equality."<< endl;
+    else
+        cout << "Equality: " << equality << "%" << endl;
+
+
+    waitKey(0);
 
 	FileSystem::saveImage(dest, outputImage);
 }
@@ -343,4 +357,35 @@ void generateMode(const string &source, const string &dest)
     gen.scale();
     gen.rotate();
     gen.perspective();
+}
+
+float evaluate(const string &groundTruthImage, const Mat &exractedImage){
+
+    Mat groundTruth = FileSystem::loadImage(groundTruthImage);
+    Mat extracted   = exractedImage;
+
+    int pixelcount;
+    int equalpixels;
+
+    //QR Code extraction failed
+    if (groundTruth.size != extracted.size)
+        return -1;
+
+    pixelcount = groundTruth.cols * groundTruth.rows;
+    equalpixels = 0;
+    Vec3f groundtruthPixelValue;
+    Vec3f exatractedPixelValue;
+
+    //iteration over all Pixel in the Image and check
+    //the equality of the images
+    for (int i = 0; i < groundTruth.cols; ++i) {
+        for (int j = 0; j < groundTruth.rows; ++j) {
+            groundtruthPixelValue = groundTruth.at<Vec3f>(i,j);
+            exatractedPixelValue  = extracted.at<Vec3f>(i,j);
+            if (groundtruthPixelValue == exatractedPixelValue)
+                equalpixels++;
+        }
+    }
+
+    return equalpixels / pixelcount;
 }

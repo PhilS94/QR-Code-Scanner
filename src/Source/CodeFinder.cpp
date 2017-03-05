@@ -1,4 +1,3 @@
-#include <opencv2/contrib/contrib.hpp>
 #include <iostream>
 #include "../Header/CodeFinder.hpp"
 #include "../Header/ImageBinarization.hpp"
@@ -304,7 +303,7 @@ void CodeFinder::findPatternLines()
 void CodeFinder::findClockwiseOrder(QRCode& code)
 {
 	// TODO: Make sure this always works!
-	// Use shoelace algorithm (Gaußsche Trapezformel) to find winding order.
+	// Use shoelace algorithm (Gauï¿½sche Trapezformel) to find winding order.
 	int area = 0;
 
 	Point& pa = code.topLeft.contour[0];
