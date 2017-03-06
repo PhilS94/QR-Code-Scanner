@@ -150,8 +150,9 @@ void folderMode(const string &source) {
         cout << "Now start iterating through all Images.." << endl;
 		float evaluateAverage = 0;
 		float detected = 0;
+		float evaluateCount = 0;
 		FileSystem fs;
-		string debugFolder = fs.makeDir(source, "Scan");
+		string debugFolder = fs.makeDir(source, "ScanResult");
         for (int i = 0; i < imageFiles.size(); i++) {
             cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
             cout << "Path: " << imageFiles[i] << endl;
@@ -166,34 +167,42 @@ void folderMode(const string &source) {
 				if(result != -1)
 				{
 					evaluateAverage += result;
+					evaluateCount++;
 				}
 				detected++;
 			}
 			cout << endl;
 
 			Mat contour = codeFinder.drawAllContoursBinarized();
-			string debugFileName = fs.toFileName(imageFiles[i]) + "___CONTOUR___" + fs.toExtension(imageFiles[i], true);
+			string debugFileName = fs.toFileName(imageFiles[i]) + "_1___CONTOUR___" + fs.toExtension(imageFiles[i], true);
 			fs.saveImage(fs.toPath(debugFolder, debugFileName), contour);
+
+			Mat segments = codeFinder.drawAllSegments();
+			debugFileName = fs.toFileName(imageFiles[i]) + "_2___SEGMENTS___" + fs.toExtension(imageFiles[i], true);
+			fs.saveImage(fs.toPath(debugFolder, debugFileName), segments);
 
 			vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
 			for (int a = 0; a < merged.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "___MERGED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				debugFileName = fs.toFileName(imageFiles[i]) + "_3___MERGED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
 				fs.saveImage(fs.toPath(debugFolder, debugFileName), merged[a]);
 			}
 
 			vector<Mat> extracted = codeFinder.drawExtractedCodes();
 			for (int a = 0; a < extracted.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "___EXTRACTED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				debugFileName = fs.toFileName(imageFiles[i]) + "_4___EXTRACTED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
 				fs.saveImage(fs.toPath(debugFolder, debugFileName), extracted[a]);
 			}
 
 			vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
 			for (int a = 0; a < extracted.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "___GRID___" + to_string(a) + fs.toExtension(imageFiles[i], true);
+				debugFileName = fs.toFileName(imageFiles[i]) + "_5___GRID___" + to_string(a) + fs.toExtension(imageFiles[i], true);
 				fs.saveImage(fs.toPath(debugFolder, debugFileName), grid[a]);
 			}
 
-			debugFileName = fs.toFileName(imageFiles[i]) + "___RESULT___" + fs.toExtension(imageFiles[i], true);
+			if(outputImage.size().width == 1)
+				continue;
+
+			debugFileName = fs.toFileName(imageFiles[i]) + "_6___RESULT___" + fs.toExtension(imageFiles[i], true);
 
 			fs.saveImage(fs.toPath(debugFolder, debugFileName), outputImage);
 
@@ -202,7 +211,7 @@ void folderMode(const string &source) {
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
 		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
-			" AverageQuality: " << evaluateAverage << endl;
+			" AverageQuality: " << evaluateAverage / evaluateCount << " Correct Size: " << evaluateCount << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;
@@ -242,7 +251,6 @@ void evaluationMode(const string &source, const string &dest) {
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
 
-	// TODO: Remove evaluate function for release version.
 	evaluate(source, outputImage);
 	
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
@@ -269,38 +277,47 @@ float evaluate(const string &source, const Mat &outputImage) {
 	cout << "Source: " << source << endl;
 
 	float equality;
-	string filename = FileSystem::toFileName(source);
-	int secondDash = filename.find_first_of("-", filename.find_first_of("-") + 1);
-	string groundtruthFilename = filename.substr(0, secondDash);
+	string sourceFilename = FileSystem::toFileName(source);
+	int secondDash = sourceFilename.find_first_of("-", sourceFilename.find_first_of("-") + 1);
+	string groundtruthFilename = sourceFilename.substr(0, secondDash);
 
-	string groundTruthImage = FileSystem::toFolderPath(source, true) + ".." +
+	string groundTruthImagePath = FileSystem::toFolderPath(source, true) + ".." +
 		separator + "00_ground_truth" + separator + groundtruthFilename + ".png";
-
-    Mat groundTruth = FileSystem::loadImage(groundTruthImage);
+	Mat groundTruthImage;
+	try
+	{
+		groundTruthImage = FileSystem::loadImage(groundTruthImagePath);
+		cvtColor(groundTruthImage, groundTruthImage, CV_BGR2GRAY);
+	}
+	catch(...)
+	{
+		// In case we're scanning a folder where there exists no ground truth for.
+		return -1;
+	}
 
 	int pixelcount;
 	int equalpixels;
 
 	cout << "Ground Truth File Name: " << groundtruthFilename << endl;
     //QR Code extraction failed
-    if (groundTruth.size != outputImage.size)
+    if (groundTruthImage.size != outputImage.size)
     {
-		cout << "Ground Truth Size: " << groundTruth.size() << endl;
+		cout << "Ground Truth Size: " << groundTruthImage.size() << endl;
 		cout << "Output Size: " << outputImage.size() << endl;
 		cout << "This Image has not the expected Size! No equality." << endl;
 		return -1;
     }
 
-    pixelcount = groundTruth.cols * groundTruth.rows;
+    pixelcount = groundTruthImage.cols * groundTruthImage.rows;
     equalpixels = 0;
 	uint8_t groundtruthPixelValue;
 	uint8_t exatractedPixelValue;
 
     //iteration over all Pixel in the Image and check
     //the equality of the images
-    for (int i = 0; i < groundTruth.cols; ++i) {
-        for (int j = 0; j < groundTruth.rows; ++j) {
-            groundtruthPixelValue = groundTruth.at<uint8_t>(i, j);
+    for (int i = 0; i < groundTruthImage.cols; ++i) {
+        for (int j = 0; j < groundTruthImage.rows; ++j) {
+            groundtruthPixelValue = groundTruthImage.at<uint8_t>(i, j);
             exatractedPixelValue = outputImage.at<uint8_t>(i, j);
             if (groundtruthPixelValue == exatractedPixelValue)
                 equalpixels++;

@@ -13,8 +13,7 @@
 using namespace std;
 
 cv::Mat FileSystem::loadImage(const string &fullPath) {
-    cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_ANYCOLOR);
-	// TODO: Don't throw an exception here for the release version. Instead give back a 1x1 image.
+    cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_COLOR);
     if (!image.data)
         throw exception(); // Unable to load file.
     return image;

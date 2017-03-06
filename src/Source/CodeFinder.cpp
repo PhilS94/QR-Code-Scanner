@@ -32,11 +32,20 @@ bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right)
 
 CodeFinder::CodeFinder(Mat image, bool hasCode)
         : hasCode(hasCode) {
-    // TODO: Remove resizing for release version.
+    // TODO: Remove resizing for release version. Or keep it?
     image = image.clone();
     if (image.cols > 2000 || image.rows > 2000) {
         cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
-        Mat resizedImage(0.25 * image.rows, 0.25 * image.cols, image.type());
+
+		int x = image.rows;
+		int y = image.cols;
+		while(x > 1500 || y > 1500)
+		{
+			x *= 0.9;
+			y *= 0.9;
+		}
+
+        Mat resizedImage(x, y, image.type());
         resize(image, resizedImage, resizedImage.size(), 0.25, 0.25, INTER_LINEAR);
         image = resizedImage;
         cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
@@ -58,7 +67,7 @@ Mat CodeFinder::find() {
 
     cout << "Converting image to binary image..." << endl;
     Mat grayscaleImage;
-    cvtColor(image, grayscaleImage, CV_BGR2GRAY);
+	cvtColor(image, grayscaleImage, CV_BGR2GRAY);
 
     // TODO: Implement repeated search if hasCode is true.
     // TODO: Get rid of ImageBinarization and put it all in this class.
@@ -79,18 +88,23 @@ Mat CodeFinder::find() {
 
     cout << "Finding all edge lines for finder patterns..." << endl;
     findPatternLines();
+	cout << "Number of detected valid patterns: " << validFinderPatterns.size() << endl;
+	if (validFinderPatterns.size() < 3) {
+		// TODO: In case of hasCode==true don't stop here but try again starting with binarize.
+		return drawNotFound();
+	}
 
     cout << "Iterating all combinations of detected finder patterns..." << endl;
     bool isQRCode = false;
-    for (int a = 0; a < allFinderPatterns.size() - 2 && !isQRCode; a++) {
-        for (int b = a + 1; b < allFinderPatterns.size() - 1 && !isQRCode; b++) {
-            for (int c = b + 1; c < allFinderPatterns.size() && !isQRCode; c++) {
+    for (int a = 0; a < validFinderPatterns.size() - 2 && !isQRCode; a++) {
+        for (int b = a + 1; b < validFinderPatterns.size() - 1 && !isQRCode; b++) {
+            for (int c = b + 1; c < validFinderPatterns.size() && !isQRCode; c++) {
                 cout << "Examining combination (" << a + 1 << ", " << b + 1 << ", " << c + 1 << ")..." << endl;
                 QRCode code;
                 // TODO: Maybe don't copy here but instead use references.
-                code.topLeft = allFinderPatterns[a];
-                code.topRight = allFinderPatterns[b];
-                code.bottomLeft = allFinderPatterns[c];
+                code.topLeft = validFinderPatterns[a];
+                code.topRight = validFinderPatterns[b];
+                code.bottomLeft = validFinderPatterns[c];
 
                 cout << "Finding clockwise pattern order..." << endl;
                 findClockwiseOrder(code);
@@ -111,7 +125,11 @@ Mat CodeFinder::find() {
                 findPerspectiveTransform(code);
 
 				cout << "Finding number of modules..." << endl;
-				findNumberOfModules(code);
+				if(!findNumberOfModules(code))
+				{
+					cout << "Invalid module values. Combination is not a QRCode." << endl;
+					continue;
+				}
 
 				cout << "Finding resized image..." << endl;
 				findResize(code);
@@ -144,32 +162,11 @@ void CodeFinder::findAllContours() {
     // Clone image, because it will be directly manipulated by findAllContours.
     Mat image = binarizedImage.clone();
 
-    // Thresholds for ignoring too small or too large contours.
-    // TODO: Experiment with the threshold settings.
-    float minArea = 8.00;
-    float maxArea = 0.2 * image.cols * image.rows;
-
     // TODO: Why is this needed?
     image /= 255;
 
     // TODO: Use hierarchy for finding patterns! Current way is really slow..
-    vector<vector<Point>> foundContours;
-    vector<Vec4i> hierarchy;
-    findContours(image, foundContours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-
-    // Remove any contours below or above the thresholds.
-    allContours.reserve(foundContours.size());
-    allContourAreas.reserve(foundContours.size());
-    // TODO: Remove this once hierarchy is being used.
-    for (int i = 0; i < foundContours.size(); i++) {
-        double area = contourArea(foundContours[i]);
-        if (minArea < area && area < maxArea) {
-            allContours.push_back(foundContours[i]);
-            allContourAreas.push_back(area);
-        }
-    }
-    allContours.shrink_to_fit();
-    allContourAreas.shrink_to_fit();
+    findContours(image, allContours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 }
 
 // TODO: This is incredibly slow because of the many points needed later for the segments.
@@ -195,27 +192,35 @@ bool CodeFinder::isTrapez(vector<Point> in) {
 
 // TODO: IMRPOVE!
 void CodeFinder::findPatternContours() {
-    // TODO: Instead of this monster, use the hierarchy function!
-    for (int i = 0; i < allContours.size(); ++i) {
-        for (int j = 0; j < allContours.size(); ++j) {
-            if (allContourAreas.at(i) < allContourAreas.at(j)
-                && isTrapez(allContours.at(j))
-                && isTrapez(allContours.at(i))
-                && isContourInsideContour(allContours.at(i), allContours.at(j))) {
-                for (int k = 0; k < allContours.size(); ++k) {
-                    if (allContourAreas.at(k) < allContourAreas.at(j)
-                        && isTrapez(allContours.at(k))
-                        && isContourInsideContour(allContours.at(k), allContours.at(i))) {
-                        // k lies within i and i lies within j.
-                        // Only save outter most contour.
-                        FinderPattern pattern;
-                        pattern.contour = allContours.at(j);
-                        allFinderPatterns.push_back(pattern);
-                    }
-                }
-            }
-        }
-    }
+	// Thresholds for ignoring too small or too large contours.
+	// TODO: Experiment with the threshold settings.
+	float minArea = 8.00;
+	float maxArea = 0.2 * binarizedImage.cols * binarizedImage.rows;
+
+	for (int i = 0; i < hierarchy.size(); i++)
+	{
+		if (hierarchy[i][0] < 0 && hierarchy[i][1] < 0 &&
+			hierarchy[i][2] < 0 && hierarchy[i][3] >= 0)
+		{
+			double area = contourArea(allContours[i]);
+			if (minArea > area || area > maxArea) {
+				continue;
+			}
+
+			int outter1 = hierarchy[i][3];
+			if (hierarchy[outter1][0] < 0 && hierarchy[outter1][1] < 0 &&
+				hierarchy[outter1][3] >= 0)
+			{
+				int outter2 = hierarchy[outter1][3];
+				if (isTrapez(allContours[outter2]))
+				{
+					FinderPattern pattern;
+					pattern.contour = allContours[outter2];
+					allFinderPatterns.push_back(pattern);
+				}
+			}
+		}
+	}
 }
 
 void CodeFinder::findPatternLines() {
@@ -281,6 +286,8 @@ void CodeFinder::findPatternLines() {
             fitLine(segment, line, fitType, 0, fitReps, fitAeps);
             pattern.lines.push_back(line);
         }
+
+		validFinderPatterns.push_back(pattern);
     }
 }
 
@@ -521,7 +528,7 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
     perspectiveTransform(code.corners, code.transformedCorners, code.transform);
 }
 
-void CodeFinder::findNumberOfModules(QRCode& code)
+bool CodeFinder::findNumberOfModules(QRCode& code)
 {
 	// For each finder pattern deduce how large seven modules are.
 	Point2f step21 = code.transformedCorners.at<Point2f>(1, 1);
@@ -536,7 +543,11 @@ void CodeFinder::findNumberOfModules(QRCode& code)
 	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
 	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
 
-	cout << cellsX << endl << cellsY << endl;
+	if(cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 4)
+	{
+		return false;
+	}
+	cout << "Approximated module counts for X: " << cellsX << " and Y: " << cellsY << endl;
 
 	// Now find the version of the qrcode by snapping to the clostest module number that is allowed.
 	double totalDistance = abs(cellsX - 21) + abs(cellsY - 21);
@@ -562,6 +573,7 @@ void CodeFinder::findNumberOfModules(QRCode& code)
 	code.modules = 17 + 4 * code.version;
 	code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
 	code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
+	return true;
 }
 
 void CodeFinder::findResize(QRCode& code)
@@ -687,7 +699,7 @@ cv::Mat CodeFinder::drawAllContoursBinarized()
 
 Mat CodeFinder::drawPatternContours() {
     vector<vector<Point>> patternContours;
-    for (FinderPattern &pattern : allFinderPatterns) {
+    for (FinderPattern &pattern : validFinderPatterns) {
         patternContours.push_back(pattern.contour);
     }
     return drawContours(patternContours);
@@ -697,7 +709,7 @@ Mat CodeFinder::drawAllLines() {
     Mat lineImage = originalImage.clone();
 
     vector<vector<Point>> polygons;
-    for (FinderPattern &pattern : allFinderPatterns) {
+    for (FinderPattern &pattern : validFinderPatterns) {
         // Approximate the contour with a polygon.
         double epsilon = 0.1 * arcLength(pattern.contour, true);
         vector<Point> approximatedPolygon;
@@ -713,7 +725,7 @@ Mat CodeFinder::drawAllLines() {
     vector<Scalar> colorsLines;
     colorsLines.push_back(Scalar(0, 0, 255));
 
-    for (FinderPattern &pattern : allFinderPatterns) {
+    for (FinderPattern &pattern : validFinderPatterns) {
         drawLines(pattern.lines, &lineImage, &colorsLines);
     }
 
@@ -820,7 +832,7 @@ Mat CodeFinder::drawAllSegments()
 	color[2] = Scalar(255, 0, 0);
 	color[3] = Scalar(255, 255, 0);
 
-    for (FinderPattern &pattern : allFinderPatterns) {
+    for (FinderPattern &pattern : validFinderPatterns) {
         for (int i = 0; i < pattern.segments.size(); i++) {
             for (Point &p : pattern.segments[i]) {
                 circle(segmentImage, p, 1, color[i % 4]);

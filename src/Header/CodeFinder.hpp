@@ -20,15 +20,14 @@ public:
 	std::vector<cv::Mat> drawExtractedCodes();
 	std::vector<cv::Mat> drawExtractedCodeGrids();
 	std::vector<cv::Mat> drawResized();
-	
+
+	static cv::Mat drawNotFound();
 protected:
     cv::Mat drawContours(std::vector<std::vector<cv::Point>> &vecs,
                          cv::Mat *image = nullptr, std::vector<cv::Scalar> *colors = nullptr);
 
     cv::Mat drawLines(std::vector<cv::Vec4f> &lines,
                       cv::Mat *image = nullptr, std::vector<cv::Scalar> *colors = nullptr);
-
-    cv::Mat drawNotFound();
 
 	void findAllContours();
 	void findPatternContours();
@@ -38,7 +37,7 @@ protected:
 	bool findMergedLines(QRCode& code);
 	void findCorners(QRCode& code);
 	void findPerspectiveTransform(QRCode& code);
-	void findNumberOfModules(QRCode& code);
+	bool findNumberOfModules(QRCode& code);
 	void findResize(QRCode& code);
 
     bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
@@ -61,8 +60,9 @@ private:
     cv::Mat originalImage;
     cv::Mat binarizedImage;
     std::vector<std::vector<cv::Point>> allContours;
-    std::vector<double> allContourAreas;
-    std::vector<FinderPattern> allFinderPatterns;
+	std::vector<cv::Vec4i> hierarchy;
+	std::vector<FinderPattern> allFinderPatterns;
+	std::vector<FinderPattern> validFinderPatterns;
     std::vector<QRCode> allCodes;
 
     // Constants used for line fitting.
