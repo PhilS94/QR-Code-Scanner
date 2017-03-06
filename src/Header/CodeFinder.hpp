@@ -40,6 +40,7 @@ protected:
 	void findPerspectiveTransform(QRCode& code);
 	void findNumberOfModules(QRCode& code);
 	void findResize(QRCode& code);
+	bool verifyQRCode(QRCode& code);
 
     bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
 
@@ -55,6 +56,7 @@ protected:
     bool lineIntersection(cv::Vec4f o1, cv::Vec4f o2, cv::Point2f &result);
 
     void sortLinesAlongAxis(std::vector<cv::Vec4f> &lines, cv::Vec4f axis);
+
 
 private:
     bool hasCode;
