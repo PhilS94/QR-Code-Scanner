@@ -10,6 +10,8 @@ public:
 
     cv::Mat find();
 
+	static cv::Mat drawNotFound();
+	
 	cv::Mat drawBinaryImage();
 	cv::Mat drawAllContours();
 	cv::Mat drawAllContoursBinarized();
@@ -21,7 +23,9 @@ public:
 	std::vector<cv::Mat> drawExtractedCodeGrids();
 	std::vector<cv::Mat> drawResized();
 
-	static cv::Mat drawNotFound();
+	void showAll();
+	void saveDrawTo(const std::string& folder, const std::string& imageFilePath);
+
 protected:
     cv::Mat drawContours(std::vector<std::vector<cv::Point>> &vecs,
                          cv::Mat *image = nullptr, std::vector<cv::Scalar> *colors = nullptr);

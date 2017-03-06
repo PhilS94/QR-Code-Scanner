@@ -24,6 +24,7 @@ struct QRCode {
 	int version;
 	int modules;
 	cv::Point2f gridStepSize;
+	float verifyPercentage;
 
 	cv::Mat qrcodeImage;
 };
