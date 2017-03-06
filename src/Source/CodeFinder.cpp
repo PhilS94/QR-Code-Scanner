@@ -14,8 +14,23 @@ using namespace cv;
  * \param right The point is the axis intersection and the vector describes the line.
  * \return True if right is larger than left. False otherwise.
  */
-bool compareLineAlongAxis(pair<float, Vec4f> left, pair<float, Vec4f> right) {
-	return left.first > right.first;
+bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right) {
+
+	float a;
+	float b;
+
+	if(abs(left.first.x - right.first.x) > abs(left.first.y - right.first.y))
+	{
+		a = left.first.x;
+		b = right.first.x;
+	}
+	else
+	{
+		a = left.first.y;
+		b = right.first.y;
+	}
+
+	return a < b;
 }
 
 CodeFinder::CodeFinder(Mat image, bool hasCode)
@@ -116,8 +131,6 @@ Mat CodeFinder::find() {
 				if(!findNumberOfModules(code))
 				{
 					cout << "Invalid module values. Combination is not a QRCode." << endl;
-					allCodes.push_back(code);
-					showAll();
 					continue;
 				}
 
@@ -499,6 +512,7 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 				distance = distanceCurrent;
 		}
 	}
+
 	distance = distance * 2;
 	vector<Point2f> targetQuad;
 	targetQuad.reserve(4);
@@ -523,21 +537,6 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	Point2f step21 = code.transformedCorners.at<Point2f>(1, 1);
 	step21 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
 	step21 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
-
-	for (int x = 0; x < 4; x++)
-	{
-		for (int y = 0; y < 4; y++)
-		{
-			cout << code.corners.at<Point2f>(x, y) << endl;
-		}
-	}
-	for(int x = 0; x < 4; x++)
-	{
-		for (int y = 0; y < 4; y++)
-		{
-			cout << code.transformedCorners.at<Point2f>(x, y) << endl;
-		}
-	}
 
 	// Average the step size for a single module.
 	code.gridStepSize.x = step21.x / 21;
@@ -669,30 +668,28 @@ bool CodeFinder::lineIntersection(Vec4f line1, Vec4f line2, Point2f &result) {
 }
 
 void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
-	vector<pair<float, Vec4f>> sortedLines;
+	vector<pair<Point2f, Vec4f>> sortedLines;
 
 	Point2f SV = Point2f(axis[2], axis[3]);
 	Point2f Dir = Point2f(axis[0], axis[1]);
-
+	Point2f DirOrth = Point2f(-axis[1], axis[0]);
+	
 	for (Vec4f &line : lines) {
 		Point2f intersect;
 		if (lineIntersection(line, axis, intersect)) {
-
-			intersect = intersect - SV;
-
-
-
-			sortedLines.push_back(pair<float, Vec4f>(intersect.x, line));
+			//intersect = intersect - SV;
+			//float x = intersect.x * (-DirOrth.y) + intersect.x * Dir.y;
+			sortedLines.push_back(pair<Point2f, Vec4f>(intersect, line));
 		}
 		else {
-			sortedLines.push_back(pair<float, Vec4f>(0, line));
+			sortedLines.push_back(pair<Point2f, Vec4f>(0, line));
 		}
 	}
 
 	sort(sortedLines.begin(), sortedLines.end(), compareLineAlongAxis);
 	lines.clear();
 
-	for (pair<float, Vec4f> &pair : sortedLines) {
+	for (pair<Point2f, Vec4f> &pair : sortedLines) {
 		lines.push_back(pair.second);
 	}
 }
@@ -1008,7 +1005,7 @@ void CodeFinder::showAll()
 	for (int i = 0; i < extracted.size(); i++) {
 		imshow(string("Extracted_") + to_string(i), extracted[i]);
 	}
-	/*
+
 	vector<Mat> grid = drawExtractedCodeGrids();
 	for (int i = 0; i < grid.size(); i++) {
 		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
@@ -1019,7 +1016,6 @@ void CodeFinder::showAll()
 	{
 		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
 	}
-	*/
 	waitKey(0);
 }
 
@@ -1052,6 +1048,7 @@ void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
 		debugFileName = fs.toFileName(imageFilePath) + "_5___GRID___" + to_string(a) + fs.toExtension(imageFilePath, true);
 		fs.saveImage(fs.toPath(folder, debugFileName), grid[a]);
 	}
+
 	float verify = 0.0;
 	Mat outputImage = drawNotFound();
 	for (QRCode& code : allCodes)
