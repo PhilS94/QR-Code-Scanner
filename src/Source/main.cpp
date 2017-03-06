@@ -152,6 +152,7 @@ void folderMode(const string &source) {
 		float detected = 0;
 		FileSystem fs;
 		string debugFolder = fs.makeDir(source, "Scan");
+		cout << "ßPrint Folder: "<<debugFolder << endl;
         for (int i = 0; i < imageFiles.size(); i++) {
             cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
             cout << "Path: " << imageFiles[i] << endl;
@@ -276,8 +277,9 @@ float evaluate(const string &source, const Mat &outputImage) {
 	string groundTruthImage = FileSystem::toFolderPath(source, true) + ".." +
 		separator + "00_ground_truth" + separator + groundtruthFilename + ".png";
 
+	cout << " I am here :"<< groundTruthImage<<endl;
     Mat groundTruth = FileSystem::loadImage(groundTruthImage);
-
+	cout << "JUHU"<< endl;
 	int pixelcount;
 	int equalpixels;
 
