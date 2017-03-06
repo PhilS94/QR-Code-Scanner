@@ -28,3 +28,6 @@ ScannedQR
 /data/dataset2
 /data/dataset1.zip
 /data/dataset1
+/data/00_ground_truth/99_bg
+*/ScanResult
+/data/04_synthetic

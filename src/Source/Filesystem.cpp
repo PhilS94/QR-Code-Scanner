@@ -13,7 +13,7 @@
 using namespace std;
 
 cv::Mat FileSystem::loadImage(const string &fullPath) {
-    cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_ANYCOLOR);
+    cv::Mat image = cv::imread(fullPath, CV_LOAD_IMAGE_COLOR);
     if (!image.data)
         throw exception(); // Unable to load file.
     return image;
@@ -80,7 +80,7 @@ vector<string> FileSystem::allImagesAtPath(const string &folderPath) {
 
     for (auto it = allFiles.begin(); it != allFiles.end(); ++it) {
         string fileType = toExtension(*it);
-        if ((fileType == "jpg") || (fileType == "png")) {
+        if ((fileType == "jpg") || (fileType == "png") || (fileType == "jpeg")) {
             imageFiles.push_back(*it);
         }
     }
