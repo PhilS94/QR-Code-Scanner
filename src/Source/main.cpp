@@ -173,39 +173,7 @@ void folderMode(const string &source) {
 			}
 			cout << endl;
 
-			Mat contour = codeFinder.drawAllContoursBinarized();
-			string debugFileName = fs.toFileName(imageFiles[i]) + "_1___CONTOUR___" + fs.toExtension(imageFiles[i], true);
-			fs.saveImage(fs.toPath(debugFolder, debugFileName), contour);
-
-			Mat segments = codeFinder.drawAllSegments();
-			debugFileName = fs.toFileName(imageFiles[i]) + "_2___SEGMENTS___" + fs.toExtension(imageFiles[i], true);
-			fs.saveImage(fs.toPath(debugFolder, debugFileName), segments);
-
-			vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
-			for (int a = 0; a < merged.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "_3___MERGED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
-				fs.saveImage(fs.toPath(debugFolder, debugFileName), merged[a]);
-			}
-
-			vector<Mat> extracted = codeFinder.drawExtractedCodes();
-			for (int a = 0; a < extracted.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "_4___EXTRACTED___" + to_string(a) + fs.toExtension(imageFiles[i], true);
-				fs.saveImage(fs.toPath(debugFolder, debugFileName), extracted[a]);
-			}
-
-			vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
-			for (int a = 0; a < extracted.size(); a++) {
-				debugFileName = fs.toFileName(imageFiles[i]) + "_5___GRID___" + to_string(a) + fs.toExtension(imageFiles[i], true);
-				fs.saveImage(fs.toPath(debugFolder, debugFileName), grid[a]);
-			}
-
-			if(outputImage.size().width == 1)
-				continue;
-
-			debugFileName = fs.toFileName(imageFiles[i]) + "_6___RESULT___" + fs.toExtension(imageFiles[i], true);
-
-			fs.saveImage(fs.toPath(debugFolder, debugFileName), outputImage);
-
+			codeFinder.saveDrawTo(debugFolder, imageFiles[i]);
         }
 
 		cout << endl;
@@ -224,39 +192,12 @@ void evaluationMode(const string &source, const string &dest) {
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
 
-	// TODO: Remove debug images for release version.
-	imshow("All Contours", codeFinder.drawAllContours());
-	imshow("Pattern Contours", codeFinder.drawPatternContours());
-	imshow("All Segments", codeFinder.drawAllSegments());
-	imshow("All Lines", codeFinder.drawAllLines());
-
-	vector<Mat> merged = codeFinder.drawMergedLinesAndIntersections();
-	for (int i = 0; i < merged.size(); i++) {
-		imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
-	}
-
-	vector<Mat> extracted = codeFinder.drawExtractedCodes();
-	for (int i = 0; i < extracted.size(); i++) {
-		imshow(string("Extracted_") + to_string(i), extracted[i]);
-	}
-
-	vector<Mat> grid = codeFinder.drawExtractedCodeGrids();
-	for (int i = 0; i < extracted.size(); i++) {
-		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
-	}
-
-	vector<Mat> qrcodes = codeFinder.drawResized();
-	for (int i = 0; i < extracted.size(); i++)
-	{
-		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
-	}
-
 	evaluate(source, outputImage);
 	
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
 
-	waitKey(0);
+	codeFinder.showAll();
 }
 
 

@@ -32,6 +32,7 @@ void Generator::border() {
 
 	for (auto path : workingFiles) {
 		Mat image = fs.loadImage(path);
+		cvtColor(image, image, CV_BGR2GRAY);
 
 		int borderSize = image.cols * 0.25;
 		Mat borderImage(image.cols + 2 * borderSize, image.rows + 2 * borderSize, image.type());
@@ -77,6 +78,7 @@ void Generator::scale() {
 		for (float scale = 6.0f; scale < 10.1f; scale += (2.0f / 3.0f)) {
 			for (auto path : workingFiles) {
 				Mat image = fs.loadImage(path);
+				cvtColor(image, image, CV_BGR2GRAY);
 				Mat scaledImage;
 
 				Size scaled = image.size();
@@ -128,6 +130,7 @@ void Generator::rotate() {
 				continue;
 
 			Mat image = fs.loadImage(path);
+			cvtColor(image, image, CV_BGR2GRAY);
 			Mat rotatedImage;
 
 			Point2f image_center(image.cols / 2.0F, image.rows / 2.0F);
@@ -178,7 +181,8 @@ void Generator::perspective() {
 	vector<Point2f> vecsrc;
 	vector<Point2f> vecdst;
 	for (auto path : workingFiles) {
-		const Mat image = fs.loadImage(path);
+		Mat image = fs.loadImage(path);
+		cvtColor(image, image, CV_BGR2GRAY);
 		Point2f topLeft(0, 0);
 		Point2f topRight(image.cols - 1, 0);
 		Point2f bottomLeft(0, image.rows - 1);
@@ -261,7 +265,7 @@ void Generator::synthetic() {
 	vector<string> generated;
 	FileSystem fs;
 
-	string saveFolder = fs.makeDir(dest, "04_synthetic");
+	string saveFolder = fs.makeDir(dest, "05_synthetic");
 
 	int count = 0;
 	int desiredFiles = 100;
@@ -284,7 +288,6 @@ void Generator::synthetic() {
 			}
 
 			Mat qrImage = fs.loadImage(path);
-			cvtColor(qrImage, qrImage, CV_GRAY2BGR);
 			Mat bgImage = fs.loadImage(bgPath);
 			Mat syntheticImage = bgImage.clone();
 

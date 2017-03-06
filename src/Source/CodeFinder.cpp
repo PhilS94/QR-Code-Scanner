@@ -14,21 +14,8 @@ using namespace cv;
  * \param right The point is the axis intersection and the vector describes the line.
  * \return True if right is larger than left. False otherwise.
  */
-bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right) {
-	if (left.first.x > right.first.x) {
-		return true;
-	}
-
-	if (left.first.x == right.first.x) {
-		if (left.first.y > right.first.y) {
-			return true;
-		}
-	}
-	else {
-		return false;
-	}
-
-	return false;
+bool compareLineAlongAxis(pair<float, Vec4f> left, pair<float, Vec4f> right) {
+	return left.first > right.first;
 }
 
 CodeFinder::CodeFinder(Mat image, bool hasCode)
@@ -129,13 +116,14 @@ Mat CodeFinder::find() {
 				if(!findNumberOfModules(code))
 				{
 					cout << "Invalid module values. Combination is not a QRCode." << endl;
+					allCodes.push_back(code);
+					showAll();
 					continue;
 				}
 
 				cout << "Finding resized image..." << endl;
 				findResize(code);
 
-				// TODO: Verify that we have truly found a valid qrcode.
 				if (verifyQRCode(code)) {
 					allCodes.push_back(code);
 				}
@@ -143,21 +131,19 @@ Mat CodeFinder::find() {
 		}
 	}
 
-	if (allCodes.size() == 0)
+	float verify = 0.0;
+	Mat result = drawNotFound();
+	for (QRCode& code : allCodes)
 	{
-		// Return codeNotFound in case of failure to locate qrcode.
-		return drawNotFound();
-	}
-	else
-	{
-		vector<Mat> codes;
-		for (QRCode& code : allCodes)
+		if(code.verifyPercentage > verify)
 		{
-			codes.push_back(code.qrcodeImage);
+			result = code.qrcodeImage;
+			verify = code.verifyPercentage;
 		}
-		// TODO: Consider returning all.
-		return codes[0];
 	}
+
+	// TODO: Consider returning all.
+	return result;
 }
 
 void CodeFinder::findAllContours() {
@@ -513,7 +499,7 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 				distance = distanceCurrent;
 		}
 	}
-
+	distance = distance * 2;
 	vector<Point2f> targetQuad;
 	targetQuad.reserve(4);
 	targetQuad.push_back(Point2f(0, 0));
@@ -538,6 +524,21 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	step21 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
 	step21 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
 
+	for (int x = 0; x < 4; x++)
+	{
+		for (int y = 0; y < 4; y++)
+		{
+			cout << code.corners.at<Point2f>(x, y) << endl;
+		}
+	}
+	for(int x = 0; x < 4; x++)
+	{
+		for (int y = 0; y < 4; y++)
+		{
+			cout << code.transformedCorners.at<Point2f>(x, y) << endl;
+		}
+	}
+
 	// Average the step size for a single module.
 	code.gridStepSize.x = step21.x / 21;
 	code.gridStepSize.y = step21.y / 21;
@@ -546,11 +547,12 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
 	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
 
-	if(cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 4)
+	cout << code.gridStepSize.x << endl << code.gridStepSize.y << endl;
+	cout << "Approximated module counts for X: " << cellsX << " and Y: " << cellsY << endl;
+	if(cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 8)
 	{
 		return false;
 	}
-	cout << "Approximated module counts for X: " << cellsX << " and Y: " << cellsY << endl;
 
 	// Now find the version of the qrcode by snapping to the clostest module number that is allowed.
 	double totalDistance = abs(cellsX - 21) + abs(cellsY - 21);
@@ -667,21 +669,30 @@ bool CodeFinder::lineIntersection(Vec4f line1, Vec4f line2, Point2f &result) {
 }
 
 void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
-	vector<pair<Point2f, Vec4f>> sortedLines;
+	vector<pair<float, Vec4f>> sortedLines;
+
+	Point2f SV = Point2f(axis[2], axis[3]);
+	Point2f Dir = Point2f(axis[0], axis[1]);
+
 	for (Vec4f &line : lines) {
 		Point2f intersect;
 		if (lineIntersection(line, axis, intersect)) {
-			sortedLines.push_back(pair<Point2f, Vec4f>(intersect, line));
+
+			intersect = intersect - SV;
+
+
+
+			sortedLines.push_back(pair<float, Vec4f>(intersect.x, line));
 		}
 		else {
-			sortedLines.push_back(pair<Point2f, Vec4f>(Point2f(0, 0), line));
+			sortedLines.push_back(pair<float, Vec4f>(0, line));
 		}
 	}
 
 	sort(sortedLines.begin(), sortedLines.end(), compareLineAlongAxis);
 	lines.clear();
 
-	for (pair<Point2f, Vec4f> &pair : sortedLines) {
+	for (pair<float, Vec4f> &pair : sortedLines) {
 		lines.push_back(pair.second);
 	}
 }
@@ -694,29 +705,28 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	int total = 0;
 
 	//Initialize PerfectPatterns
-	Mat perfectPattern = Mat::zeros(7, 7, CV_8U);
+	Mat perfectPattern = Mat::zeros(7, 7, CV_8UC1);
 	for (int i = 1; i < 6; i++) {
-		perfectPattern.at<uchar>(1, i) = 255;
-		perfectPattern.at<uchar>(5, i) = 255;
-		perfectPattern.at<uchar>(i, 1) = 255;
-		perfectPattern.at<uchar>(i, 5) = 255;
+		perfectPattern.at<uint8_t>(1, i) = 255;
+		perfectPattern.at<uint8_t>(5, i) = 255;
+		perfectPattern.at<uint8_t>(i, 1) = 255;
+		perfectPattern.at<uint8_t>(i, 5) = 255;
 	}
-
-	imshow("PerfectPattern", perfectPattern);
 
 	//Compare to Patterns of QR
 	Mat topLeftPattern = QRImage(Rect(0, 0, 7, 7));
-	Mat topRightPattern = QRImage(Rect(0, cols - 1 - 7, 7, 7));
-	Mat bottomRight = QRImage(Rect(rows - 1 -7, 0, 7, 7));
+	Mat topRightPattern = QRImage(Rect(0, cols - 7, 7, 7));
+	Mat bottomLeft = QRImage(Rect(rows -7, 0, 7, 7));
+
 
 	for (int y = 0; y < 7; y++) {
 		for (int x = 0; x < 7; x++) {
 			total = total + 3;
-			if (topLeftPattern.at<uchar>(x, y) == perfectPattern.at<uchar>(x, y))
+			if (topLeftPattern.at<uint8_t>(x, y) == perfectPattern.at<uint8_t>(x, y))
 				count++;
-			if (topRightPattern.at<uchar>(x, y) == perfectPattern.at<uchar>(x, y))
+			if (topRightPattern.at<uint8_t>(x, y) == perfectPattern.at<uint8_t>(x, y))
 				count++;
-			if (bottomRight.at<uchar>(x, y) == perfectPattern.at<uchar>(x, y))
+			if (bottomLeft.at<uint8_t>(x, y) == perfectPattern.at<uint8_t>(x, y))
 				count++;
 		}
 	}
@@ -725,30 +735,52 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	int aligntmentSize = rows - 7 - 7;
 	Mat perfectAlignmentPattern = Mat::zeros(1, aligntmentSize, CV_8UC1);
 	for (int i = 0; i < aligntmentSize; i = i + 2) {
-		perfectAlignmentPattern.at<uchar>(0, i) = 255;
+		perfectAlignmentPattern.at<uint8_t>(0, i) = 255;
 	}
 
 	//Compare to alignments of QR
-	Mat topAlignment = QRImage(Rect(8, 7, aligntmentSize, 1));
-	Mat leftAligment = QRImage(Rect(7, 8, 1, aligntmentSize));
+	Mat topAlignment = QRImage(Rect(7, 6, aligntmentSize, 1));
+	Mat leftAligment = QRImage(Rect(6, 7, 1, aligntmentSize));
 
 	for (int i = 0; i < aligntmentSize; i++) {
 		total = total + 2;
-		if (topAlignment.at<uchar>(0, i) == perfectAlignmentPattern.at<uchar>(0, i))
+		if (topAlignment.at<uint8_t>(0, i) == perfectAlignmentPattern.at<uint8_t>(0, i))
 			count++;
-		if (leftAligment.at<uchar>(i, 0) == perfectAlignmentPattern.at<uchar>(0, i))
+		if (leftAligment.at<uint8_t>(i, 0) == perfectAlignmentPattern.at<uint8_t>(0, i))
 			count++;
 	}
 
-	float percentage = count / total;
+	float percentage = float(count) / float(total);
 
-	cout << "Verified QRCode. Percentage is " << percentage * 100 << "%." << endl;	//Fehler bei Percentage??
-
-	if (percentage > 0.7) {
+	// TODO: Remove for release version. Or move to a draw function.
+	/*
+	cout << total << endl << count << endl;
+	Mat displayImage;
+	resize(QRImage, displayImage, QRImage.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("QRImage", displayImage);
+	resize(topLeftPattern, displayImage, topLeftPattern.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("TopLeft", displayImage);
+	resize(topRightPattern, displayImage, topRightPattern.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("TopRight", displayImage);
+	resize(bottomLeft, displayImage, bottomLeft.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("BottomLeft", displayImage);
+	resize(topAlignment, displayImage, topAlignment.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("TopAlign", displayImage);
+	resize(leftAligment, displayImage, leftAligment.size() * 6, 0, 0, INTER_NEAREST);
+	imshow("LeftAlign", displayImage);
+	waitKey(0);
+	*/
+	code.verifyPercentage = percentage * 100;
+	cout << "Verified QRCode. Percentage is " << code.verifyPercentage << "%." << endl;
+	if(code.verifyPercentage > 65)
+	{
 		return true;
 	}
-
-	return false;
+	else
+	{
+		cout << "Value below 65%. Combination is not a QRCode." << endl;
+		return false;
+	}
 }
 
 Mat CodeFinder::drawBinaryImage() {
@@ -958,4 +990,83 @@ Mat CodeFinder::drawNotFound() {
 	Mat codeNotFound(1, 1, CV_8UC1);
 	codeNotFound.setTo(Scalar(0));
 	return codeNotFound;
+}
+
+void CodeFinder::showAll()
+{
+	imshow("All Contours", drawAllContours());
+	imshow("Pattern Contours", drawPatternContours());
+	imshow("All Segments", drawAllSegments());
+	imshow("All Lines", drawAllLines());
+
+	vector<Mat> merged = drawMergedLinesAndIntersections();
+	for (int i = 0; i < merged.size(); i++) {
+		imshow(string("Merged Lines And Intersections_") + to_string(i), merged[i]);
+	}
+
+	vector<Mat> extracted = drawExtractedCodes();
+	for (int i = 0; i < extracted.size(); i++) {
+		imshow(string("Extracted_") + to_string(i), extracted[i]);
+	}
+	/*
+	vector<Mat> grid = drawExtractedCodeGrids();
+	for (int i = 0; i < grid.size(); i++) {
+		imshow(string("Extracted Grid_") + to_string(i), grid[i]);
+	}
+
+	vector<Mat> qrcodes = drawResized();
+	for (int i = 0; i < qrcodes.size(); i++)
+	{
+		imshow(string("QRCode_") + to_string(i), qrcodes[i]);
+	}
+	*/
+	waitKey(0);
+}
+
+void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
+{
+	FileSystem fs;
+
+	Mat contour = drawAllContoursBinarized();
+	string debugFileName = fs.toFileName(imageFilePath) + "_1___CONTOUR___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), contour);
+
+	Mat segments = drawAllSegments();
+	debugFileName = fs.toFileName(imageFilePath) + "_2___SEGMENTS___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), segments);
+
+	vector<Mat> merged = drawMergedLinesAndIntersections();
+	for (int a = 0; a < merged.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_3___MERGED___" + to_string(a) + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), merged[a]);
+	}
+
+	vector<Mat> extracted = drawExtractedCodes();
+	for (int a = 0; a < extracted.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_4___EXTRACTED___" + to_string(a) + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), extracted[a]);
+	}
+
+	vector<Mat> grid = drawExtractedCodeGrids();
+	for (int a = 0; a < extracted.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_5___GRID___" + to_string(a) + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), grid[a]);
+	}
+	float verify = 0.0;
+	Mat outputImage = drawNotFound();
+	for (QRCode& code : allCodes)
+	{
+		if (code.verifyPercentage > verify)
+		{
+			outputImage = code.qrcodeImage;
+			verify = code.verifyPercentage;
+		}
+	}
+
+	if (outputImage.size().width == 1)
+		return;
+
+	debugFileName = fs.toFileName(imageFilePath) + "_6___RESULT___" + fs.toExtension(imageFilePath, true);
+
+	fs.saveImage(fs.toPath(folder, debugFileName), outputImage);
 }
