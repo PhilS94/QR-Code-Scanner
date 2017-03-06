@@ -682,7 +682,7 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 			sortedLines.push_back(pair<Point2f, Vec4f>(intersect, line));
 		}
 		else {
-			sortedLines.push_back(pair<Point2f, Vec4f>(0, line));
+			sortedLines.push_back(pair<Point2f, Vec4f>(Point2f(0,0), line));
 		}
 	}
 

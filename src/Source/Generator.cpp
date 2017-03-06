@@ -126,8 +126,12 @@ void Generator::rotate() {
 	for (float degree = step_size; degree < max_rotation; degree += step_size) {
 		for (auto path : workingFiles) {
 			count++;
+			
 			if (count % skip)
 				continue;
+
+			if (generated.size() > desiredFiles)
+				break;
 
 			Mat image = fs.loadImage(path);
 			cvtColor(image, image, CV_BGR2GRAY);
@@ -166,10 +170,11 @@ void Generator::perspective() {
 	string saveFolder = fs.makeDir(dest, "04_perspective");
 
 	const float step_size = 0.1f;
+	const float maxStep =0.3f;
 
 	int count = 0;
 	int desiredFiles = 1000;
-	int estimatedFiles = workingFiles.size() * pow(((0.5 / step_size) - 1), 2);
+	int estimatedFiles = workingFiles.size() * pow(((maxStep / step_size) + 1), 2) - 1;
 	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
 	if (estimatedFiles < desiredFiles) {
 		estimatedFiles = desiredFiles;
@@ -195,16 +200,16 @@ void Generator::perspective() {
 		vecsrc.push_back(bottomRight);
 
 		//Iterative through the Images topLeftQuadrant
-		for (float stepY = 0; stepY < 0.5; stepY += step_size) {
-			for (float stepX = 0; stepX < 0.5; stepX += step_size) {
+		for (float stepY = 0; stepY <= maxStep; stepY += step_size) {
+			for (float stepX = 0; stepX <= maxStep; stepX += step_size) {
 
 				//If both Steps equal 0, the Transformation will be the identity -> Ignore this case
 				if (stepX == 0 && stepY == 0) {
 					continue;
 				}
 
-				//If StepX or StepY larger than 0.5 -> Ignore this case
-				if (stepX >= 0.5 || stepY >= 0.5) {
+				//If StepX or StepY larger than maxStep -> Ignore this case
+				if (stepX > maxStep || stepY > maxStep) {
 					continue;
 				}
 
@@ -214,6 +219,10 @@ void Generator::perspective() {
 				if (count % skip) {
 					continue;
 				}
+
+				//If size of generated Images exceeds desiredFiles -> stop
+				if (generated.size() > desiredFiles)
+					break;
 
 				Point2f stepPointY(0, stepY *image.rows - 1);
 				Point2f vectorFromTopLeftToTopRight(topRight - stepPointY);
@@ -252,8 +261,9 @@ void Generator::perspective() {
 
 
 void Generator::synthetic() {
-	cout << "Reading all BGImages in " << source + separator + "99_bg" << " ..." << endl;
-	bgFiles = FileSystem::allImagesAtPath(source + separator + "99_bg");
+	string bgDir = source + separator + ".." + separator + "99_bg";
+	cout << "Reading all BGImages in " << bgDir << " ..." << endl;
+	bgFiles = FileSystem::allImagesAtPath(bgDir);
 
 	cout << "Found the following image Files: " << endl;
 	for (auto it : bgFiles) {
@@ -268,7 +278,7 @@ void Generator::synthetic() {
 	string saveFolder = fs.makeDir(dest, "05_synthetic");
 
 	int count = 0;
-	int desiredFiles = 100;
+	int desiredFiles = 300;
 	int estimatedFiles = workingFiles.size() * bgFiles.size();
 	cout << "Desired Files: " << desiredFiles << ", Estimated Files: " << estimatedFiles << endl;
 	if (estimatedFiles < desiredFiles) {
@@ -287,11 +297,15 @@ void Generator::synthetic() {
 				continue;
 			}
 
+			//If size of generated Images exceeds desiredFiles -> stop
+			if (generated.size() > desiredFiles)
+				break;
+
 			Mat qrImage = fs.loadImage(path);
 			Mat bgImage = fs.loadImage(bgPath);
 			Mat syntheticImage = bgImage.clone();
 
-			int size = cvRound(0.4*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 20%
+			int size = cvRound(0.5*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 50%
 
 			Mat qrResizedImage = Mat(size, size, qrImage.type());
 			resize(qrImage, qrResizedImage, qrResizedImage.size(), 0, 0, INTER_LINEAR);	//TODO: Resizen, obwohl bereits bewusst verschieden resized wurde? Fragwürdig
