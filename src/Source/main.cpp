@@ -187,7 +187,7 @@ void folderMode(const string &source) {
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
 		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
-			" AverageQuality: " << evaluateAverage / evaluateCount << " Correct Size: " << evaluateCount << endl;
+			" AverageQuality: " << evaluateAverage / evaluateCount << "%" << " #Correct Size: " << evaluateCount << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;
