@@ -13,7 +13,7 @@ cmake-build-*/
 /qrcode.vcxproj
 /qrcode.VC.VC.opendb
 /qrcode.VC.db
-/qrcode.sln
+/qrcode.sln*
 /qrcode.sln.DotSettings.user
 
 # Generated Files
@@ -22,6 +22,7 @@ ScannedQR
 02_scale
 03_rotate
 04_perspective
+05_synthetic
 /data/Test
 /data/qrcode-datasets.zip
 /data/qrcode-datasets
@@ -31,4 +32,3 @@ ScannedQR
 /data/dataset1
 /data/00_ground_truth/99_bg
 */ScanResult
-/data/04_synthetic
