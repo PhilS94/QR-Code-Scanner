@@ -248,8 +248,9 @@ void Generator::perspective() {
 
 
 void Generator::synthetic() {
-	cout << "Reading all BGImages in " << source + separator + "99_bg" << " ..." << endl;
-	bgFiles = FileSystem::allImagesAtPath(source + separator + "99_bg");
+	string parent = source.substr(0, source.find_last_of(separator));
+	cout << "Reading all BGImages in " << parent + separator + "99_bg" << " ..." << endl;
+	bgFiles = FileSystem::allImagesAtPath(parent + separator + "99_bg");
 
 	cout << "Found the following image Files: " << endl;
 	for (auto it : bgFiles) {
@@ -291,7 +292,7 @@ void Generator::synthetic() {
 			int size = cvRound(0.4*min(syntheticImage.rows, syntheticImage.cols)); //Size of QRCode in syntheticImage should be approx 20%
 
 			Mat qrResizedImage = Mat(size, size, qrImage.type());
-			resize(qrImage, qrResizedImage, qrResizedImage.size(), 0, 0, INTER_LINEAR);	//TODO: Resizen, obwohl bereits bewusst verschieden resized wurde? Fragwürdig
+			resize(qrImage, qrResizedImage, qrResizedImage.size(), 0, 0, INTER_LINEAR);	//TODO: Resizen, obwohl bereits bewusst verschieden resized wurde? Fragwï¿½rdig
 			
 			//Randomize the position of the QRImage inside syntheticImage
 			int x = rand() % (syntheticImage.cols - size);
