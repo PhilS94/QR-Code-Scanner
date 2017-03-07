@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include <opencv2/opencv.hpp>
 #include "../Header/ImageBinarization.hpp"
 #include "../Header/Filesystem.hpp"
@@ -61,6 +62,7 @@ void printUsage() {
 
 
 int main(int argc, const char *argv[]) {
+	srand(time(0));	//Seed Randomizer
 	cout << "Path to executable: " << argv[0] << endl;
 	printLogo();
 
@@ -175,6 +177,7 @@ void folderMode(const string &source) {
 			cout << endl;
 
 			//If successfull scan:
+			cout << "Saving..." << endl;
 			if (outputImage.size().width != 1) {
 				codeFinder.saveDrawTo(scanPositiveFolder, imageFiles[i]);
 			}
@@ -219,6 +222,8 @@ void generateMode(const string &source, const string &dest) {
 	gen.rotate();
 	gen.perspective();
 	gen.synthetic();
+	gen.blur();
+	gen.noise();
 }
 
 float evaluate(const string &source, const Mat &outputImage) {

@@ -97,6 +97,7 @@ Mat CodeFinder::find() {
 				cout << "	Try different ThresholdMethod." << endl << endl;
 				continue;
 			}
+			cout << "Could not find any valid Patterns." << endl;
 			return drawNotFound();
 		}
 
@@ -110,6 +111,7 @@ Mat CodeFinder::find() {
 				cout << "	Try different ThresholdMethod." << endl << endl;
 				continue;
 			}
+			cout << "Could not find any valid Patterns." << endl;
 			return drawNotFound();
 		}
 
@@ -1044,15 +1046,13 @@ void CodeFinder::showAll()
 void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
 {
 	FileSystem fs;
+	string debugFileName;
 
-	/*
-	Mat binary = drawBinaryImage();
-	string debugFileName = fs.toFileName(imageFilePath) + "_0___BINARY___" + fs.toExtension(imageFilePath, true);
-	fs.saveImage(fs.toPath(folder, debugFileName), binary);
-	*/
-
+	//**********************************************************************************************************************************************************//
+	//This takes really long when the binarized image is found via localthreshold because it is "sprinkly" and has a lot of contours.
+	//This means that if Codfinder::find could not find patterns via GlobalThresholding then saving this image takes incredibly long!!!!!!!!!!!!!
 	Mat contour = drawAllContoursBinarized();
-	string debugFileName = fs.toFileName(imageFilePath) + "_1___CONTOUR___" + fs.toExtension(imageFilePath, true);
+	debugFileName = fs.toFileName(imageFilePath) + "_1___CONTOUR___" + fs.toExtension(imageFilePath, true);
 	fs.saveImage(fs.toPath(folder, debugFileName), contour);
 
 	Mat segments = drawAllSegments();
