@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ctime>
 #include <opencv2/opencv.hpp>
 #include "../Header/ImageBinarization.hpp"
 #include "../Header/Filesystem.hpp"
@@ -61,6 +62,7 @@ void printUsage() {
 
 
 int main(int argc, const char *argv[]) {
+	srand(time(0));	//Seed Randomizer
 	cout << "Path to executable: " << argv[0] << endl;
 	printLogo();
 
@@ -146,25 +148,26 @@ void folderMode(const string &source) {
 	cout << "Do you want to read all these files and test QR-Code Algorithm? If yes press 'y':  ";
 	cin >> confirm;
 
-    if (confirm == 'y') {
-        cout << "Now start iterating through all Images.." << endl;
+	if (confirm == 'y') {
+		cout << "Now start iterating through all Images.." << endl;
 		float evaluateAverage = 0;
 		float detected = 0;
 		float evaluateCount = 0;
 		FileSystem fs;
-		string debugFolder = fs.makeDir(source, "ScanResult");
-        for (int i = 0; i < imageFiles.size(); i++) {
-            cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
-            cout << "Path: " << imageFiles[i] << endl;
-            Mat image = fs.loadImage(imageFiles[i]);
+		string scanPositiveFolder = fs.makeDir(source, "ScanPositive");
+		string scanNevagtiveFolder = fs.makeDir(source, "ScanNegative");
+		for (int i = 0; i < imageFiles.size(); i++) {
+			cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
+			cout << "Path: " << imageFiles[i] << endl;
+			Mat image = fs.loadImage(imageFiles[i]);
 			CodeFinder codeFinder(image, false);
-            Mat outputImage = codeFinder.find();
+			Mat outputImage = codeFinder.find();
 
 			// Code for debugging and evaluating.
-			if(outputImage.size().width != 1)
+			if (outputImage.size().width != 1)
 			{
 				float result = evaluate(imageFiles[i], outputImage);
-				if(result != -1)
+				if (result != -1)
 				{
 					evaluateAverage += result;
 					evaluateCount++;
@@ -173,13 +176,21 @@ void folderMode(const string &source) {
 			}
 			cout << endl;
 
-			codeFinder.saveDrawTo(debugFolder, imageFiles[i]);
-        }
+			//If successfull scan:
+			cout << "Saving..." << endl;
+			if (outputImage.size().width != 1) {
+				codeFinder.saveDrawTo(scanPositiveFolder, imageFiles[i]);
+			}
+			//If failed scan:
+			else {
+				codeFinder.saveDrawTo(scanNevagtiveFolder, imageFiles[i]);
+			}
+		}
 
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
 		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
-			" AverageQuality: " << evaluateAverage / evaluateCount << " Correct Size: " << evaluateCount << endl;
+			" AverageQuality: " << evaluateAverage / evaluateCount << "%" << " #Correct Size: " << evaluateCount << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;
@@ -193,7 +204,7 @@ void evaluationMode(const string &source, const string &dest) {
 	Mat outputImage = codeFinder.find();
 
 	evaluate(source, outputImage);
-	
+
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	//FileSystem::saveImage(dest, outputImage);
 
@@ -211,6 +222,8 @@ void generateMode(const string &source, const string &dest) {
 	gen.rotate();
 	gen.perspective();
 	gen.synthetic();
+	gen.blur();
+	gen.noise();
 }
 
 float evaluate(const string &source, const Mat &outputImage) {
@@ -230,7 +243,7 @@ float evaluate(const string &source, const Mat &outputImage) {
 		groundTruthImage = FileSystem::loadImage(groundTruthImagePath);
 		cvtColor(groundTruthImage, groundTruthImage, CV_BGR2GRAY);
 	}
-	catch(...)
+	catch (...)
 	{
 		// In case we're scanning a folder where there exists no ground truth for.
 		return -1;
@@ -240,32 +253,32 @@ float evaluate(const string &source, const Mat &outputImage) {
 	int equalpixels;
 
 	cout << "Ground Truth File Name: " << groundtruthFilename << endl;
-    //QR Code extraction failed
-    if (groundTruthImage.size != outputImage.size)
-    {
+	//QR Code extraction failed
+	if (groundTruthImage.size != outputImage.size)
+	{
 		cout << "Ground Truth Size: " << groundTruthImage.size() << endl;
 		cout << "Output Size: " << outputImage.size() << endl;
 		cout << "This Image has not the expected Size! No equality." << endl;
 		return -1;
-    }
+	}
 
-    pixelcount = groundTruthImage.cols * groundTruthImage.rows;
-    equalpixels = 0;
+	pixelcount = groundTruthImage.cols * groundTruthImage.rows;
+	equalpixels = 0;
 	uint8_t groundtruthPixelValue;
 	uint8_t exatractedPixelValue;
 
-    //iteration over all Pixel in the Image and check
-    //the equality of the images
-    for (int i = 0; i < groundTruthImage.cols; ++i) {
-        for (int j = 0; j < groundTruthImage.rows; ++j) {
-            groundtruthPixelValue = groundTruthImage.at<uint8_t>(i, j);
-            exatractedPixelValue = outputImage.at<uint8_t>(i, j);
-            if (groundtruthPixelValue == exatractedPixelValue)
-                equalpixels++;
-        }
-    }
+	//iteration over all Pixel in the Image and check
+	//the equality of the images
+	for (int i = 0; i < groundTruthImage.cols; ++i) {
+		for (int j = 0; j < groundTruthImage.rows; ++j) {
+			groundtruthPixelValue = groundTruthImage.at<uint8_t>(i, j);
+			exatractedPixelValue = outputImage.at<uint8_t>(i, j);
+			if (groundtruthPixelValue == exatractedPixelValue)
+				equalpixels++;
+		}
+	}
 
-    equality = (float(equalpixels) / float(pixelcount)) * 100;
+	equality = (float(equalpixels) / float(pixelcount)) * 100;
 
 	cout << "Equality: " << equality << "% - Total Pixel: " << pixelcount << " - Equal Pixel: " << equalpixels << endl;
 	return equality;
