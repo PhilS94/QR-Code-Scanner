@@ -43,6 +43,7 @@ protected:
 	void findPerspectiveTransform(QRCode& code);
 	bool findNumberOfModules(QRCode& code);
 	void findResize(QRCode& code);
+	bool findAlternativeResize(QRCode& code);
 	bool verifyQRCode(QRCode& code);
 
     bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);

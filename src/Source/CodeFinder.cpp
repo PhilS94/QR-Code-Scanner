@@ -170,7 +170,18 @@ Mat CodeFinder::find() {
 				findResize(code);
 
 				if (verifyQRCode(code)) {
+					if(code.verifyPercentage < 85)
+					{
+						findAlternativeResize(code);
+					}
 					allCodes.push_back(code);
+				}
+				else
+				{
+					if(findAlternativeResize(code))
+					{
+						allCodes.push_back(code);
+					}
 				}
 			}
 		}
@@ -565,6 +576,10 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 
 bool CodeFinder::findNumberOfModules(QRCode& code)
 {
+
+	allCodes.push_back(code);
+	showAll();
+
 	// For each finder pattern deduce how large seven modules are.
 	Point2f step21 = code.transformedCorners.at<Point2f>(1, 1);
 	step21 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
@@ -653,6 +668,56 @@ void CodeFinder::findResize(QRCode& code)
 			}
 		}
 	}
+}
+
+bool CodeFinder::findAlternativeResize(QRCode& code)
+{
+
+	float oldPercentage = code.verifyPercentage;
+	int oldVersion = code.version;
+	int oldModules = code.modules;
+	Mat oldImage = code.qrcodeImage;
+
+	code.version++;
+	code.modules = 17 + 4 * code.version;
+	code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
+	code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
+
+	findResize(code);
+
+	verifyQRCode(code);
+
+	if (code.verifyPercentage < oldPercentage)
+	{
+		code.version--;
+		code.version--;
+		code.modules = 17 + 4 * code.version;
+		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
+		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
+
+		findResize(code);
+
+		verifyQRCode(code);
+
+		if (code.verifyPercentage < oldPercentage)
+		{
+			code.verifyPercentage = oldPercentage;
+			code.version = oldVersion;
+			code.modules = oldModules;
+
+			findResize(code);
+		}
+		else
+		{
+			return true;
+		}
+	}
+	else
+	{
+		return true;
+	}
+
+	return false;
 }
 
 // The line has to be in the same format as returned by fitLine.
@@ -921,6 +986,11 @@ vector<Mat> CodeFinder::drawExtractedCodeGrids() {
 
 		circle(image, code.gridStepSize, 3, Scalar(0, 255, 0), 2);
 
+		if(code.gridStepSize.x <= 0 || code.gridStepSize.y <= 0)
+		{
+			continue;
+		}
+
 		vector<Vec4f> lines;
 		for (int i = -7; (i * code.gridStepSize.x) < image.cols || (i * code.gridStepSize.y) < image.rows; i++)
 		{
@@ -947,7 +1017,8 @@ vector<Mat> CodeFinder::drawResized()
 	vector<Mat> images;
 	for (QRCode& code : allCodes)
 	{
-		images.push_back(code.qrcodeImage);
+		if(code.qrcodeImage.data)
+			images.push_back(code.qrcodeImage);
 	}
 
 	return  images;
