@@ -19,7 +19,7 @@ bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right)
 	float a;
 	float b;
 
-	if(abs(left.first.x - right.first.x) > abs(left.first.y - right.first.y))
+	if (abs(left.first.x - right.first.x) > abs(left.first.y - right.first.y))
 	{
 		a = left.first.x;
 		b = right.first.x;
@@ -34,25 +34,25 @@ bool compareLineAlongAxis(pair<Point2f, Vec4f> left, pair<Point2f, Vec4f> right)
 }
 
 CodeFinder::CodeFinder(Mat image, bool hasCode)
-        : hasCode(hasCode) {
-    // TODO: Remove resizing for release version. Or keep it?
-    image = image.clone();
-    if (image.cols > 2000 || image.rows > 2000) {
-        cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
+	: hasCode(hasCode) {
+	// TODO: Remove resizing for release version. Or keep it?
+	image = image.clone();
+	if (image.cols > 2000 || image.rows > 2000) {
+		cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
 
 		int x = image.rows;
 		int y = image.cols;
-		while(x > 1500 || y > 1500)
+		while (x > 1500 || y > 1500)
 		{
 			x *= 0.9;
 			y *= 0.9;
 		}
 
-        Mat resizedImage(x, y, image.type());
-        resize(image, resizedImage, resizedImage.size(), 0.25, 0.25, INTER_LINEAR);
-        image = resizedImage;
-        cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
-    }
+		Mat resizedImage(x, y, image.type());
+		resize(image, resizedImage, resizedImage.size(), 0.25, 0.25, INTER_LINEAR);
+		image = resizedImage;
+		cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
+	}
 
 	// Saving original image.
 	originalImage = image.clone();
@@ -68,46 +68,70 @@ CodeFinder::CodeFinder(Mat image, bool hasCode)
 Mat CodeFinder::find() {
 	Mat image = originalImage.clone();
 
-    cout << "Converting image to binary image..." << endl;
-    Mat grayscaleImage;
+	cout << "Converting image to binary image..." << endl;
+	Mat grayscaleImage;
 	cvtColor(image, grayscaleImage, CV_BGR2GRAY);
 
-	// TODO: Implement repeated search if hasCode is true.
 	// TODO: Get rid of ImageBinarization and put it all in this class.
 	// TODO: Or get rid of transformations in this class and put them into Binarization.
+
 	ImageBinarization binarizer;
-	binarizedImage = binarizer.run(grayscaleImage);
+	int thresholdMethod = -1;
+	int maxThresholdMethod = binarizer.getMaxThresholdMethod();
 
-	cout << "Finding all contours..." << endl;
-	findAllContours();
+	//Try different Thresholdmethods until one is successfull or out of thresholdmethods
+	do {
+		thresholdMethod++;
+		binarizedImage = binarizer.run(grayscaleImage, thresholdMethod);
 
-	cout << "Finding all finder pattern candidates..." << endl;
-	findPatternContours();
-	cout << "Number of detected patterns: " << allFinderPatterns.size() << endl;
-	if (allFinderPatterns.size() < 3) {
-		// TODO: In case of hasCode==true don't stop here but try again starting with binarize.
-		return drawNotFound();
-	}
+		cout << "	Finding all contours..." << endl;
+		findAllContours();
 
-    cout << "Finding all edge lines for finder patterns..." << endl;
-    findPatternLines();
-	cout << "Number of detected valid patterns: " << validFinderPatterns.size() << endl;
-	if (validFinderPatterns.size() < 3) {
-		// TODO: In case of hasCode==true don't stop here but try again starting with binarize.
-		return drawNotFound();
-	}
+		cout << "	Finding all finder pattern candidates..." << endl;
+		findPatternContours();
+		cout << "	Number of detected patterns: " << allFinderPatterns.size() << endl;
 
-    cout << "Iterating all combinations of detected finder patterns..." << endl;
-    bool isQRCode = false;
-    for (int a = 0; a < validFinderPatterns.size() - 2 && !isQRCode; a++) {
-        for (int b = a + 1; b < validFinderPatterns.size() - 1 && !isQRCode; b++) {
-            for (int c = b + 1; c < validFinderPatterns.size() && !isQRCode; c++) {
-                cout << "Examining combination (" << a + 1 << ", " << b + 1 << ", " << c + 1 << ")..." << endl;
-                QRCode code;
-                // TODO: Maybe don't copy here but instead use references.
-                code.topLeft = validFinderPatterns[a];
-                code.topRight = validFinderPatterns[b];
-                code.bottomLeft = validFinderPatterns[c];
+		//If less than 3 Patterns found, try different threshold method
+		if (allFinderPatterns.size() < 3) {
+			if (thresholdMethod < maxThresholdMethod) {
+				cout << "	Try different ThresholdMethod." << endl << endl;
+				continue;
+			}
+			cout << "Could not find any valid Patterns." << endl;
+			return drawNotFound();
+		}
+
+		cout << "	Finding all edge lines for finder patterns..." << endl;;
+		findPatternLines();
+		cout << "	Number of detected valid patterns: " << validFinderPatterns.size() << endl;
+
+		//If less than 3 Patterns are valid, try different threshold method
+		if (validFinderPatterns.size() < 3) {
+			if (thresholdMethod < maxThresholdMethod) {
+				cout << "	Try different ThresholdMethod." << endl << endl;
+				continue;
+			}
+			cout << "Could not find any valid Patterns." << endl;
+			return drawNotFound();
+		}
+
+		//More than 3 valid Patterns were found. End Loop.
+		break;
+
+	} while (true);
+	cout << "Successfully located FinderPatterns." << endl;
+
+	cout << "Iterating all combinations of detected finder patterns..." << endl;
+	bool isQRCode = false;
+	for (int a = 0; a < validFinderPatterns.size() - 2 && !isQRCode; a++) {
+		for (int b = a + 1; b < validFinderPatterns.size() - 1 && !isQRCode; b++) {
+			for (int c = b + 1; c < validFinderPatterns.size() && !isQRCode; c++) {
+				cout << "Examining combination (" << a + 1 << ", " << b + 1 << ", " << c + 1 << ")..." << endl;
+				QRCode code;
+				// TODO: Maybe don't copy here but instead use references.
+				code.topLeft = validFinderPatterns[a];
+				code.topRight = validFinderPatterns[b];
+				code.bottomLeft = validFinderPatterns[c];
 
 				cout << "Finding clockwise pattern order..." << endl;
 				findClockwiseOrder(code);
@@ -128,7 +152,7 @@ Mat CodeFinder::find() {
 				findPerspectiveTransform(code);
 
 				cout << "Finding number of modules..." << endl;
-				if(!findNumberOfModules(code))
+				if (!findNumberOfModules(code))
 				{
 					cout << "Invalid module values. Combination is not a QRCode." << endl;
 					continue;
@@ -148,7 +172,7 @@ Mat CodeFinder::find() {
 	Mat result = drawNotFound();
 	for (QRCode& code : allCodes)
 	{
-		if(code.verifyPercentage > verify)
+		if (code.verifyPercentage > verify)
 		{
 			result = code.qrcodeImage;
 			verify = code.verifyPercentage;
@@ -163,11 +187,11 @@ void CodeFinder::findAllContours() {
 	// Clone image, because it will be directly manipulated by findAllContours.
 	Mat image = binarizedImage.clone();
 
-    // TODO: Why is this needed?
-    image /= 255;
+	// TODO: Why is this needed?
+	image /= 255;
 
-    // TODO: Use hierarchy for finding patterns! Current way is really slow..
-    findContours(image, allContours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
+	// TODO: Use hierarchy for finding patterns! Current way is really slow..
+	findContours(image, allContours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 }
 
 // TODO: This is incredibly slow because of the many points needed later for the segments.
@@ -281,15 +305,15 @@ void CodeFinder::findPatternLines() {
 			pattern.segments.push_back(segment);
 		}
 
-        // Use each cut segment for approximating a line fit.
-        Vec4f line;
-        for (vector<Point> segment : pattern.segments) {
-            fitLine(segment, line, fitType, 0, fitReps, fitAeps);
-            pattern.lines.push_back(line);
-        }
+		// Use each cut segment for approximating a line fit.
+		Vec4f line;
+		for (vector<Point> segment : pattern.segments) {
+			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
+			pattern.lines.push_back(line);
+		}
 
 		validFinderPatterns.push_back(pattern);
-    }
+	}
 }
 
 void CodeFinder::findClockwiseOrder(QRCode &code) {
@@ -546,9 +570,9 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
 	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
 
-	cout << code.gridStepSize.x << endl << code.gridStepSize.y << endl;
+	cout << "Grid Step Size (x,y): " << "(" << code.gridStepSize.x << "," << code.gridStepSize.y << ")" << endl;
 	cout << "Approximated module counts for X: " << cellsX << " and Y: " << cellsY << endl;
-	if(cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 8)
+	if (cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 8)
 	{
 		return false;
 	}
@@ -673,7 +697,7 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 	Point2f SV = Point2f(axis[2], axis[3]);
 	Point2f Dir = Point2f(axis[0], axis[1]);
 	Point2f DirOrth = Point2f(-axis[1], axis[0]);
-	
+
 	for (Vec4f &line : lines) {
 		Point2f intersect;
 		if (lineIntersection(line, axis, intersect)) {
@@ -682,7 +706,7 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 			sortedLines.push_back(pair<Point2f, Vec4f>(intersect, line));
 		}
 		else {
-			sortedLines.push_back(pair<Point2f, Vec4f>(Point2f(0,0), line));
+			sortedLines.push_back(pair<Point2f, Vec4f>(Point2f(0, 0), line));
 		}
 	}
 
@@ -713,7 +737,7 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	//Compare to Patterns of QR
 	Mat topLeftPattern = QRImage(Rect(0, 0, 7, 7));
 	Mat topRightPattern = QRImage(Rect(0, cols - 7, 7, 7));
-	Mat bottomLeft = QRImage(Rect(rows -7, 0, 7, 7));
+	Mat bottomLeft = QRImage(Rect(rows - 7, 0, 7, 7));
 
 
 	for (int y = 0; y < 7; y++) {
@@ -769,7 +793,7 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	*/
 	code.verifyPercentage = percentage * 100;
 	cout << "Verified QRCode. Percentage is " << code.verifyPercentage << "%." << endl;
-	if(code.verifyPercentage > 65)
+	if (code.verifyPercentage > 65)
 	{
 		return true;
 	}
@@ -796,24 +820,24 @@ cv::Mat CodeFinder::drawAllContoursBinarized()
 }
 
 Mat CodeFinder::drawPatternContours() {
-    vector<vector<Point>> patternContours;
-    for (FinderPattern &pattern : validFinderPatterns) {
-        patternContours.push_back(pattern.contour);
-    }
-    return drawContours(patternContours);
+	vector<vector<Point>> patternContours;
+	for (FinderPattern &pattern : validFinderPatterns) {
+		patternContours.push_back(pattern.contour);
+	}
+	return drawContours(patternContours);
 }
 
 Mat CodeFinder::drawAllLines() {
 	Mat lineImage = originalImage.clone();
 
-    vector<vector<Point>> polygons;
-    for (FinderPattern &pattern : validFinderPatterns) {
-        // Approximate the contour with a polygon.
-        double epsilon = 0.1 * arcLength(pattern.contour, true);
-        vector<Point> approximatedPolygon;
-        approxPolyDP(pattern.contour, approximatedPolygon, epsilon, true);
-        polygons.push_back(approximatedPolygon);
-    }
+	vector<vector<Point>> polygons;
+	for (FinderPattern &pattern : validFinderPatterns) {
+		// Approximate the contour with a polygon.
+		double epsilon = 0.1 * arcLength(pattern.contour, true);
+		vector<Point> approximatedPolygon;
+		approxPolyDP(pattern.contour, approximatedPolygon, epsilon, true);
+		polygons.push_back(approximatedPolygon);
+	}
 
 	vector<Scalar> colorsPolygons;
 	colorsPolygons.push_back(Scalar(255, 255, 0));
@@ -823,9 +847,9 @@ Mat CodeFinder::drawAllLines() {
 	vector<Scalar> colorsLines;
 	colorsLines.push_back(Scalar(0, 0, 255));
 
-    for (FinderPattern &pattern : validFinderPatterns) {
-        drawLines(pattern.lines, &lineImage, &colorsLines);
-    }
+	for (FinderPattern &pattern : validFinderPatterns) {
+		drawLines(pattern.lines, &lineImage, &colorsLines);
+	}
 
 	return lineImage;
 }
@@ -930,13 +954,13 @@ Mat CodeFinder::drawAllSegments()
 	color[2] = Scalar(255, 0, 0);
 	color[3] = Scalar(255, 255, 0);
 
-    for (FinderPattern &pattern : validFinderPatterns) {
-        for (int i = 0; i < pattern.segments.size(); i++) {
-            for (Point &p : pattern.segments[i]) {
-                circle(segmentImage, p, 1, color[i % 4]);
-            }
-        }
-    }
+	for (FinderPattern &pattern : validFinderPatterns) {
+		for (int i = 0; i < pattern.segments.size(); i++) {
+			for (Point &p : pattern.segments[i]) {
+				circle(segmentImage, p, 1, color[i % 4]);
+			}
+		}
+	}
 
 	return segmentImage;
 }
@@ -1022,9 +1046,13 @@ void CodeFinder::showAll()
 void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
 {
 	FileSystem fs;
+	string debugFileName;
 
+	//**********************************************************************************************************************************************************//
+	//This takes really long when the binarized image is found via localthreshold because it is "sprinkly" and has a lot of contours.
+	//This means that if Codfinder::find could not find patterns via GlobalThresholding then saving this image takes incredibly long!!!!!!!!!!!!!
 	Mat contour = drawAllContoursBinarized();
-	string debugFileName = fs.toFileName(imageFilePath) + "_1___CONTOUR___" + fs.toExtension(imageFilePath, true);
+	debugFileName = fs.toFileName(imageFilePath) + "_1___CONTOUR___" + fs.toExtension(imageFilePath, true);
 	fs.saveImage(fs.toPath(folder, debugFileName), contour);
 
 	Mat segments = drawAllSegments();
