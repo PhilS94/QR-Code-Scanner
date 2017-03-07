@@ -7,27 +7,37 @@
 
 class ImageBinarization {
 public:
-    cv::Mat run(cv::Mat image);
+	enum thresholdMethod { Global = 0, LocalMean = 1, LocalGaussian =2 };
 
-    void computeSmoothing();
+	cv::Mat run(cv::Mat image, int thresholdMethod);
 
-    void createHistogram();
+	void computeSmoothing();
 
-    void setThresholdValue();
+	void createHistogram();
 
-    void computeThreshold();
+	void setThresholdValue();
+
+	bool isLightingUneven();
+
+	void computeGlobalThreshold();
+
+	void computeLocalThreshold(int adaptiveMethod, int blockSize, int C);
+
+	int getMaxThresholdMethod();
+
+	void printThresholdMethod(int thresholdMethod);
+
 
 private:
-    cv::Mat image;
-    cv::Mat blurredImage;
-    cv::Mat binarizedImage;
-    cv::Mat hist;
-    int histSize = 256;
-    double m = (hist.rows * hist.cols) / 2;
-    int bin = 0;
-    int threshold_value = -1;
-    int threshold_type = CV_THRESH_OTSU;
-    int const max_BINARY_value = 255;
+	cv::Mat image;
+	cv::Mat blurredImage;
+	cv::Mat binarizedImage;
+	cv::Mat hist;
+	int histSize = 256;
+	double m = (hist.rows * hist.cols) / 2;
+	int bin = 0;
+	int threshold_value = -1;
+	int const max_BINARY_value = 255;
 };
 
 #endif //QRCODE_IMAGEBINARIZATION_H
