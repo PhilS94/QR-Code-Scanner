@@ -218,12 +218,12 @@ void generateMode(const string &source, const string &dest) {
 
 	Generator gen(source, dest);
 	gen.border();
-	gen.scale();
-	gen.rotate();
-	gen.perspective();
-	gen.synthetic();
-	gen.blur();
-	gen.noise();
+	gen.scale(6);
+	gen.rotate(200,45,360);
+	gen.perspective(500,0.1,0.3);
+	gen.synthetic(100,0.6f,800);
+	gen.blur(100,5,6,23);
+	gen.noise(100,15,15,45);
 }
 
 float evaluate(const string &source, const Mat &outputImage) {
