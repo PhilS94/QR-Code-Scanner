@@ -149,7 +149,15 @@ Mat CodeFinder::find() {
 				findCorners(code);
 
 				cout << "Finding perspective transform..." << endl;
-				findPerspectiveTransform(code);
+				try
+				{
+					findPerspectiveTransform(code);
+				}
+				catch(...)
+				{
+					cout << "Invalid perspective transform. Combination is not a QRCode." << endl;
+					continue;
+				}
 
 				cout << "Finding number of modules..." << endl;
 				if (!findNumberOfModules(code))
