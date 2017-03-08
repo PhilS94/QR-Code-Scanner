@@ -81,7 +81,7 @@ Mat CodeFinder::find() {
 		cout << "	Finding all finder pattern candidates..." << endl;
 		findPatternContours();
 		cout << "	Number of detected patterns: " << allFinderPatterns.size() << endl;
-		
+
 		//If less than 3 Patterns found, try different threshold method
 		if (allFinderPatterns.size() + validFinderPatterns.size() < 3) {
 			if (thresholdMethod < maxThresholdMethod) {
@@ -91,7 +91,7 @@ Mat CodeFinder::find() {
 			cout << "Could not find any valid Patterns." << endl;
 			return drawNotFound();
 		}
-		
+
 		cout << "	Finding all edge lines for finder patterns..." << endl;;
 		findPatternLines();
 		cout << "	Number of detected valid patterns: " << validFinderPatterns.size() << endl;
@@ -106,7 +106,9 @@ Mat CodeFinder::find() {
 			return drawNotFound();
 		}
 
-
+		//More than 3 valid Patterns were found. End Loop.
+		break;
+	} while (true);
 	cout << "Successfully located FinderPatterns." << endl;
 
 	cout << "Iterating all combinations of detected finder patterns..." << endl;
@@ -181,7 +183,6 @@ Mat CodeFinder::find() {
 			}
 		}
 	}
-	} while (thresholdMethod < maxThresholdMethod && allCodes.size() == 0);
 
 	float verify = 0.0;
 	Mat result = drawNotFound();
@@ -330,10 +331,8 @@ void CodeFinder::findPatternLines() {
 			fitLine(segment, line, fitType, 0, fitReps, fitAeps);
 			pattern.lines.push_back(line);
 		}
-
 		validFinderPatterns.push_back(pattern);
 	}
-	allFinderPatterns.clear();
 }
 
 /**
@@ -566,7 +565,7 @@ void CodeFinder::findCorners(QRCode &code) {
  * \brief Use corners to calculate a perspective transform matrix and extract the code.
  * \param code Code containing corners.
  */
-void CodeFinder::findPerspectiveTransform(QRCode &code) 
+void CodeFinder::findPerspectiveTransform(QRCode &code)
 {
 	// The corners of the code within the original image.
 	vector<Point2f> sourceQuad;
@@ -575,6 +574,23 @@ void CodeFinder::findPerspectiveTransform(QRCode &code)
 	sourceQuad.push_back(code.corners.at<Point2f>(3, 0));
 	sourceQuad.push_back(code.corners.at<Point2f>(0, 3));
 	sourceQuad.push_back(code.corners.at<Point2f>(3, 3));
+
+	//Check if points are negative
+	for (Point2f p : sourceQuad) {
+		if (p.x < 0 || p.y < 0) {
+			cout << "The Points for perspectiveTransform have negative values." << endl;
+			throw exception();
+		}
+	}
+	//Check if points are equal
+	for (int i = 0; i < 3; i++) {
+		for (int j = i + 1; j < 4; j++) {
+			if (sourceQuad[i] == sourceQuad[j]) {
+				cout << "At least two Points for perspectiveTransform are equal." << endl;
+				throw exception();
+			}
+		}
+	}
 
 	// Find the longest distance between corners and use it as the target size.
 	double distance = 0.0f;
@@ -721,7 +737,7 @@ bool CodeFinder::alternativeNormalize(QRCode& code)
 	int oldModules = code.modules;
 
 	// Check one version higher.
-	if(oldVersion < 40)
+	if (oldVersion < 40)
 	{
 		code.version = oldVersion + 1;
 		code.modules = 17 + 4 * code.version;

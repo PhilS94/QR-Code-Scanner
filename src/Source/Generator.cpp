@@ -241,9 +241,9 @@ void Generator::perspective(int desiredFiles, float step, float maxStep) {
 				vecdst.push_back(warpedBottomLeft);
 				vecdst.push_back(bottomRight);
 
-				Mat homographyMatrix = findHomography(vecsrc, vecdst);
+				Mat perspectiveMatrix = getPerspectiveTransform(vecsrc, vecdst);
 				Mat warpedImage = Mat(image.size(), image.type(), Scalar(255));
-				warpPerspective(image, warpedImage, homographyMatrix, image.size(), 1, 0, Scalar(255));
+				warpPerspective(image, warpedImage, perspectiveMatrix, image.size(), 1, 0, Scalar(255));
 				string s = "0." + to_string(cvRound(stepX * 10)) + "X" + "0." + to_string(cvRound(stepY * 10)) + "Y";
 				string filename = fs.toFileName(path) + "-persp" + s + fs.toExtension(path, true);
 				fs.saveImage(saveFolder, filename, warpedImage);

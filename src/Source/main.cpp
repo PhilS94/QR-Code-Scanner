@@ -184,7 +184,7 @@ void folderMode(const string &source) {
 			cout << endl;
 
 			//If successfull scan:
-			cout << "Saving..." << endl;
+			cout << "Saving..." << endl <<endl;;
 			if (outputImage.size().width != 1) {
 				codeFinder.saveDrawTo(scanPositiveFolder, imageFiles[i]);
 			}
