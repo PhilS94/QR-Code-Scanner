@@ -4,6 +4,11 @@
 #include <opencv2/core/core.hpp>
 #include "FinderPatternModel.hpp"
 
+
+/**
+ * \brief Takes an image and analyzes it trying to find a QRCode.
+ * NOTE: Function documentation in .cpp only.
+ */
 class CodeFinder {
 public:
     CodeFinder(cv::Mat image, bool hasCode);
@@ -46,8 +51,6 @@ protected:
 	bool findAlternativeResize(QRCode& code);
 	bool verifyQRCode(QRCode& code);
 
-    bool isContourInsideContour(std::vector<cv::Point> in, std::vector<cv::Point> out);
-
     bool isTrapez(std::vector<cv::Point> in);
 
     double pointLineDistance(cv::Vec2f point, cv::Vec4f line);
@@ -63,13 +66,28 @@ protected:
 
 
 private:
+	/* Not used. */
     bool hasCode;
+
+	/* Original image passed for searching. */
     cv::Mat originalImage;
+
+	/* Image after going through binarization. */
     cv::Mat binarizedImage;
+
+	/* All contours found in the current binarized image.*/
     std::vector<std::vector<cv::Point>> allContours;
+
+	/* Hierarchy describing the realtionship of all contours. */
 	std::vector<cv::Vec4i> hierarchy;
+
+	/* All contours identified as possible finder patterns. */
 	std::vector<FinderPattern> allFinderPatterns;
+
+	/* All finder patterns that passed the selection. */
 	std::vector<FinderPattern> validFinderPatterns;
+
+	/* All evaluated combinations of finder patterns that yielded a result. */
     std::vector<QRCode> allCodes;
 
     // Constants used for line fitting.
@@ -77,6 +95,7 @@ private:
     static const int fitReps = 0.01;
     static const int fitAeps = 0.01;
 
+	/* Array with colors for debugging. */
     std::vector<cv::Scalar> debuggingColors;
 };
 

@@ -10,17 +10,23 @@ using namespace cv;
 
 /**
  * \brief Used for sorting lines along an axis.
- * \param left The point is the axis intersection and the vector describes the line.
- * \param right The point is the axis intersection and the vector describes the line.
- * \return True if right is larger than left. False otherwise.
+ * \param left The float is the axis intersection and the vector describes the line.
+ * \param right The float is the axis intersection and the vector describes the line.
+ * \return True if left is smaller than right. False otherwise.
  */
 bool compareLineAlongAxis(pair<float, Vec4f> left, pair<float, Vec4f> right) {
 	return left.first < right.first;
 }
 
+/**
+ * \brief Constructs a CodeFinder that will operate on the passed image.
+ * \param image Image that will be searched for a code.
+ * \param hasCode Currently no function.
+ */
 CodeFinder::CodeFinder(Mat image, bool hasCode)
 	: hasCode(hasCode) {
 	// TODO: Remove resizing for release version. Or keep it?
+	/*
 	image = image.clone();
 	if (image.cols > 2000 || image.rows > 2000) {
 		cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
@@ -38,7 +44,7 @@ CodeFinder::CodeFinder(Mat image, bool hasCode)
 		image = resizedImage;
 		cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
 	}
-
+	*/
 	// Saving original image.
 	originalImage = image.clone();
 
@@ -50,15 +56,17 @@ CodeFinder::CodeFinder(Mat image, bool hasCode)
 	debuggingColors.push_back(Scalar(255, 255, 0));
 }
 
+
+/**
+ * \brief Execute the search function that will anaylze the associated image for a code.
+ * \return The best fitting code that could be detected or a 1x1 image if none could be found.
+ */
 Mat CodeFinder::find() {
 	Mat image = originalImage.clone();
 
 	cout << "Converting image to binary image..." << endl;
 	Mat grayscaleImage;
 	cvtColor(image, grayscaleImage, CV_BGR2GRAY);
-
-	// TODO: Get rid of ImageBinarization and put it all in this class.
-	// TODO: Or get rid of transformations in this class and put them into Binarization.
 
 	ImageBinarization binarizer;
 	int thresholdMethod = -1;
@@ -190,66 +198,67 @@ Mat CodeFinder::find() {
 		}
 	}
 
-	// TODO: Consider returning all.
 	return result;
 }
 
+/**
+ * \brief Identify all contours in the binarized image.
+ */
 void CodeFinder::findAllContours() {
 	// Clone image, because it will be directly manipulated by findAllContours.
 	Mat image = binarizedImage.clone();
 
-	// TODO: Why is this needed?
+	// Image values will be either 0 or 1.
 	image /= 255;
-
-	// TODO: Use hierarchy for finding patterns! Current way is really slow..
+	allContours.clear();
+	hierarchy.clear();
 	findContours(image, allContours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE);
 }
 
-// TODO: This is incredibly slow because of the many points needed later for the segments.
-bool CodeFinder::isContourInsideContour(vector<Point> in, vector<Point> out) {
-	if (in.size() > 0 && out.size() > 0) {
-		for (int i = 0; i < in.size(); i++) {
-			if (pointPolygonTest(out, in[i], false) <= 0)
-				return false;
-		}
-		return true;
-	}
-	return false;
-}
-
-// TODO: Imrpove Trapez detection function.
-bool CodeFinder::isTrapez(vector<Point> in) {
+/**
+ * \brief Approximates a contour and verifys if it's a trapezoid.
+ * \param polygon A set of points describing a contour.
+ * \return True if the approximation of the polygon is a trapezoid.
+ */
+bool CodeFinder::isTrapez(vector<Point> polygon) {
 	vector<Point> approximatedPolygon;
-	double epsilon = 0.1 * arcLength(in, true);
-	approxPolyDP(in, approximatedPolygon, epsilon, true);
+	double epsilon = 0.1 * arcLength(polygon, true);
+	approxPolyDP(polygon, approximatedPolygon, epsilon, true);
 	bool ret = (approximatedPolygon.size() == 4);
 	return ret;
 }
 
-// TODO: IMRPOVE!
+
+/**
+ * \brief Identify all contours which could be a finder pattern and save them in allFinderPatterns.
+ */
 void CodeFinder::findPatternContours() {
 	// Thresholds for ignoring too small or too large contours.
-	// TODO: Experiment with the threshold settings.
 	float minArea = 8.00;
 	float maxArea = 0.2 * binarizedImage.cols * binarizedImage.rows;
 
 	for (int i = 0; i < hierarchy.size(); i++)
 	{
+		// If contour has no children, no neighbours and one parent.
 		if (hierarchy[i][0] < 0 && hierarchy[i][1] < 0 &&
 			hierarchy[i][2] < 0 && hierarchy[i][3] >= 0)
 		{
+			// If contour is neither too large nor too small.
 			double area = contourArea(allContours[i]);
 			if (minArea > area || area > maxArea) {
 				continue;
 			}
 
+			// If parent contour has a parent as well and no neighbours.
 			int outter1 = hierarchy[i][3];
 			if (hierarchy[outter1][0] < 0 && hierarchy[outter1][1] < 0 &&
 				hierarchy[outter1][3] >= 0)
 			{
 				int outter2 = hierarchy[outter1][3];
+				// If it's a trapez.
 				if (isTrapez(allContours[outter2]))
 				{
+					// Then add it's second parent as a possible pattern candidate.
 					FinderPattern pattern;
 					pattern.contour = allContours[outter2];
 					allFinderPatterns.push_back(pattern);
@@ -259,6 +268,9 @@ void CodeFinder::findPatternContours() {
 	}
 }
 
+/**
+ * \brief Approximate the edge lines for each finder pattern and the segments they're based on.
+ */
 void CodeFinder::findPatternLines() {
 	for (FinderPattern &pattern : allFinderPatterns) {
 		// Approximate the contour with a polygon.
@@ -290,7 +302,7 @@ void CodeFinder::findPatternLines() {
 		}
 		sort(approxCut.begin(), approxCut.end());
 
-		// TODO: Experiment with margin setting.
+		// Percentage of segment that will be ignored to avoid taking the corners into the segment.
 		float marginPercentage = 0.1;
 
 		// Cut contour into segments using the approximated cutting points.
@@ -327,9 +339,13 @@ void CodeFinder::findPatternLines() {
 	}
 }
 
+/**
+ * \brief Takes three finder patterns and deduces if they're ordered clockwise.
+ *		  If not, reverses the ordering.
+ * \param code The QRCode structure with the necessary fields filled out.
+ */
 void CodeFinder::findClockwiseOrder(QRCode &code) {
-	// TODO: Make sure this always works!
-	// Use shoelace algorithm (Gau�sche Trapezformel) to find winding order.
+	// Use shoelace algorithm (Gaußsche Trapezformel) to find winding order.
 	int area = 0;
 
 	Point &pa = code.topLeft.contour[0];
@@ -348,6 +364,10 @@ void CodeFinder::findClockwiseOrder(QRCode &code) {
 	}
 }
 
+/**
+ * \brief Identify the top left pattern, and subsequently top right and bottom left.
+ * \param code Code holding three patterns.
+ */
 void CodeFinder::findTopLeftPattern(QRCode &code) {
 	// Compare the distances between each line for each finder pattern.
 	vector<double> distanceA;
@@ -383,6 +403,13 @@ void CodeFinder::findTopLeftPattern(QRCode &code) {
 	}
 }
 
+/**
+ * \brief Merges two vectors into a single one by appending the second to the first vector.
+ * \tparam T Type of the data contained in the vector.
+ * \param a First vector.
+ * \param b Second vector.
+ * \return The merged vector.
+ */
 template<typename T>
 vector<T> merge(vector<T> &a, vector<T> &b) {
 	vector<T> result;
@@ -392,6 +419,12 @@ vector<T> merge(vector<T> &a, vector<T> &b) {
 	return result;
 }
 
+/**
+ * \brief Merge all lines of the top left finder pattern with two lines each of one of the
+ *		  other patterns.
+ * \param code Code with three correctly identified patterns.
+ * \return True on success. False if the merge function detected that the code is not a valid code.
+ */
 bool CodeFinder::findMergedLines(QRCode &code) {
 	FinderPattern &tl = code.topLeft;
 	FinderPattern &tr = code.topRight;
@@ -458,6 +491,7 @@ bool CodeFinder::findMergedLines(QRCode &code) {
 		}
 	}
 
+	// If not exactly two lines have been merged for top and bottom, this is not a qrcode.
 	if (code.hLines.size() != 2 || code.vLines.size() != 2)
 		return false;
 
@@ -515,6 +549,11 @@ bool CodeFinder::findMergedLines(QRCode &code) {
 	return true;
 }
 
+/**
+ * \brief Calculate all line intersections between vertical and horizontal lines.
+ *		  The result will be all corner of the code and the finder patterns.
+ * \param code Code containing merged lines.
+ */
 void CodeFinder::findCorners(QRCode &code) {
 	code.corners = Mat(4, 4, DataType<Point2f>::type);
 	for (int a = 0; a < code.hLines.size(); a++) {
@@ -526,11 +565,13 @@ void CodeFinder::findCorners(QRCode &code) {
 	}
 }
 
-void CodeFinder::findPerspectiveTransform(QRCode &code) {
-	
-	//allCodes.push_back(code);
-	//showAll();
-	
+/**
+ * \brief Use corners to calculate a perspective transform matrix and extract the code.
+ * \param code Code containing corners.
+ */
+void CodeFinder::findPerspectiveTransform(QRCode &code) 
+{
+	// The corners of the code within the original image.
 	vector<Point2f> sourceQuad;
 	sourceQuad.reserve(4);
 	sourceQuad.push_back(code.corners.at<Point2f>(0, 0));
@@ -538,9 +579,8 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 	sourceQuad.push_back(code.corners.at<Point2f>(0, 3));
 	sourceQuad.push_back(code.corners.at<Point2f>(3, 3));
 
-	// Find the longest distance and use it as the target size.
+	// Find the longest distance between corners and use it as the target size.
 	double distance = 0.0f;
-
 	for (Point2f& p1 : sourceQuad)
 	{
 		for (Point2f& p2 : sourceQuad)
@@ -552,7 +592,10 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 		}
 	}
 
+	// Mutliply by two for increased quality of extraction result.
 	distance = distance * 2;
+
+	// Define target transformation area.
 	vector<Point2f> targetQuad;
 	targetQuad.reserve(4);
 	targetQuad.push_back(Point2f(0, 0));
@@ -562,14 +605,18 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 
 	code.transform = getPerspectiveTransform(sourceQuad, targetQuad);
 
-	// TODO: Experiment with different interpolation types!
 	warpPerspective(binarizedImage, code.extractedImage, code.transform,
 		Size(distance, distance), INTER_NEAREST);
 
-	// TODO: The distortion of point (2, 2) can be used to more accurately extract the image.
+	// Also warp get the positions of the corners in the new image.
 	perspectiveTransform(code.corners, code.transformedCorners, code.transform);
 }
 
+/**
+ * \brief Calculate the number of modules the code has, the version and the step size for the extracted image.
+ * \param code Code containing an extracted image.
+ * \return True on success. False if the function detected illogical step sizes.
+ */
 bool CodeFinder::findNumberOfModules(QRCode& code)
 {
 	// For each finder pattern deduce how large seven modules are.
@@ -619,6 +666,11 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	return true;
 }
 
+/**
+ * \brief Walk through the extracted image and take the median of each module cell to create
+ *		  a true size code image.
+ * \param code Code containing an extracted image and step size.
+ */
 void CodeFinder::findResize(QRCode& code)
 {
 	code.qrcodeImage = Mat(code.modules, code.modules, CV_8UC1, Scalar(255));
@@ -662,12 +714,19 @@ void CodeFinder::findResize(QRCode& code)
 	}
 }
 
+/**
+ * \brief Compare the quality of the true size code if the approximated version is set to
+ *		  one value higher or lower, and replace the true size code if the quality rises.
+ * \param code Code containing a verified true size image.
+ * \return True in case the quality has risen by increasing or decreasing the version.
+ */
 bool CodeFinder::findAlternativeResize(QRCode& code)
 {
 	float oldPercentage = code.verifyPercentage;
 	int oldVersion = code.version;
 	int oldModules = code.modules;
 
+	// Check one version higher.
 	if(oldVersion < 40)
 	{
 		code.version = oldVersion + 1;
@@ -680,6 +739,7 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 		verifyQRCode(code);
 	}
 
+	// Check one version lower.
 	if (code.verifyPercentage <= oldPercentage && oldVersion > 1)
 	{
 		code.version = oldVersion - 1;
@@ -696,6 +756,7 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 		return true;
 	}
 
+	// Put old version if no improvement has been made.
 	if (code.verifyPercentage <= oldPercentage)
 	{
 		code.verifyPercentage = oldPercentage;
@@ -714,7 +775,13 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 	return false;
 }
 
-// The line has to be in the same format as returned by fitLine.
+/**
+ * \brief Distance between a point and a line.
+ * \param p Point to compare distance to.
+ * \param line Vector whose first two elements denote a direction and whose second two
+ *		  elements denote a support vector.
+ * \return Shortest distance between the point and the line.
+ */
 double CodeFinder::pointLineDistance(Vec2f p, Vec4f line)
 {
 	Vec2f supportVector(line[2], line[3]);
@@ -726,6 +793,12 @@ double CodeFinder::pointLineDistance(Vec2f p, Vec4f line)
 	return abs(p[0] * line[1] - p[1] * line[0]);
 }
 
+/**
+ * \brief Calculate similarity of lines using custom line similarity measure.
+ * \param lineOne First line in the format needed by pointLineDistance.
+ * \param lineTwo Second line in the format needed by pointLineDistance.
+ * \return Similarity measure.
+ */
 double CodeFinder::lineLineDistance(Vec4f lineOne, Vec4f lineTwo) {
 	double distOne = pointLineDistance(Vec2f(lineTwo[2], lineTwo[3]), lineOne);
 	double distTwo = pointLineDistance(Vec2f(lineOne[2], lineOne[3]), lineTwo);
@@ -733,6 +806,13 @@ double CodeFinder::lineLineDistance(Vec4f lineOne, Vec4f lineTwo) {
 	return distOne + distTwo;
 }
 
+/**
+ * \brief Calculate similarity measure for each line pair of two patterns.
+ * \param one Pattern containg lines.
+ * \param two Pattern containg lines.
+ * \param distanceOne vector that will hold all similarity measures for pattern one.
+ * \param distanceTwo vector that will hold all similarity measures for pattern two.
+ */
 void CodeFinder::patternPatternLineDistances(FinderPattern &one, FinderPattern &two,
 	vector<double> &distanceOne, vector<double> &distanceTwo) {
 	for (Vec4f &lineOne : one.lines) {
@@ -744,6 +824,13 @@ void CodeFinder::patternPatternLineDistances(FinderPattern &one, FinderPattern &
 	}
 }
 
+/**
+ * \brief Calculate intersection point of two lines.
+ * \param line1 Line in (direction, support vector) format.
+ * \param line2 Line in (direction, support vector) format.
+ * \param result Output for the found intersection point.
+ * \return True if an intersection point was found. False if the lines are parallel.
+ */
 bool CodeFinder::lineIntersection(Vec4f line1, Vec4f line2, Point2f &result) {
 	Point2f x = Point2f(line2[2], line2[3]) - Point2f(line1[2], line1[3]);
 	Point2f d1 = Point2f(line1[0], line1[1]);
@@ -758,6 +845,11 @@ bool CodeFinder::lineIntersection(Vec4f line1, Vec4f line2, Point2f &result) {
 	return true;
 }
 
+/**
+ * \brief Sort the vector of lines along an arbitary axis.
+ * \param lines vector with lines that will be sorted.
+ * \param axis Axis to sort the lines along.
+ */
 void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 	vector<pair<float, Vec4f>> sortedLines;
 
@@ -765,9 +857,11 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 	Point2f dir = Point2f(axis[0], axis[1]);
 	Point2f xAxis = Point2f(1, 0);
 
+	// Calculate the intersection of each line with axis.
 	for (Vec4f &line : lines) {
 		Point2f intersect;
 		if (lineIntersection(line, axis, intersect)) {
+			// Transform intersection into axis coordinate system.
 			intersect = intersect - sv;
 			float x = intersect.x * dir.dot(xAxis) - intersect.y * dir.cross(xAxis);
 			sortedLines.push_back(pair<float, Vec4f>(x, line));
@@ -777,6 +871,7 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 		}
 	}
 
+	// Sort lines within the axis system.
 	sort(sortedLines.begin(), sortedLines.end(), compareLineAlongAxis);
 	lines.clear();
 
@@ -785,6 +880,11 @@ void CodeFinder::sortLinesAlongAxis(vector<Vec4f> &lines, Vec4f axis) {
 	}
 }
 
+/**
+ * \brief Verify that well known module values are as expected and measure divergence from this.
+ * \param code Code containing a qrcode image.
+ * \return True if the Code has more than 65% values that meet the expectations.
+ */
 bool CodeFinder::verifyQRCode(QRCode &code) {
 	Mat QRImage = code.qrcodeImage;
 	const int cols = QRImage.cols;
@@ -840,24 +940,6 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 
 	float percentage = float(count) / float(total);
 
-	// TODO: Remove for release version. Or move to a draw function.
-	/*
-	cout << total << endl << count << endl;
-	Mat displayImage;
-	resize(QRImage, displayImage, QRImage.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("QRImage", displayImage);
-	resize(topLeftPattern, displayImage, topLeftPattern.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("TopLeft", displayImage);
-	resize(topRightPattern, displayImage, topRightPattern.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("TopRight", displayImage);
-	resize(bottomLeft, displayImage, bottomLeft.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("BottomLeft", displayImage);
-	resize(topAlignment, displayImage, topAlignment.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("TopAlign", displayImage);
-	resize(leftAligment, displayImage, leftAligment.size() * 6, 0, 0, INTER_NEAREST);
-	imshow("LeftAlign", displayImage);
-	waitKey(0);
-	*/
 	code.verifyPercentage = percentage * 100;
 	cout << "Verified QRCode. Percentage is " << code.verifyPercentage << "%." << endl;
 	if (code.verifyPercentage > 65)
@@ -869,6 +951,10 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 		return false;
 	}
 }
+
+/*****************************************************************************/
+/* Drawing function used for debugging. Will output various internal states. */
+/*****************************************************************************/
 
 Mat CodeFinder::drawBinaryImage() {
 	return binarizedImage;
@@ -1094,6 +1180,9 @@ Mat CodeFinder::drawNotFound() {
 	return codeNotFound;
 }
 
+/**
+ * \brief Opens various debug images within windows for displaying.
+ */
 void CodeFinder::showAll()
 {
 	imshow("All Contours", drawAllContours());
@@ -1124,6 +1213,11 @@ void CodeFinder::showAll()
 	waitKey(0);
 }
 
+/**
+ * \brief Save various debug images to the specified folder.
+ * \param folder Folder to save files in.
+ * \param imageFilePath Path to the original file being evaluated. (Used for naming the saves.)
+ */
 void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
 {
 	FileSystem fs;
