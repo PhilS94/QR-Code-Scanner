@@ -192,8 +192,8 @@ void folderMode(const string &source) {
 		float average = 0.0f;
 		if(evaluateCount > 0)
 			average = evaluateAverage / evaluateCount;
-		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
-			" AverageQuality: " << average << "%" << " #Correct Size: " << evaluateCount << endl;
+		cout << "#Images: " << imageFiles.size() << " #QRCodesDetected: " << detected <<
+			" #CorrectSize: " << evaluateCount << " AverageQuality: " << average << "%" << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;

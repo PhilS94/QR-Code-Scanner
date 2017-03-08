@@ -80,7 +80,7 @@ vector<string> FileSystem::allImagesAtPath(const string &folderPath) {
 
     for (auto it = allFiles.begin(); it != allFiles.end(); ++it) {
         string fileType = toExtension(*it);
-        if ((fileType == "jpg") || (fileType == "png") || (fileType == "jpeg")) {
+        if ((fileType == "jpg") || (fileType == "png") || (fileType == "jpeg") || (fileType == "JPG")) {
             imageFiles.push_back(*it);
         }
     }

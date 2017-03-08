@@ -158,6 +158,7 @@ Mat CodeFinder::find() {
 					if(code.verifyPercentage < 85)
 					{
 						findAlternativeResize(code);
+						cout << "Final Percentage:" << code.verifyPercentage << endl;
 					}
 					allCodes.push_back(code);
 				}
@@ -166,6 +167,12 @@ Mat CodeFinder::find() {
 					if(findAlternativeResize(code))
 					{
 						allCodes.push_back(code);
+					}
+
+					cout << "Final Percentage:" << code.verifyPercentage << endl;
+					if(code.verifyPercentage < 65)
+					{
+						cout << "Value below 65%. Combination is not a QRCode." << endl;
 					}
 				}
 			}
@@ -657,22 +664,23 @@ void CodeFinder::findResize(QRCode& code)
 
 bool CodeFinder::findAlternativeResize(QRCode& code)
 {
-
 	float oldPercentage = code.verifyPercentage;
 	int oldVersion = code.version;
 	int oldModules = code.modules;
-	Mat oldImage = code.qrcodeImage;
 
-	code.version++;
-	code.modules = 17 + 4 * code.version;
-	code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
-	code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
+	if(oldVersion < 40)
+	{
+		code.version = oldVersion + 1;
+		code.modules = 17 + 4 * code.version;
+		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
+		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 
-	findResize(code);
+		findResize(code);
 
-	verifyQRCode(code);
+		verifyQRCode(code);
+	}
 
-	if (code.verifyPercentage < oldPercentage)
+	if (code.verifyPercentage <= oldPercentage && oldVersion > 1)
 	{
 		code.version = oldVersion - 1;
 		code.modules = 17 + 4 * code.version;
@@ -682,19 +690,21 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 		findResize(code);
 
 		verifyQRCode(code);
+	}
+	else
+	{
+		return true;
+	}
 
-		if (code.verifyPercentage < oldPercentage)
-		{
-			code.verifyPercentage = oldPercentage;
-			code.version = oldVersion;
-			code.modules = oldModules;
+	if (code.verifyPercentage <= oldPercentage)
+	{
+		code.verifyPercentage = oldPercentage;
+		code.version = oldVersion;
+		code.modules = oldModules;
+		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
+		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 
-			findResize(code);
-		}
-		else
-		{
-			return true;
-		}
+		findResize(code);
 	}
 	else
 	{
@@ -856,7 +866,6 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	}
 	else
 	{
-		cout << "Value below 65%. Combination is not a QRCode." << endl;
 		return false;
 	}
 }
