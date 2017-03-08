@@ -138,7 +138,7 @@ Mat CodeFinder::find() {
 				{
 					findPerspectiveTransform(code);
 				}
-				catch(...)
+				catch (...)
 				{
 					cout << "Invalid perspective transform. Combination is not a QRCode." << endl;
 					continue;
@@ -152,25 +152,25 @@ Mat CodeFinder::find() {
 				}
 
 				cout << "Finding resized image..." << endl;
-				findResize(code);
+				normalize(code);
 
 				if (verifyQRCode(code)) {
-					if(code.verifyPercentage < 85)
+					if (code.verifyPercentage < 85)
 					{
-						findAlternativeResize(code);
+						alternativeNormalize(code);
 						cout << "Final Percentage:" << code.verifyPercentage << endl;
 					}
 					allCodes.push_back(code);
 				}
 				else
 				{
-					if(findAlternativeResize(code))
+					if (alternativeNormalize(code))
 					{
 						allCodes.push_back(code);
 					}
 
 					cout << "Final Percentage:" << code.verifyPercentage << endl;
-					if(code.verifyPercentage < 65)
+					if (code.verifyPercentage < 65)
 					{
 						cout << "Value below 65%. Combination is not a QRCode." << endl;
 					}
@@ -527,10 +527,10 @@ void CodeFinder::findCorners(QRCode &code) {
 }
 
 void CodeFinder::findPerspectiveTransform(QRCode &code) {
-	
+
 	//allCodes.push_back(code);
 	//showAll();
-	
+
 	vector<Point2f> sourceQuad;
 	sourceQuad.reserve(4);
 	sourceQuad.push_back(code.corners.at<Point2f>(0, 0));
@@ -570,47 +570,43 @@ void CodeFinder::findPerspectiveTransform(QRCode &code) {
 	perspectiveTransform(code.corners, code.transformedCorners, code.transform);
 }
 
-bool CodeFinder::findNumberOfModules(QRCode& code)
-{
-	// For each finder pattern deduce how large seven modules are.
-	Point2f step21 = code.transformedCorners.at<Point2f>(1, 1);
-	//step21 += code.transformedCorners.at<Point2f>(1, 3) - code.transformedCorners.at<Point2f>(0, 2);
-	//step21 += code.transformedCorners.at<Point2f>(3, 1) - code.transformedCorners.at<Point2f>(2, 0);
+bool CodeFinder::findNumberOfModules(QRCode& code) {
+	Point2f bottomLeftCorner = code.transformedCorners.at<Point2f>(1, 1);
 
 	// Average the step size for a single module.
-	code.gridStepSize.x = step21.x / 7;
-	code.gridStepSize.y = step21.y / 7;
+	code.gridStepSize.x = bottomLeftCorner.x / 7;
+	code.gridStepSize.y = bottomLeftCorner.y / 7;
 
 	// Calculate how many cells there would be with the current step size.
 	double cellsX = code.extractedImage.cols / code.gridStepSize.x;
 	double cellsY = code.extractedImage.rows / code.gridStepSize.y;
 
 	cout << "Grid Step Size (x,y): " << "(" << code.gridStepSize.x << "," << code.gridStepSize.y << ")" << endl;
-	cout << "Approximated module counts for X: " << cellsX << " and Y: " << cellsY << endl;
-	if (cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 8)
-	{
+	cout << "Approximated cell counts for X: " << cellsX << " and Y: " << cellsY << endl;
+	if (cellsX < 0 || cellsY < 0 || abs(cellsX - cellsY) > 8) {
 		return false;
 	}
 
-	// Now find the version of the qrcode by snapping to the clostest module number that is allowed.
-	double totalDistance = abs(cellsX - 21) + abs(cellsY - 21);
-	code.version = 2;
-	while (code.version <= 40)
-	{
-		code.modules = 17 + 4 * code.version;
-		double newTotalDistance = abs(cellsX - code.modules) + abs(cellsY - code.modules);
+	// Take average of both cellscounts
+	float cells = (cellsX + cellsY) / 2;
 
-		if (newTotalDistance < totalDistance)
-		{
-			totalDistance = newTotalDistance;
-			code.version++;
-		}
-		else
-		{
-			code.version--;
-			break;
-		}
+	int version;
+	if (cells <= 23) {
+		version = 1;
 	}
+	else if (cells > 175) {
+		version = 40;
+	}
+	else {
+		//Calculate versionnumber by supposing cells = #modules, then rounding to nearest integer
+		version = cvRound((cells - 17) / 4);
+	}
+
+	if (version <= 0 || version > 40) {
+		cout << "The versionnumber " << version << " is invalid." << endl;
+		return false;
+	}
+	code.version = version;
 
 	// The result is the version, the number of modules and the step size for the qrcode.
 	code.modules = 17 + 4 * code.version;
@@ -619,7 +615,7 @@ bool CodeFinder::findNumberOfModules(QRCode& code)
 	return true;
 }
 
-void CodeFinder::findResize(QRCode& code)
+void CodeFinder::normalize(QRCode& code)
 {
 	code.qrcodeImage = Mat(code.modules, code.modules, CV_8UC1, Scalar(255));
 
@@ -662,20 +658,20 @@ void CodeFinder::findResize(QRCode& code)
 	}
 }
 
-bool CodeFinder::findAlternativeResize(QRCode& code)
+bool CodeFinder::alternativeNormalize(QRCode& code)
 {
 	float oldPercentage = code.verifyPercentage;
 	int oldVersion = code.version;
 	int oldModules = code.modules;
 
-	if(oldVersion < 40)
+	if (oldVersion < 40)
 	{
 		code.version = oldVersion + 1;
 		code.modules = 17 + 4 * code.version;
 		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
 		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 
-		findResize(code);
+		normalize(code);
 
 		verifyQRCode(code);
 	}
@@ -687,7 +683,7 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
 		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 
-		findResize(code);
+		normalize(code);
 
 		verifyQRCode(code);
 	}
@@ -704,7 +700,7 @@ bool CodeFinder::findAlternativeResize(QRCode& code)
 		code.gridStepSize.x = float(code.extractedImage.cols) / float(code.modules);
 		code.gridStepSize.y = float(code.extractedImage.rows) / float(code.modules);
 
-		findResize(code);
+		normalize(code);
 	}
 	else
 	{
@@ -915,7 +911,7 @@ Mat CodeFinder::drawAllLines() {
 
 	for (FinderPattern &pattern : validFinderPatterns) {
 		drawLines(pattern.lines, &lineImage, &colorsLines);
-		for(Vec4f& line : pattern.lines)
+		for (Vec4f& line : pattern.lines)
 		{
 			circle(lineImage, Point2f(line[2], line[3]), 3, Scalar(255, 255, 0), 2);
 		}
@@ -964,7 +960,7 @@ vector<Mat> CodeFinder::drawMergedLinesAndIntersections() {
 vector<Mat> CodeFinder::drawExtractedCodes() {
 	vector<Mat> images;
 	for (QRCode &code : allCodes) {
-		if(code.extractedImage.data)
+		if (code.extractedImage.data)
 			images.push_back(code.extractedImage);
 	}
 
@@ -976,7 +972,7 @@ vector<Mat> CodeFinder::drawExtractedCodeGrids() {
 	for (QRCode &code : allCodes) {
 		Mat image;
 
-		if(!code.extractedImage.data)
+		if (!code.extractedImage.data)
 			continue;
 
 		cvtColor(code.extractedImage, image, CV_GRAY2BGR);
@@ -988,7 +984,7 @@ vector<Mat> CodeFinder::drawExtractedCodeGrids() {
 
 		circle(image, code.gridStepSize, 3, Scalar(0, 255, 0), 2);
 
-		if(code.gridStepSize.x <= 0 || code.gridStepSize.y <= 0)
+		if (code.gridStepSize.x <= 0 || code.gridStepSize.y <= 0)
 		{
 			continue;
 		}
@@ -1019,7 +1015,7 @@ vector<Mat> CodeFinder::drawResized()
 	vector<Mat> images;
 	for (QRCode& code : allCodes)
 	{
-		if(code.qrcodeImage.data)
+		if (code.qrcodeImage.data)
 			images.push_back(code.qrcodeImage);
 	}
 
