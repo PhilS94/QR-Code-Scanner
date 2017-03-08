@@ -157,7 +157,7 @@ void folderMode(const string &source) {
 		string scanPositiveFolder = fs.makeDir(source, "ScanPositive");
 		string scanNevagtiveFolder = fs.makeDir(source, "ScanNegative");
 		for (int i = 0; i < imageFiles.size(); i++) {
-			cout << "Processing file <" << i << "> of <" << imageFiles.size() << ">." << endl;
+			cout << "Processing file <" << i + 1 << "> of <" << imageFiles.size() << ">." << endl;
 			cout << "Path: " << imageFiles[i] << endl;
 			Mat image = fs.loadImage(imageFiles[i]);
 			CodeFinder codeFinder(image, false);
@@ -189,8 +189,11 @@ void folderMode(const string &source) {
 
 		cout << endl;
 		cout << "Finished iterating through all Images." << endl;
+		float average = 0.0f;
+		if(evaluateCount > 0)
+			average = evaluateAverage / evaluateCount;
 		cout << "#Images: " << imageFiles.size() << " #QRCodes: " << detected <<
-			" AverageQuality: " << evaluateAverage / evaluateCount << "%" << " #Correct Size: " << evaluateCount << endl;
+			" AverageQuality: " << average << "%" << " #Correct Size: " << evaluateCount << endl;
 	}
 	else {
 		cout << endl << "Aborted." << endl << endl;

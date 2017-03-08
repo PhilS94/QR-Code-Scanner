@@ -23,6 +23,8 @@ ScannedQR
 03_rotate
 04_perspective
 05_synthetic
+06_blured
+07_noise
 /data/Test
 /data/qrcode-datasets.zip
 /data/qrcode-datasets
@@ -32,3 +34,5 @@ ScannedQR
 /data/dataset1
 /data/00_ground_truth/99_bg
 */ScanResult
+ScanPositive
+ScanNegative
