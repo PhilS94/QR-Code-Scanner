@@ -81,9 +81,9 @@ Mat CodeFinder::find() {
 		cout << "	Finding all finder pattern candidates..." << endl;
 		findPatternContours();
 		cout << "	Number of detected patterns: " << allFinderPatterns.size() << endl;
-
+		
 		//If less than 3 Patterns found, try different threshold method
-		if (allFinderPatterns.size() < 3) {
+		if (allFinderPatterns.size() + validFinderPatterns.size() < 3) {
 			if (thresholdMethod < maxThresholdMethod) {
 				cout << "	Try different ThresholdMethod." << endl << endl;
 				continue;
@@ -91,7 +91,7 @@ Mat CodeFinder::find() {
 			cout << "Could not find any valid Patterns." << endl;
 			return drawNotFound();
 		}
-
+		
 		cout << "	Finding all edge lines for finder patterns..." << endl;;
 		findPatternLines();
 		cout << "	Number of detected valid patterns: " << validFinderPatterns.size() << endl;
@@ -106,10 +106,7 @@ Mat CodeFinder::find() {
 			return drawNotFound();
 		}
 
-		//More than 3 valid Patterns were found. End Loop.
-		break;
 
-	} while (true);
 	cout << "Successfully located FinderPatterns." << endl;
 
 	cout << "Iterating all combinations of detected finder patterns..." << endl;
@@ -184,6 +181,7 @@ Mat CodeFinder::find() {
 			}
 		}
 	}
+	} while (thresholdMethod < maxThresholdMethod && allCodes.size() == 0);
 
 	float verify = 0.0;
 	Mat result = drawNotFound();
@@ -335,6 +333,7 @@ void CodeFinder::findPatternLines() {
 
 		validFinderPatterns.push_back(pattern);
 	}
+	allFinderPatterns.clear();
 }
 
 /**
