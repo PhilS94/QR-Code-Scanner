@@ -218,12 +218,14 @@ void evaluationMode(const string &source, const string &dest) {
 	CodeFinder codeFinder(inputImage, true);
 	Mat outputImage = codeFinder.find();
 
-	evaluate(source, outputImage);
+	// Uncomment to use evaluation for result vs ground truth of generated image.
+	//evaluate(source, outputImage);
 
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
-	//FileSystem::saveImage(dest, outputImage);
+	FileSystem::saveImage(dest, outputImage);
 
-	codeFinder.showAll();
+	// Uncomennt to view debug images.
+	//codeFinder.showAll();
 }
 
 

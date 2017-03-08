@@ -915,21 +915,21 @@ bool CodeFinder::verifyQRCode(QRCode &code) {
 	}
 
 	//Initialize PerfectAligments
-	int aligntmentSize = rows - 7 - 7;
-	Mat perfectAlignmentPattern = Mat::zeros(1, aligntmentSize, CV_8UC1);
-	for (int i = 0; i < aligntmentSize; i = i + 2) {
-		perfectAlignmentPattern.at<uint8_t>(0, i) = 255;
+	int timingSize = rows - 7 - 7;
+	Mat perfectTimingPattern = Mat::zeros(1, timingSize, CV_8UC1);
+	for (int i = 0; i < timingSize; i = i + 2) {
+		perfectTimingPattern.at<uint8_t>(0, i) = 255;
 	}
 
 	//Compare to alignments of QR
-	Mat topAlignment = QRImage(Rect(7, 6, aligntmentSize, 1));
-	Mat leftAligment = QRImage(Rect(6, 7, 1, aligntmentSize));
+	Mat topTiming = QRImage(Rect(7, 6, timingSize, 1));
+	Mat leftTiming = QRImage(Rect(6, 7, 1, timingSize));
 
-	for (int i = 0; i < aligntmentSize; i++) {
+	for (int i = 0; i < timingSize; i++) {
 		total = total + 2;
-		if (topAlignment.at<uint8_t>(0, i) == perfectAlignmentPattern.at<uint8_t>(0, i))
+		if (topTiming.at<uint8_t>(0, i) == perfectTimingPattern.at<uint8_t>(0, i))
 			count++;
-		if (leftAligment.at<uint8_t>(i, 0) == perfectAlignmentPattern.at<uint8_t>(0, i))
+		if (leftTiming.at<uint8_t>(i, 0) == perfectTimingPattern.at<uint8_t>(0, i))
 			count++;
 	}
 
