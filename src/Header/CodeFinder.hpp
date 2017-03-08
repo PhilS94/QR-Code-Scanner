@@ -47,8 +47,8 @@ protected:
 	void findCorners(QRCode& code);
 	void findPerspectiveTransform(QRCode& code);
 	bool findNumberOfModules(QRCode& code);
-	void findResize(QRCode& code);
-	bool findAlternativeResize(QRCode& code);
+	void normalize(QRCode& code);
+	bool alternativeNormalize(QRCode& code);
 	bool verifyQRCode(QRCode& code);
 
     bool isTrapez(std::vector<cv::Point> in);
