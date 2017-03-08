@@ -4,12 +4,18 @@
 using namespace std;
 using namespace cv;
 
+/**
+ * \brief Smooth the image using gaussian blur.
+ */
 void ImageBinarization::computeSmoothing() {
 	blurredImage = image.clone();
 	blurredImage += Scalar(-50, -50, -50);
 	GaussianBlur(blurredImage, blurredImage, Size(3, 3), 0, 0);
 }
 
+/**
+ * \brief Create a color histogram of the whole image.
+ */
 void ImageBinarization::createHistogram() {
 	bool uniform = true;
 	bool accumulate = false;
@@ -19,6 +25,9 @@ void ImageBinarization::createHistogram() {
 	calcHist(&blurredImage, 1, 0, Mat(), hist, 1, &histSize, &histRange, uniform, accumulate);
 }
 
+/**
+ * \brief Calculate the threshold value for global binarization.
+ */
 void ImageBinarization::setThresholdValue() {
 	for (int i = 0; i < histSize && threshold_value < 0.0; i++) {
 		bin += cvRound(hist.at<float>(i));
@@ -27,23 +36,42 @@ void ImageBinarization::setThresholdValue() {
 	}
 }
 
+/**
+ * \return False.
+ */
 bool ImageBinarization::isLightingUneven() {
 	return false;
 }
 
+/**
+ * \brief Calculate global binarization.
+ */
 void ImageBinarization::computeGlobalThreshold() {
 	threshold(blurredImage, binarizedImage, threshold_value, max_BINARY_value, CV_THRESH_OTSU);
 }
 
+/**
+ * \brief Calculate local binarization
+ * \param adaptiveMethod Method used for kernel.
+ * \param blockSize Kernel size
+ * \param C Constant subtraction for each pixel.
+ */
 void ImageBinarization::computeLocalThreshold(int adaptiveMethod, int blockSize, int C) {
 	adaptiveThreshold(blurredImage, binarizedImage, max_BINARY_value, adaptiveMethod, THRESH_BINARY, blockSize, C);
 }
 
-//Edit this to 0, if CodeFinder should only try GlobalThreshold
+/**
+ * \brief Returns the max index of available threshold methods.
+ * \return 2.
+ */
 int ImageBinarization::getMaxThresholdMethod() {
 	return 2;
 }
 
+/**
+ * \brief Print function for console output.
+ * \param thresholdMethod Enumeration of the threshold method.
+ */
 void ImageBinarization::printThresholdMethod(int thresholdMethod) {
 	cout << "Current threshold method: ";
 	switch (thresholdMethod) {
@@ -61,8 +89,12 @@ void ImageBinarization::printThresholdMethod(int thresholdMethod) {
 	}
 }
 
-//TODO: Add another Globalthresholdmethod/Localthresholdmethod or use different smoothings like medianBlur(blurredImage,blurredImage,_) 
-//Also play around with blocksize, and C
+/**
+ * \brief Execute the binarizer on the passed image.
+ * \param image Image to binarize.
+ * \param thresholdMethod Method to use for binarization.
+ * \return The binarized image.
+ */
 Mat ImageBinarization::run(Mat image, int thresholdMethod) {
 
 	this->image = image;

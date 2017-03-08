@@ -25,8 +25,7 @@ bool compareLineAlongAxis(pair<float, Vec4f> left, pair<float, Vec4f> right) {
  */
 CodeFinder::CodeFinder(Mat image, bool hasCode)
 	: hasCode(hasCode) {
-	// TODO: Remove resizing for release version. Or keep it?
-	/*
+
 	image = image.clone();
 	if (image.cols > 2000 || image.rows > 2000) {
 		cout << "Resizing Image, because it is too large: " << image.rows << "x" << image.cols << ". ";
@@ -44,7 +43,6 @@ CodeFinder::CodeFinder(Mat image, bool hasCode)
 		image = resizedImage;
 		cout << "New size: " << image.rows << "x" << image.cols << "." << endl;
 	}
-	*/
 	// Saving original image.
 	originalImage = image.clone();
 

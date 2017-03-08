@@ -101,6 +101,9 @@ int main(int argc, const char *argv[]) {
 }
 
 
+/**
+ * \brief Try to open the camera and constantly search for qrcodes.
+ */
 void cameraMode() {
 	VideoCapture cap(0); // open the default camera
 	if (!cap.isOpened())  // check if we succeeded
@@ -133,6 +136,10 @@ void cameraMode() {
 	}
 }
 
+/**
+ * \brief Scan all images within the folder for qrcodes and save the results to a subfolder.
+ * \param source Path to folder to scan.
+ */
 void folderMode(const string &source) {
 	cout << "Reading all Files in " << source << " ..." << endl;
 
@@ -200,6 +207,11 @@ void folderMode(const string &source) {
 	}
 }
 
+/**
+ * \brief Scan a single image and save the result to the specified path.
+ * \param source Path to source image.
+ * \param dest Path to destination image.
+ */
 void evaluationMode(const string &source, const string &dest) {
 	Mat inputImage = FileSystem::loadImage(source);
 
@@ -215,6 +227,11 @@ void evaluationMode(const string &source, const string &dest) {
 }
 
 
+/**
+ * \brief Generate various qrcodes images for testing purposes.
+ * \param source Path to folder containing ground truth items.
+ * \param dest Path to output folder.
+ */
 void generateMode(const string &source, const string &dest) {
 	cout << "Source     : " << source << endl;
 	cout << "Destination: " << dest << endl;
@@ -229,6 +246,13 @@ void generateMode(const string &source, const string &dest) {
 	gen.noise(100,15,15,45);
 }
 
+/**
+ * \brief Try to automatically compare the generated image to the ground truth
+ *        and calculate the equality.
+ * \param source Path to source image.
+ * \param outputImage Mat holding the result image.
+ * \return Percentage describing the equality. 100% = Equal. 0% Every pixel different.
+ */
 float evaluate(const string &source, const Mat &outputImage) {
 
 	cout << "Source: " << source << endl;
