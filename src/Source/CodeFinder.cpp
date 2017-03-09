@@ -83,7 +83,7 @@ Mat CodeFinder::find() {
 		cout << "	Number of detected patterns: " << allFinderPatterns.size() << endl;
 
 		//If less than 3 Patterns found, try different threshold method
-		if (allFinderPatterns.size() + validFinderPatterns.size() < 3) {
+		if (allFinderPatterns.size() < 3) {
 			if (thresholdMethod < maxThresholdMethod) {
 				cout << "	Try different ThresholdMethod." << endl << endl;
 				continue;
