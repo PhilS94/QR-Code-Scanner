@@ -92,7 +92,7 @@ int main(int argc, const char *argv[]) {
 	}
 
 #ifdef _WIN32
-	system("pause");
+	//system("pause");
 #else
 	waitKey(0);
 #endif
@@ -223,6 +223,9 @@ void evaluationMode(const string &source, const string &dest) {
 
 	FileSystem::makeDir(FileSystem::toFolderPath(dest));
 	FileSystem::saveImage(dest, outputImage);
+
+	string imageFolder = FileSystem::makeDir(FileSystem::toFolderPath(dest), "images");
+	codeFinder.saveDrawCustomTo(imageFolder, source);
 
 	// Uncomennt to view debug images.
 	//codeFinder.showAll();

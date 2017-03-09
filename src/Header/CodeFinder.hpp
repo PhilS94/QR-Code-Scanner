@@ -30,6 +30,7 @@ public:
 
 	void showAll();
 	void saveDrawTo(const std::string& folder, const std::string& imageFilePath);
+	void saveDrawCustomTo(const std::string& folder, const std::string& imageFilePath);
 
 protected:
     cv::Mat drawContours(std::vector<std::vector<cv::Point>> &vecs,

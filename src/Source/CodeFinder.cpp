@@ -975,7 +975,7 @@ Mat CodeFinder::drawPatternContours() {
 
 Mat CodeFinder::drawAllLines() {
 	Mat lineImage = originalImage.clone();
-
+	/*
 	vector<vector<Point>> polygons;
 	for (FinderPattern &pattern : validFinderPatterns) {
 		// Approximate the contour with a polygon.
@@ -989,12 +989,14 @@ Mat CodeFinder::drawAllLines() {
 	colorsPolygons.push_back(Scalar(255, 255, 0));
 
 	drawContours(polygons, &lineImage, &colorsPolygons);
-
+	*/
 	vector<Scalar> colorsLines;
 	colorsLines.push_back(Scalar(0, 0, 255));
 
 	for (FinderPattern &pattern : validFinderPatterns) {
 		drawLines(pattern.lines, &lineImage, &colorsLines);
+	}
+	for (FinderPattern &pattern : validFinderPatterns) {
 		for (Vec4f& line : pattern.lines)
 		{
 			circle(lineImage, Point2f(line[2], line[3]), 3, Scalar(255, 255, 0), 2);
@@ -1261,6 +1263,127 @@ void CodeFinder::saveDrawTo(const string& folder, const string&imageFilePath)
 		return;
 
 	debugFileName = fs.toFileName(imageFilePath) + "_6___RESULT___" + fs.toExtension(imageFilePath, true);
+
+	fs.saveImage(fs.toPath(folder, debugFileName), outputImage);
+}
+
+void CodeFinder::saveDrawCustomTo(const string& folder, const string&imageFilePath)
+{
+	FileSystem fs;
+	string debugFileName;
+
+
+	Mat grayImage;
+	cvtColor(originalImage, grayImage, CV_BGR2GRAY);
+	debugFileName = fs.toFileName(imageFilePath) + "_0___GRAY___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), grayImage);
+
+	debugFileName = fs.toFileName(imageFilePath) + "_1___BINARIZED___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), binarizedImage);
+
+
+	ImageBinarization binarizer;
+	Mat binaryLocal = binarizer.run(grayImage, 1);
+
+	debugFileName = fs.toFileName(imageFilePath) + "_2___BINARIZED___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), binaryLocal);
+
+	auto savedColors = debuggingColors;
+	debuggingColors = vector<Scalar>();
+	debuggingColors.push_back(Scalar(255, 255, 255));
+
+	Mat contour = Mat::zeros(originalImage.size(), originalImage.type());
+	debugFileName = fs.toFileName(imageFilePath) + "_3___CONTOUR___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), drawContours(allContours, &contour));
+
+	Mat segments = drawAllSegments();
+	debugFileName = fs.toFileName(imageFilePath) + "_4___SEGMENTS___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), segments(Rect(400, 200, 500, 500)));
+
+	Mat lines = drawAllLines();
+	debugFileName = fs.toFileName(imageFilePath) + "_5___LINES___" + fs.toExtension(imageFilePath, true);
+	fs.saveImage(fs.toPath(folder, debugFileName), lines(Rect(400, 200, 500, 500)));
+
+	for (int a = 0; a < allCodes.size(); a++) {
+		Mat split = originalImage.clone();
+		debugFileName = fs.toFileName(imageFilePath) + "_6___SPLIT___" + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+		debuggingColors.clear();
+		debuggingColors.push_back(Scalar(255, 0, 255));
+		drawLines(allCodes.at(a).hLines, &split, &debuggingColors);
+		debuggingColors.clear();
+		debuggingColors.push_back(Scalar(255, 255, 0));
+		drawLines(allCodes.at(a).vLines, &split, &debuggingColors);
+		fs.saveImage(fs.toPath(folder, debugFileName), split(Rect(400, 200, 500, 500)));
+	}
+
+	for (int a = 0; a < allCodes.size(); a++) {
+		Mat sort = originalImage.clone();
+		debugFileName = fs.toFileName(imageFilePath) + "_7___SORT___" + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+		
+		debuggingColors.clear();
+		debuggingColors.push_back(Scalar(255, 0, 255));
+		drawLines(allCodes.at(a).hLines, &sort, &debuggingColors);
+		debuggingColors.clear();
+		debuggingColors.push_back(Scalar(255, 255, 0));
+		vector<Vec4f> axis;
+		axis.push_back(allCodes.at(a).vLines[1]);
+		drawLines(axis, &sort, &debuggingColors);
+
+		Point2f intersection;
+		for(Vec4f& line : allCodes.at(a).hLines)
+		{
+			if (lineIntersection(line, allCodes.at(a).vLines[1], intersection)) {
+				circle(sort, intersection, 5, Scalar(0, 255, 255), 3);
+			}
+		}
+
+		fs.saveImage(fs.toPath(folder, debugFileName), sort(Rect(400, 200, 500, 500)));
+	}
+
+	for (int a = 0; a < allCodes.size(); a++) {
+		Mat sorted = originalImage.clone();
+		debugFileName = fs.toFileName(imageFilePath) + "_8___SORTED___" + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+
+		debuggingColors = savedColors;
+		drawLines(allCodes.at(a).hLines, &sorted);
+		drawLines(allCodes.at(a).vLines, &sorted);
+
+		fs.saveImage(fs.toPath(folder, debugFileName), sorted(Rect(400, 200, 500, 500)));
+	}
+
+	vector<Mat> intersections = drawMergedLinesAndIntersections();
+	for (int a = 0; a < allCodes.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_9___INTERSECTIONS___" + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), intersections[a](Rect(400, 200, 500, 500)));
+	}
+
+	vector<Mat> extracted = drawExtractedCodes();
+	for (int a = 0; a < allCodes.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_10__EXTRACTED___"  + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), extracted[a]);
+	}
+
+	vector<Mat> grid = drawExtractedCodeGrids();
+	for (int a = 0; a < allCodes.size(); a++) {
+		debugFileName = fs.toFileName(imageFilePath) + "_11__GRID___" + to_string(a) + "_" + fs.toExtension(imageFilePath, true);
+		fs.saveImage(fs.toPath(folder, debugFileName), grid[a]);
+	}
+
+	float verify = 0.0;
+	Mat outputImage = drawNotFound();
+	for (QRCode& code : allCodes)
+	{
+		if (code.verifyPercentage > verify)
+		{
+			outputImage = code.qrcodeImage;
+			verify = code.verifyPercentage;
+		}
+	}
+
+	if (outputImage.size().width == 1)
+		return;
+
+	debugFileName = fs.toFileName(imageFilePath) + "_12__RESULT___" + fs.toExtension(imageFilePath, true);
 
 	fs.saveImage(fs.toPath(folder, debugFileName), outputImage);
 }
