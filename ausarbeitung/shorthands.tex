@@ -1,0 +1,36 @@
+%!TEX root = bericht.tex
+%!TEX TS-options = -shell-escape
+%!BIB programm = biber
+%----------------------------------------------------------------------------------------
+%-- diese Datei ist für kurze eigene Befehle gedacht, um zum Beispiel Namen von geschützten 
+%-- Eigenmarken oder Algorithmen konsistenz zu setzen. Zu diesem Zwecke wird diese Datei
+%-- von git auch immer mittels "union" gemerged! Außerdem ist dies ein guter Platz für 
+%-- eigene Mathebefehle.
+%----------------------------------------------------------------------------------------
+
+\DeclareRobustCommand{\Simrank}{\textsc{SimRank}\xspace}
+\DeclareRobustCommand{\SimrankPP}{\textsc{SimRank}\nolinebreak[4]\hspace{-.09em}+\hspace{-.15em}+\xspace}
+\DeclareRobustCommand{\Cosimrank}{\textsc{CoSimRank}\xspace}
+\DeclareRobustCommand{\Pagerank}{\textsc{PageRank}\xspace}
+
+\DeclareRobustCommand{\LokiSports}{\enquote{lokisports}\xspace}
+\DeclareRobustCommand{\FirstSpirit}{\textsc{FirstSpirit}\xspace}
+\DeclareRobustCommand{\Woopra}{\textsc{Woopra}\xspace}
+
+\DeclareRobustCommand{\git}{\textsf{git}\xspace}
+\DeclareRobustCommand{\Maven}{\textsf{Maven}\xspace}
+\DeclareRobustCommand{\GitLab}{\textsf{GitLab}\xspace}
+\DeclareRobustCommand{\Postgres}{\textsf{PostgreSQL}\xspace}
+\DeclareRobustCommand{\jOOQ}{\textsf{jOOQ}\xspace}
+\DeclareRobustCommand{\JDBC}{\textsf{JDBC}\xspace}
+\DeclareRobustCommand{\JUnit}{\textsf{JUnit}\xspace}
+\DeclareRobustCommand{\Ant}{\textsf{Ant}\xspace}
+
+
+%-- Mathebefehle
+\DeclarePairedDelimiter{\abs}{|}{|}
+\DeclarePairedDelimiter{\enbrace}{(}{)}
+
+%-- Um GitLab-Issues einfach zu referenzieren
+\newcommand{\issue}[1]{\href{https://algo-git.uni-muenster.de/projektseminar-cms/bericht/issues/#1}{\texttt{\faGitlab~\##1}}}
+

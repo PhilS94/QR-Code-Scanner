@@ -1,0 +1,5 @@
+[0] Config.pm:340> INFO - This is Biber 2.4
+[0] Config.pm:343> INFO - Logfile is 'qrcode.blg'
+[59] biber:287> INFO - === Di Mär 21, 2017, 15:14:36
+[153] Utils.pm:163> ERROR - Cannot find control file 'qrcode.bcf'! - did you pass the "backend=biber" option to BibLaTeX?
+[153] Biber.pm:113> INFO - ERRORS: 1
