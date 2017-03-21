@@ -1,4 +1,4 @@
-%!TEX root = bericht.tex
+%!TEX root = qrcode.tex
 %!TEX TS-options = -shell-escape
 %!BIB programm = biber
 \documentclass[%
@@ -286,6 +286,23 @@
 	inputencoding=utf8/latin1,
 }
 
+\lstdefinestyle{CPP}{
+	belowcaptionskip=1\baselineskip,
+	breaklines=true,
+	language=C++,
+	showstringspaces=false,
+	basicstyle=\footnotesize\ttfamily,
+	keywordstyle=\bfseries\color{green!40!black},
+	commentstyle=\itshape\color{purple!40!black},
+	identifierstyle=\color{blue},
+	stringstyle=\color{orange},
+	numbers=right,
+	numbersep=1pt,
+	numberstyle=\tiny\ttfamily\color{gray},
+	inputencoding=utf8/latin1,
+	tabsize=4,
+}
+
 % -- Bei 'shellesc' Problemen ab hier auskommentieren
 \newtcbinputlisting[%
 	auto counter,
@@ -316,6 +333,10 @@
 }
 \DeclareDocumentCommand{\inputJooqJava}{ O{} O{} O{} m }{%
 	\inputCode[listing options={style=jooqJava,#2},#1]{#4}{#3}%
+}
+
+\DeclareDocumentCommand{\inputCPP}{ O{} O{} O{} m }{%
+	\inputCode[listing options={style=CPP,#2},#1]{#4}{#3}%
 }
 % \newtcbinputlisting[%
 % 	auto counter,

@@ -2,33 +2,8 @@
 %!TEX TS-options = -shell-escape
 \input{preamble.tex}
 
-%%Listing
-\lstdefinestyle{CPP}{
-language=C++,
-    tabsize=4,
-    keepspaces,
-    numbers=left,
-    xleftmargin=\parindent,
-    keywordstyle=\color{blue},
-    stringstyle=\color{red},
-    commentstyle=\itshape\color{blue!40!yellow},
-    identifierstyle=\color{black},
-    basicstyle=\footnotesize\ttfamily,
-    emph={int,char,double,float,unsigned,Mat},
-    emphstyle={\color{blue}},
-    morecomment=[l][\color{magenta}]{\#}
-}
-
-%%
-\DeclareDocumentCommand{\inputCPP}{ O{} O{} O{} m }{%
-	\inputCode[listing options={style=CPP,#2},#1]{#4}{#3}%
-}
-
 \begin{document}
-\author{Armin Wolf\\ Christian Esch\\ Philipp Schofield}
-\title{Ausarbeitung der Projektgruppe QR4}
-\todo{Betreuer, Studiengang, Veranstalltung, Prof}
-\maketitle
+\input{title}
 
 %% TODO Page
 \listoftodos

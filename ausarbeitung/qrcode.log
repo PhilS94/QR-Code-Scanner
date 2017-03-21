@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.3.7)  21 MAR 2017 20:20
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.3.7)  21 MAR 2017 21:15
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -2222,27 +2222,32 @@ File: lstlang1.sty 2015/06/04 1.6 listings language file
 .................................................
 . LaTeX info: "xparse/define-command"
 . 
-. Defining command \inputJava with sig. ' O{} O{} O{} m ' on line 307.
+. Defining command \inputJava with sig. ' O{} O{} O{} m ' on line 324.
 .................................................
 .................................................
 . LaTeX info: "xparse/define-command"
 . 
-. Defining command \inputXML with sig. ' O{} O{} O{} m ' on line 310.
+. Defining command \inputXML with sig. ' O{} O{} O{} m ' on line 327.
 .................................................
 .................................................
 . LaTeX info: "xparse/define-command"
 . 
-. Defining command \inputHTML with sig. ' O{} O{} O{} m ' on line 313.
+. Defining command \inputHTML with sig. ' O{} O{} O{} m ' on line 330.
 .................................................
 .................................................
 . LaTeX info: "xparse/define-command"
 . 
-. Defining command \inputSQL with sig. ' O{} O{} O{} m ' on line 316.
+. Defining command \inputSQL with sig. ' O{} O{} O{} m ' on line 333.
 .................................................
 .................................................
 . LaTeX info: "xparse/define-command"
 . 
-. Defining command \inputJooqJava with sig. ' O{} O{} O{} m ' on line 319.
+. Defining command \inputJooqJava with sig. ' O{} O{} O{} m ' on line 336.
+.................................................
+.................................................
+. LaTeX info: "xparse/define-command"
+. 
+. Defining command \inputCPP with sig. ' O{} O{} O{} m ' on line 340.
 .................................................
 
 (/usr/share/texlive/texmf-dist/tex/latex/datatool/datatool.sty
@@ -2495,20 +2500,15 @@ Package: ellipsis 2004/9/28 v1.6 ellipsis: fixes spacing around \protect \globa
 l \let \T1\textellipsis .\kern \fontdimen 3\font .\kern \fontdimen 3\font .\ker
 n \fontdimen 3\font \T1\textellipsis 
 )
-.................................................
-. LaTeX info: "xparse/define-command"
-. 
-. Defining command \inputCPP with sig. ' O{} O{} O{} m ' on line 25.
-.................................................
 LaTeX Font Info:    Try loading font information for T1+XCharter-TOsF on input 
-line 27.
+line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/xcharter/T1XCharter-TOsF.fd
 File: T1XCharter-TOsF.fd 2013/11/30 (autoinst) Font definitions for T1/XCharter
 -TOsF.
 )
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 27.
+(Font)              scaled to size 10.0pt on input line 5.
 Package csquotes Info: Checking for multilingual support...
 Package csquotes Info: ... found 'babel' package.
 Package csquotes Info: Adjusting default style.
@@ -2527,55 +2527,54 @@ File: german.lbx 2016/03/03 v3.3 biblatex localization (PK/JW/AB)
 (./qrcode.aux)
 \openout1 = `qrcode.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 27.
-LaTeX Font Info:    Try loading font information for OML+ntxmi on input line 27
-.
+LaTeX Font Info:    Checking defaults for OML/ntxmi/m/it on input line 5.
+LaTeX Font Info:    Try loading font information for OML+ntxmi on input line 5.
+
  (/usr/share/texlive/texmf-dist/tex/latex/newtx/omlntxmi.fd
 File: omlntxmi.fd 2015/08/25 Fontinst v1.933 font definitions for OML/ntxmi.
 )
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OMS/ntxsy/m/n on input line 27.
-LaTeX Font Info:    Try loading font information for OMS+ntxsy on input line 27
-.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMS/ntxsy/m/n on input line 5.
+LaTeX Font Info:    Try loading font information for OMS+ntxsy on input line 5.
+
 
 (/usr/share/texlive/texmf-dist/tex/latex/newtx/omsntxsy.fd
 File: omsntxsy.fd 2012/11/14 Fontinst v1.933 font definitions for OMS/ntxsy.
 )
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 27.
-LaTeX Font Info:    Try loading font information for U+ntxexa on input line 27.
-
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for U/ntxexa/m/n on input line 5.
+LaTeX Font Info:    Try loading font information for U+ntxexa on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/newtx/untxexa.fd
 File: untxexa.fd 2012/04/16 Fontinst v1.933 font definitions for U/ntxexa.
 )
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 27.
-LaTeX Font Info:    Try loading font information for LY1+ptm on input line 27.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for LY1/ptm/m/n on input line 5.
+LaTeX Font Info:    Try loading font information for LY1+ptm on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/ly1/ly1ptm.fd
 File: ly1ptm.fd 2001/02/01 font definitions for LY1/ptm using Berry names.
 )
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 27.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 27.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 5.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 27.
-LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for LMX/ntxexx/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 5.
+LaTeX Font Info:    ... okay on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -2609,8 +2608,8 @@ e
 \c@mv@boldtabular=\count494
 
 ABD: EverySelectfont initializing macros
-LaTeX Info: Redefining \selectfont on input line 27.
-LaTeX Info: Redefining \microtypecontext on input line 27.
+LaTeX Info: Redefining \selectfont on input line 5.
+LaTeX Info: Redefining \microtypecontext on input line 5.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
@@ -2636,10 +2635,10 @@ Package biblatex Info: Trying to load bibliographic data...
 Package biblatex Info: ... file 'qrcode.bbl' not found.
 
 No file qrcode.bbl.
-Package biblatex Info: Reference section=0 on input line 27.
-Package biblatex Info: Reference segment=0 on input line 27.
+Package biblatex Info: Reference section=0 on input line 5.
+Package biblatex Info: Reference segment=0 on input line 5.
 \AtBeginShipoutBox=\box101
-Package hyperref Info: Link coloring OFF on input line 27.
+Package hyperref Info: Link coloring OFF on input line 5.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
@@ -2648,9 +2647,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count495
 )
-LaTeX Info: Redefining \ref on input line 27.
-LaTeX Info: Redefining \pageref on input line 27.
-LaTeX Info: Redefining \nameref on input line 27.
+LaTeX Info: Redefining \ref on input line 5.
+LaTeX Info: Redefining \pageref on input line 5.
+LaTeX Info: Redefining \nameref on input line 5.
 Package marginnote Info: \pdfoutput not 0 and \pdflastxpos available.
 (marginnote)             Extended position detection mode activated.
 Package caption Info: Begin \AtBeginDocument code.
@@ -2658,231 +2657,146 @@ Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \c@lstlisting=\count496
 LaTeX Font Info:    Try loading font information for T1+SourceSansPro-LF on inp
-ut line 27.
+ut line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/sourcesanspro/T1SourceSansPro-LF.fd
 File: T1SourceSansPro-LF.fd 2015/01/11 (autoinst) Font definitions for T1/Sourc
 eSansPro-LF.
 )
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 27.
+(Font)              scaled to size 10.0pt on input line 5.
 Package microtype Info: Loading generic settings for font family
 (microtype)             `SourceSansPro-LF' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
-(Font)              scaled to size 10.0pt on input line 27.
+(Font)              scaled to size 10.0pt on input line 5.
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
-(Font)              scaled to size 12.0pt on input line 27.
-Package tocstyle Info: prepare \l@part for redefinition on input line 27.
-Package tocstyle Info: prepare \l@chapter for redefinition on input line 27.
-Package tocstyle Info: prepare \l@section for redefinition on input line 27.
+(Font)              scaled to size 12.0pt on input line 5.
+Package tocstyle Info: prepare \l@part for redefinition on input line 5.
+Package tocstyle Info: prepare \l@chapter for redefinition on input line 5.
+Package tocstyle Info: prepare \l@section for redefinition on input line 5.
 LaTeX Font Info:    Try loading font information for OT1+XCharter-TLF on input 
-line 27.
+line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/xcharter/OT1XCharter-TLF.fd
 File: OT1XCharter-TLF.fd 2013/10/24 (autoinst) Font definitions for OT1/XCharte
 r-TLF.
 )
 LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 27.
+(Font)              scaled to size 10.0pt on input line 5.
 Package microtype Info: Loading generic settings for font family
 (microtype)             `XCharter-TLF' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 27.
+(Font)              scaled to size 7.3pt on input line 5.
 LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 5.5pt on input line 27.
-LaTeX Font Info:    Try loading font information for U+ntxmia on input line 27.
-
+(Font)              scaled to size 5.5pt on input line 5.
+LaTeX Font Info:    Try loading font information for U+ntxmia on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/newtx/untxmia.fd
 File: untxmia.fd 2012/04/16 Fontinst v1.933 font definitions for U/ntxmia.
 )
-LaTeX Font Info:    Try loading font information for U+ntxsym on input line 27.
-
+LaTeX Font Info:    Try loading font information for U+ntxsym on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/newtx/untxsym.fd
 File: untxsym.fd 2015/03/20 Fontinst v1.933 font definitions for U/ntxsym.
 )
-LaTeX Font Info:    Try loading font information for U+ntxsyc on input line 27.
-
+LaTeX Font Info:    Try loading font information for U+ntxsyc on input line 5.
 
 (/usr/share/texlive/texmf-dist/tex/latex/newtx/untxsyc.fd
 File: untxsyc.fd 2012/04/12 Fontinst v1.933 font definitions for U/ntxsyc.
 )
-Package tocstyle Info: prepare \l@subsection for redefinition on input line 27.
+Package tocstyle Info: prepare \l@subsection for redefinition on input line 5.
+Package tocstyle Info: prepare \l@table for redefinition on input line 5.
+Package tocstyle Info: prepare \l@figure for redefinition on input line 5.
+LaTeX Info: Redefining \dots on input line 5.
+ (./title.tex
+<images/Logo_WWU_Muenster.pdf, id=7, 822.27202pt x 174.98575pt>
+File: images/Logo_WWU_Muenster.pdf Graphic file (type pdf)
 
-Package tocstyle Info: prepare \l@table for redefinition on input line 27.
-Package tocstyle Info: prepare \l@figure for redefinition on input line 27.
-LaTeX Info: Redefining \dots on input line 27.
-Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
-ine 30.
+<use images/Logo_WWU_Muenster.pdf>
+Package pdftex.def Info: images/Logo_WWU_Muenster.pdf used on input line 7.
+(pdftex.def)             Requested size: 200.54875pt x 42.67912pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 7--7
+ [][] 
+ []
+
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
-(Font)              scaled to size 9.0pt on input line 30.
+(Font)              scaled to size 24.88pt on input line 8.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 24.88pt on input line 8.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+(Font)              scaled to size 24.88pt on input line 8.
 
+Underfull \hbox (badness 4391) in paragraph at lines 8--8
+ []\T1/SourceSansPro-LF/b/n/24.88 Ausarbeitung zum Prak-ti-kum 
+ []
 
-LaTeX Warning: Marginpar on page 1 moved.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
+(Font)              scaled to size 12.0pt on input line 9.
 
-LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sl' in size <10> not availab
-le
-(Font)              Font shape `T1/XCharter-TOsF/m/it' tried instead on input l
-ine 32.
+Underfull \hbox (badness 10000) in paragraph at lines 9--9
+ []\T1/XCharter-TOsF/m/n/12 (+20) zu der Vor-le-sung Com-pu-ter Vi-si-on 
+ []
+
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
-(Font)              scaled to size 10.0pt on input line 32.
+(Font)              scaled to size 12.0pt on input line 11.
 
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
+Underfull \hbox (badness 10000) in paragraph at lines 11--11
+ []\T1/XCharter-TOsF/m/it/12 (+20) veranstaltet von: 
  []
 
-<images/wwulogo.pdf, id=7, 2163.08125pt x 465.74pt>
-File: images/wwulogo.pdf Graphic file (type pdf)
- <use images/wwulogo.pdf>
-Package pdftex.def Info: images/wwulogo.pdf used on input line 32.
-(pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
+(Font)              scaled to size 14.4pt on input line 12.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sc' will be
+(Font)              scaled to size 14.4pt on input line 12.
 
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]|
- []
-
-
-Package scrlayer-scrpage Warning: \headheight to low.
-(scrlayer-scrpage)                At least 20.67186pt needed,
-(scrlayer-scrpage)                but only 17.07182pt found.
-(scrlayer-scrpage)                I'll enlarge \headheight, for further
-(scrlayer-scrpage)                processing, but you should do this yourself,
-(scrlayer-scrpage)                e.g., setting typearea's option
-(scrlayer-scrpage)                `headheight=20.67186pt'.
-(scrlayer-scrpage)                I'll also decrease \topmargin on input line 3
-2.
-
-
-Overfull \vbox (3.60004pt too high) has occurred while \output is active []
-
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
- []
-
-LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sl' in size <14.4> not avail
-able
-(Font)              Font shape `T1/XCharter-TOsF/m/it' tried instead on input l
-ine 32.
-LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
-(Font)              scaled to size 14.4pt on input line 32.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/sl' in size <14.4> not av
-ailable
-(Font)              Font shape `T1/SourceSansPro-LF/m/it' tried instead on inpu
-t line 32.
-LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/it' will be
-(Font)              scaled to size 14.4pt on input line 32.
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|\T1/SourceSansPro-LF/m/it/14.4 1|
+Underfull \hbox (badness 10000) in paragraph at lines 12--12
+ []\T1/XCharter-TOsF/m/n/14.4 Prof. Dr. X. \T1/XCharter-TOsF/m/sc/14.4/45ls Ji-
+ang 
  []
 
 
-Package scrlayer-scrpage Warning: \footheight to low.
-(scrlayer-scrpage)                At least 18.0pt needed,
-(scrlayer-scrpage)                but only 15.0pt found.
-(scrlayer-scrpage)                I'll enlarge \footheight, for further
-(scrlayer-scrpage)                processing, but you should do this yourself,
-(scrlayer-scrpage)                e.g., setting typearea's option
-(scrlayer-scrpage)                `footheight=18.0pt'.
-(scrlayer-scrpage)                I'll also increase \footskip on input line 32
-.
+Underfull \hbox (badness 10000) in paragraph at lines 14--14
+ []\T1/XCharter-TOsF/m/it/12 (+20) Version vom 21. März 2017 
+ []
 
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 16.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 16.
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/se-pdfdoc.def
 File: se-pdfdoc.def 2011/12/02 v1.10 stringenc: PDFDocEncoding
 )
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 16.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 16.
  [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./images/wwulogo.pdf>]
+
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./images/Logo_WWU_Muenster
+.pdf>])
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 10.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 10.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
+(babel)             in language  on input line 10.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
- [2
+(babel)             in language  on input line 10.
+
+[2
 
 
 ]
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
-(Font)              scaled to size 20.74pt on input line 32.
-
-Underfull \hbox (badness 2894) in paragraph at lines 32--32
- []\T1/SourceSansPro-LF/b/n/20.74 Ausarbeitung der Pro-jekt-grup-pe QR4 
- []
-
-LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
-(Font)              scaled to size 14.4pt on input line 32.
-LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 14.4pt on input line 32.
-LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 10.5pt on input line 32.
-LaTeX Font Info:    Font shape `OT1/XCharter-TLF/m/n' will be
-(Font)              scaled to size 7.9pt on input line 32.
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--32
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--32
- []\T1/XCharter-TOsF/m/n/14.4 21. März 2017 
- []
-
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 32.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 32.
-pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.32 
-      [1]
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 35.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 35.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 35.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 35.
-pdfTeX warning (ext4): destination with the same identifier (name{page.2}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.35 \newpage
-              [2
-
-
-]
-LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
-(Font)              scaled to size 24.88pt on input line 35.
+(Font)              scaled to size 20.74pt on input line 10.
  (./qrcode.tdo
-number indent by \l@... (tdo, 1):  0.0pt
-text indent by \l@... (tdo, 1):  23.00003pt
-number indent by parent (tdo, 1):  0.0pt
-text indent calculated (tdo, 1): 23.00003pt
-number indent calculated (tdo, 1): 0.0pt
 number indent by \l@... (tdo, 1):  0.0pt
 text indent by \l@... (tdo, 1):  23.00003pt
 number indent by parent (tdo, 1):  0.0pt
@@ -2902,6 +2816,149 @@ number indent calculated (tdo, 1): 0.0pt
 \tf@tdo=\write8
 \openout8 = `qrcode.tdo'.
 
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sl' in size <10> not availab
+le
+(Font)              Font shape `T1/XCharter-TOsF/m/it' tried instead on input l
+ine 10.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
+(Font)              scaled to size 10.0pt on input line 10.
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []||
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sl' in size <14.4> not avail
+able
+(Font)              Font shape `T1/XCharter-TOsF/m/it' tried instead on input l
+ine 10.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
+(Font)              scaled to size 14.4pt on input line 10.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/sl' in size <14.4> not av
+ailable
+(Font)              Font shape `T1/SourceSansPro-LF/m/it' tried instead on inpu
+t line 10.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/it' will be
+(Font)              scaled to size 14.4pt on input line 10.
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|\T1/SourceSansPro-LF/m/it/14.4 3|
+ []
+
+
+Package scrlayer-scrpage Warning: \footheight to low.
+(scrlayer-scrpage)                At least 18.0pt needed,
+(scrlayer-scrpage)                but only 15.0pt found.
+(scrlayer-scrpage)                I'll enlarge \footheight, for further
+(scrlayer-scrpage)                processing, but you should do this yourself,
+(scrlayer-scrpage)                e.g., setting typearea's option
+(scrlayer-scrpage)                `footheight=18.0pt'.
+(scrlayer-scrpage)                I'll also increase \footskip on input line 10
+.
+
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 10.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 10.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 10.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 10.
+[3] (./einfuehrung.tex
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 1.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 1.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 1.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 1.
+ [4
+
+
+]
+chapter 1.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 1.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 1.
+
+Class scrbook Warning: \float@addtolists detected!
+(scrbook)              Implementation of \float@addtolist became
+(scrbook)              deprecated in KOMA-Script v3.01 2008/11/14 and
+(scrbook)              has been replaced by several more flexible
+(scrbook)              features of package `tocbasic`.
+(scrbook)              Since Version 3.12 support for deprecated
+(scrbook)              \float@addtolist interface has been
+(scrbook)              restricted to only some of the KOMA-Script
+(scrbook)              features and been removed from others.
+(scrbook)              Loading of package `scrhack' may help to
+(scrbook)              avoid this warning, if you are using a
+(scrbook)              a package that still implements the
+(scrbook)              deprecated \float@addtolist interface .
+
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+(Font)              scaled to size 17.28pt on input line 1.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/n' will be
+(Font)              scaled to size 17.28pt on input line 1.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/sc' will be
+(Font)              scaled to size 17.28pt on input line 1.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
+(Font)              scaled to size 14.4pt on input line 2.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 2.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 2.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 8.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 8.
+
+Package caption Warning: \label without proper reference on input line 13.
+See the caption package documentation for explanation.
+
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/n' will be
+(Font)              scaled to size 10.0pt on input line 10.
+
+LaTeX Warning: Reference `fig:struktur-qrcode' on page 5 undefined on input lin
+e 10.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 13--13
+ [][][]\T1/SourceSansPro-LF/b/n/10 Abbildung 1.1[][]: []|\T1/XCharter-TOsF/m/n/
+10 (+20) QR-Code Struk-tur-bei-spiel| 
+ []
+
+<images/QR_Code_Struktur_Beispiel.png, id=50, 1194.4625pt x 626.34pt>
+File: images/QR_Code_Struktur_Beispiel.png Graphic file (type png)
+
+<use images/QR_Code_Struktur_Beispiel.png>
+Package pdftex.def Info: images/QR_Code_Struktur_Beispiel.png used on input lin
+e 15.
+(pdftex.def)             Requested size: 358.3415pt x 187.90344pt.
+
+Underfull \hbox (badness 1622) in paragraph at lines 15--16
+ [][] 
+ []
+
+Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
+ine 17.
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
+(Font)              scaled to size 9.0pt on input line 17.
+
+Underfull \hbox (badness 10000) in paragraph at lines 19--20
+
+ []
+
 
 Underfull \hbox (badness 10000) has occurred while \output is active
  []|| 
@@ -2919,72 +2976,24 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 
 
 Underfull \hbox (badness 10000) has occurred while \output is active
- []|\T1/SourceSansPro-LF/m/it/14.4 3|
+ []|\T1/SourceSansPro-LF/m/it/14.4 5|
  []
 
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 35.
+(babel)             in language  on input line 20.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 35.
+(babel)             in language  on input line 20.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 35.
+(babel)             in language  on input line 20.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 35.
-[3] (./einfuehrung.tex
-LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
-(Font)              scaled to size 14.4pt on input line 1.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 1.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 1.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 2.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 2.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 8.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 8.
-
-
-Package caption Warning: \label without proper reference on input line 13.
-See the caption package documentation for explanation.
-
-LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/n' will be
-(Font)              scaled to size 10.0pt on input line 10.
-
-LaTeX Warning: Reference `fig:struktur-qrcode' on page 4 undefined on input lin
-e 10.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--13
- [][][]\T1/SourceSansPro-LF/b/n/10 Abbildung 0.1[][]: []|\T1/XCharter-TOsF/m/n/
-10 (+20) QR-Code Struk-tur-bei-spiel| 
- []
-
-<images/QR_Code_Struktur_Beispiel.png, id=53, 1194.4625pt x 626.34pt>
-File: images/QR_Code_Struktur_Beispiel.png Graphic file (type png)
-
-<use images/QR_Code_Struktur_Beispiel.png>
-Package pdftex.def Info: images/QR_Code_Struktur_Beispiel.png used on input lin
-e 15.
-(pdftex.def)             Requested size: 358.3415pt x 187.90344pt.
-
-Underfull \hbox (badness 1622) in paragraph at lines 15--16
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 19--20
-
- []
-
+(babel)             in language  on input line 20.
+[5 <./images/QR_Code_Struktur_Beispiel.png>]
 
 Package caption Warning: \label without proper reference on input line 13.
 See the caption package documentation for explanation.
 
 
-LaTeX Warning: Reference `fig:struktur-qrcode' on page 4 undefined on input lin
+LaTeX Warning: Reference `fig:struktur-qrcode' on page 6 undefined on input lin
 e 21.
 
 Package babel Info: Redefining ngerman shorthand "|
@@ -3015,20 +3024,36 @@ Package microtype Info: Loading generic settings for font family
 (microtype)             `SourceCodePro-TLF' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-File: images/wwulogo.pdf Graphic file (type pdf)
 
-<use images/wwulogo.pdf>
-Package pdftex.def Info: images/wwulogo.pdf used on input line 25.
+<images/wwulogo.pdf, id=66, 2163.08125pt x 465.74pt>
+File: images/wwulogo.pdf Graphic file (type pdf)
+ <use images/wwulogo.pdf>
+Package pdftex.def Info: images/wwulogo.pdf used on input line 28.
 (pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
 
 Underfull \hbox (badness 10000) has occurred while \output is active
  []|| 
  []
 
+Package cleveref Info: loaded `ngerman' language definitions on input line 28.
 
 Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]|
+ []|[]\T1/XCharter-TOsF/m/it/10 (+20) Kapitel 1 Einführung|
  []
+
+
+Package scrlayer-scrpage Warning: \headheight to low.
+(scrlayer-scrpage)                At least 20.67186pt needed,
+(scrlayer-scrpage)                but only 17.07182pt found.
+(scrlayer-scrpage)                I'll enlarge \headheight, for further
+(scrlayer-scrpage)                processing, but you should do this yourself,
+(scrlayer-scrpage)                e.g., setting typearea's option
+(scrlayer-scrpage)                `headheight=20.67186pt'.
+(scrlayer-scrpage)                I'll also decrease \topmargin on input line 2
+8.
+
+
+Overfull \vbox (3.60004pt too high) has occurred while \output is active []
 
 
 Underfull \hbox (badness 10000) has occurred while \output is active
@@ -3041,53 +3066,65 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 25.
+(babel)             in language  on input line 28.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 25.
+(babel)             in language  on input line 28.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 25.
+(babel)             in language  on input line 28.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 25.
-[4 <./images/QR_Code_Struktur_Beispiel.png>]
+(babel)             in language  on input line 28.
+[6 <./images/wwulogo.pdf>]
+chapter 2.
 Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 28.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 28.
 LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
 (Font)              scaled to size 8.99994pt on input line 30.
-Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on i
-nput line 31.
+Package hyperref Info: bookmark level for unknown tcolorbox defaults to 0 on in
+put line 31.
+(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2015/06/04 1.6 listings language file
+)
+(/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2015/06/04 1.6 listings language file
+)
+(/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2015/06/04 1.6 (Carsten Heinz)
+)
+Package csquotes Info: Input encoding change on input line 31.
 
-Underfull \hbox (badness 10000) in paragraph at lines 31--31
- [][][]\T1/SourceSansPro-LF/b/n/10 Listing 1[][]: []|\T1/XCharter-TOsF/m/n/10 (
-+20) Ab-lauf der Bi-na-ri-sa-ti-on.| 
- []
-
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def
+File: latin1.def 2015/03/17 v1.2c Input encoding file
+)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/se-utf8.def
+File: se-utf8.def 2011/12/02 v1.10 stringenc: UTF-8
+)
+(/usr/share/texlive/texmf-dist/tex/generic/oberdiek/se-iso-8859-1.def
+File: se-iso-8859-1.def 2011/12/02 v1.10 stringenc: ISO-8859-1
+)
+LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
+(Font)              scaled to size 5.0pt on input line 1.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 4.49997pt on input line 1.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/b/n' will be
+(Font)              scaled to size 7.19995pt on input line 1.
 LaTeX Font Info:    Try loading font information for TS1+XCharter-TOsF on input
- line 58.
+ line 35.
+
 (/usr/share/texlive/texmf-dist/tex/latex/xcharter/TS1XCharter-TOsF.fd
 File: TS1XCharter-TOsF.fd 2013/11/30 (autoinst) Font definitions for TS1/XChart
 er-TOsF.
 )
 LaTeX Font Info:    Font shape `TS1/XCharter-TOsF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 58.
+(Font)              scaled to size 10.0pt on input line 35.
 Package microtype Info: Loading generic settings for font family
 (microtype)             `XCharter-TOsF' (encoding: TS1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-Package cleveref Info: loaded `ngerman' language definitions on input line 61.
 
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
- []
+Underfull \hbox (badness 10000) in paragraph at lines 39--40
 
-File: images/wwulogo.pdf Graphic file (type pdf)
-<use images/wwulogo.pdf>
-Package pdftex.def Info: images/wwulogo.pdf used on input line 61.
-(pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]|
  []
 
 
@@ -3097,118 +3134,7 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 
 
 Underfull \hbox (badness 10000) has occurred while \output is active
- []|\T1/SourceSansPro-LF/m/it/14.4 5|
- []
-
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 61.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 61.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 61.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 61.
-[5]
-Underfull \hbox (badness 10000) in paragraph at lines 62--63
-
- []
-
-
-Overfull \hbox (2.3832pt too wide) in paragraph at lines 69--70
-[][][][][][][][][][][][] |
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 73--74
-
- []
-
-
-Overfull \hbox (218.38539pt too wide) in paragraph at lines 79--80
-[][][][][][][][][][][][][][][] |
- []
-
-
-<images/qrcode-adler-wand_1___BINARIZED___.jpg, id=109, 1502.61375pt x 845.1575
-pt>
-File: images/qrcode-adler-wand_1___BINARIZED___.jpg Graphic file (type jpg)
- <use images/qrcode-adler-wand_1___BINARIZED___.jpg>
-Package pdftex.def Info: images/qrcode-adler-wand_1___BINARIZED___.jpg used on 
-input line 92.
-(pdftex.def)             Requested size: 225.38234pt x 126.76814pt.
-
-<images/qrcode-adler-wand_2___BINARIZED___.jpg, id=110, 1502.61375pt x 845.1575
-pt>
-File: images/qrcode-adler-wand_2___BINARIZED___.jpg Graphic file (type jpg)
- <use images/qrcode-adler-wand_2___BINARIZED___.jpg>
-Package pdftex.def Info: images/qrcode-adler-wand_2___BINARIZED___.jpg used on 
-input line 94.
-(pdftex.def)             Requested size: 225.38234pt x 126.76814pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 92--95
- [][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 92--95
- [] 
- []
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 98.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 98.
-)
-File: images/wwulogo.pdf Graphic file (type pdf)
- <use images/wwulogo.pdf>
-Package pdftex.def Info: images/wwulogo.pdf used on input line 39.
-(pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
- []
-
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]|
- []
-
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
- []
-
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]\T1/XCharter-TOsF/m/it/10 (+20) Praktikum Com-pu-ter Vision|
- []
-
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 39.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 39.
-Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 39.
-Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 39.
-[6]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 39.
-Package cleveref Info: loaded `ngerman' language definitions on input line 39.
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|| 
- []
-
-File: images/wwulogo.pdf Graphic file (type pdf)
-<use images/wwulogo.pdf>
-Package pdftex.def Info: images/wwulogo.pdf used on input line 39.
-(pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
-
-Underfull \hbox (badness 10000) has occurred while \output is active
- []|[]|
+ []||
  []
 
 
@@ -3222,21 +3148,134 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 39.
+(babel)             in language  on input line 40.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 39.
+(babel)             in language  on input line 40.
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 39.
+(babel)             in language  on input line 40.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 39.
-[7 <./images/qrcode-adler-wand_1___BINARIZED___.jpg> <./images/qrcode-adler-wan
+(babel)             in language  on input line 40.
+[7
+
+
+]
+Package csquotes Info: Input encoding change on input line 42.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def
+File: latin1.def 2015/03/17 v1.2c Input encoding file
+)
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+Package csquotes Info: Input encoding change on input line 47.
+(/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def
+File: latin1.def 2015/03/17 v1.2c Input encoding file
+)
+<images/qrcode-adler-wand_1___BINARIZED___.jpg, id=126, 1502.61375pt x 845.1575
+pt>
+File: images/qrcode-adler-wand_1___BINARIZED___.jpg Graphic file (type jpg)
+ <use images/qrcode-adler-wand_1___BINARIZED___.jpg>
+Package pdftex.def Info: images/qrcode-adler-wand_1___BINARIZED___.jpg used on 
+input line 54.
+(pdftex.def)             Requested size: 150.27017pt x 84.52069pt.
+
+<images/qrcode-adler-wand_2___BINARIZED___.jpg, id=127, 1502.61375pt x 845.1575
+pt>
+File: images/qrcode-adler-wand_2___BINARIZED___.jpg Graphic file (type jpg)
+ <use images/qrcode-adler-wand_2___BINARIZED___.jpg>
+Package pdftex.def Info: images/qrcode-adler-wand_2___BINARIZED___.jpg used on 
+input line 56.
+(pdftex.def)             Requested size: 150.27017pt x 84.52069pt.
+
+Underfull \hbox (badness 5105) in paragraph at lines 54--57
+ [][]   [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 57--57
+[][][]|\T1/XCharter-TOsF/m/n/10 (+20) Das Re-sul-tat der Bi-na-ri-sie-rung mit 
+den je-wei-li-gen Ver-fah-ren. Links glo-bal und Rechts
+ []
+
+File: images/wwulogo.pdf Graphic file (type pdf)
+<use images/wwulogo.pdf>
+Package pdftex.def Info: images/wwulogo.pdf used on input line 60.
+(pdftex.def)             Requested size: 79.28021pt x 17.07182pt.
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+Package cleveref Info: loaded `ngerman' language definitions on input line 60.
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|[]\T1/XCharter-TOsF/m/it/10 (+20) Kapitel 2 Bildvorverarbeitung|
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|[]\T1/XCharter-TOsF/m/it/10 (+20) Praktikum Com-pu-ter Vision|
+ []
+
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 60.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 60.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 60.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 60.
+[8 <./images/qrcode-adler-wand_1___BINARIZED___.jpg> <./images/qrcode-adler-wan
 d_2___BINARIZED___.jpg>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 39.
+chapter 3.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 60.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 60.
+)
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []||
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|| 
+ []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+ []|\T1/SourceSansPro-LF/m/it/14.4 9|
+ []
+
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 14.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 14.
+Package babel Info: Redefining ngerman shorthand "|
+(babel)             in language  on input line 14.
+Package babel Info: Redefining ngerman shorthand "~
+(babel)             in language  on input line 14.
+[9
+
+
+]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 14.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 14.
  (./qrcode.aux
 Package cleveref Info: loaded `ngerman' language definitions on input line 27.
 )
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 39.
-Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 39.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 14.
+Package atveryend Info: Empty hook `AtEndAfterFileList' on input line 14.
 
 
 LaTeX Warning: There were undefined references.
@@ -3246,30 +3285,33 @@ Package logreq Info: Writing requests to 'qrcode.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 55117 strings out of 493029
- 1044176 string characters out of 6136235
- 1619595 words of memory out of 5000000
- 57629 multiletter control sequences out of 15000+600000
- 185301 words of font info for 186 fonts, out of 8000000 for 9000
+ 55337 strings out of 493029
+ 1048765 string characters out of 6136235
+ 1636374 words of memory out of 5000000
+ 57797 multiletter control sequences out of 15000+600000
+ 246988 words of font info for 185 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
- 67i,23n,106p,10436b,2222s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 67i,23n,126p,10436b,2114s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/xcharter/xch_jfcsri.enc}{/usr/
 share/texlive/texmf-dist/fonts/enc/dvips/sourcecodepro/a_mqb3sg.enc}{/usr/share
 /texlive/texmf-dist/fonts/enc/dvips/xcharter/xch_hoftv6.enc}{/usr/share/texlive
 /texmf-dist/fonts/enc/dvips/xcharter/xch1_bwwzc2.enc}{/usr/share/texlive/texmf-
-dist/fonts/enc/dvips/sourcesanspro/a_ggs4wk.enc}{/usr/share/texlive/texmf-dist/
-fonts/enc/dvips/sourcesanspro/a_5tbsmu.enc}</usr/share/texlive/texmf-dist/fonts
-/type1/adobe/sourcecodepro/SourceCodePro-Regular.pfb></usr/share/texlive/texmf-
-dist/fonts/type1/adobe/sourcesanspro/SourceSansPro-Bold.pfb></usr/share/texlive
-/texmf-dist/fonts/type1/adobe/sourcesanspro/SourceSansPro-It.pfb></usr/share/te
-xlive/texmf-dist/fonts/type1/public/xcharter/XCharter-Bold.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/xcharter/XCharter-Italic.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/xcharter/XCharter-Roman.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/txfonts/txsy.pfb>
-Output written on qrcode.pdf (9 pages, 1789009 bytes).
+dist/fonts/enc/dvips/xcharter/xch1_gq3a6i.enc}{/usr/share/texlive/texmf-dist/fo
+nts/enc/dvips/sourcesanspro/a_5tbsmu.enc}{/usr/share/texlive/texmf-dist/fonts/e
+nc/dvips/xcharter/xch1_d2abnl.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvip
+s/sourcesanspro/a_ggs4wk.enc}</usr/share/texlive/texmf-dist/fonts/type1/adobe/s
+ourcecodepro/SourceCodePro-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+adobe/sourcecodepro/SourceCodePro-Regular.pfb></usr/share/texlive/texmf-dist/fo
+nts/type1/adobe/sourcesanspro/SourceSansPro-Bold.pfb></usr/share/texlive/texmf-
+dist/fonts/type1/adobe/sourcesanspro/SourceSansPro-It.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/public/xcharter/XCharter-Bold.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/xcharter/XCharter-Italic.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/xcharter/XCharter-Roman.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/txfonts/txsy.pfb>
+Output written on qrcode.pdf (9 pages, 1857969 bytes).
 PDF statistics:
- 201 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
- 59 named destinations out of 1000 (max. 500000)
- 33873 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 228 PDF objects out of 1000 (max. 8388607)
+ 192 compressed objects within 2 object streams
+ 63 named destinations out of 1000 (max. 500000)
+ 45142 words of extra memory for PDF output out of 51595 (max. 10000000)
 
