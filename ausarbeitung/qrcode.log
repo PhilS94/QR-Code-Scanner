@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.3.7)  21 MAR 2017 21:15
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.3.7)  21 MAR 2017 21:45
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -2731,15 +2731,16 @@ LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
 LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/b/n' will be
 (Font)              scaled to size 24.88pt on input line 8.
 
-Underfull \hbox (badness 4391) in paragraph at lines 8--8
- []\T1/SourceSansPro-LF/b/n/24.88 Ausarbeitung zum Prak-ti-kum 
+Underfull \hbox (badness 10000) in paragraph at lines 8--8
+ []\T1/SourceSansPro-LF/b/n/24.88 Ausarbeitung 
  []
 
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
 (Font)              scaled to size 12.0pt on input line 9.
 
 Underfull \hbox (badness 10000) in paragraph at lines 9--9
- []\T1/XCharter-TOsF/m/n/12 (+20) zu der Vor-le-sung Com-pu-ter Vi-si-on 
+ []\T1/XCharter-TOsF/m/n/12 (+20) zum Prak-ti-kum der Vor-le-sung Com-pu-ter Vi
+-si-on 
  []
 
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
@@ -2755,26 +2756,103 @@ LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/sc' will be
 (Font)              scaled to size 14.4pt on input line 12.
 
 Underfull \hbox (badness 10000) in paragraph at lines 12--12
- []\T1/XCharter-TOsF/m/n/14.4 Prof. Dr. X. \T1/XCharter-TOsF/m/sc/14.4/45ls Ji-
-ang 
+ []\T1/XCharter-TOsF/m/n/14.4 Prof. Dr. Xiaoyi \T1/XCharter-TOsF/m/sc/14.4/45ls
+ Ji-ang 
+ []
+
+LaTeX Font Info:    Try loading font information for T1+SourceCodePro-TLF on in
+put line 13.
+(/usr/share/texlive/texmf-dist/tex/latex/sourcecodepro/T1SourceCodePro-TLF.fd
+File: T1SourceCodePro-TLF.fd 2015/01/11 (autoinst) Font definitions for T1/Sour
+ceCodePro-TLF.
+)
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 8.99994pt on input line 13.
+Package microtype Info: Loading generic settings for font family
+(microtype)             `SourceCodePro-TLF' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
+(Font)              scaled to size 9.80992pt on input line 13.
+LaTeX Font Info:    Font shape `T1/SourceSansPro-LF/m/n' will be
+(Font)              scaled to size 10.9pt on input line 13.
+
+Underfull \hbox (badness 10000) in paragraph at lines 13--13
+ [][]\T1/SourceCodePro-TLF/m/n/10 xjiang\T1/SourceSansPro-LF/m/n/10.9 @\T1/Sour
+ceCodePro-TLF/m/n/10 uni-muenster.de[] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 14--14
+Underfull \hbox (badness 10000) in paragraph at lines 15--15
+ []\T1/XCharter-TOsF/m/it/12 (+20) betreut von: 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 16--16
+ []\T1/XCharter-TOsF/m/n/14.4 Claas \T1/XCharter-TOsF/m/sc/14.4/45ls Käh-ler 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 17--17
+ [][]\T1/SourceCodePro-TLF/m/n/10 claas.kaehler\T1/SourceSansPro-LF/m/n/10.9 @\
+T1/SourceCodePro-TLF/m/n/10 uni-muenster.de[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 19--19
+ []\T1/XCharter-TOsF/m/it/12 (+20) Teilnehmer: 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 20--20
+ []\T1/XCharter-TOsF/m/n/14.4 Armin \T1/XCharter-TOsF/m/sc/14.4/45ls Wolf 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 21--21
+ [][]\T1/SourceCodePro-TLF/m/n/10 a_wolf28\T1/SourceSansPro-LF/m/n/10.9 @\T1/So
+urceCodePro-TLF/m/n/10 uni-muenster.de[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 22--22
+ []\T1/XCharter-TOsF/m/n/14.4 Christian \T1/XCharter-TOsF/m/sc/14.4/45ls Esch 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 23--23
+ [][]\T1/SourceCodePro-TLF/m/n/10 c_esch05\T1/SourceSansPro-LF/m/n/10.9 @\T1/So
+urceCodePro-TLF/m/n/10 uni-muenster.de[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 24--24
+ []\T1/XCharter-TOsF/m/n/14.4 Philipp \T1/XCharter-TOsF/m/sc/14.4/45ls Scho-fie
+ld 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 25--25
+ [][]\T1/SourceCodePro-TLF/m/n/10 ...\T1/SourceSansPro-LF/m/n/10.9 @\T1/SourceC
+odePro-TLF/m/n/10 uni-muenster.de[] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 27--27
  []\T1/XCharter-TOsF/m/it/12 (+20) Version vom 21. März 2017 
  []
 
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 16.
+(babel)             in language  on input line 29.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 16.
+(babel)             in language  on input line 29.
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/se-pdfdoc.def
 File: se-pdfdoc.def 2011/12/02 v1.10 stringenc: PDFDocEncoding
 )
 Package babel Info: Redefining ngerman shorthand "|
-(babel)             in language  on input line 16.
+(babel)             in language  on input line 29.
 Package babel Info: Redefining ngerman shorthand "~
-(babel)             in language  on input line 16.
+(babel)             in language  on input line 29.
  [1
 
 
@@ -2923,7 +3001,7 @@ Package babel Info: Redefining ngerman shorthand "|
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 8.
 
-Package caption Warning: \label without proper reference on input line 13.
+Package caption Warning: \label without proper reference on input line 15.
 See the caption package documentation for explanation.
 
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/n' will be
@@ -2932,22 +3010,22 @@ LaTeX Font Info:    Font shape `T1/XCharter-TOsF/b/n' will be
 LaTeX Warning: Reference `fig:struktur-qrcode' on page 5 undefined on input lin
 e 10.
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 13--13
- [][][]\T1/SourceSansPro-LF/b/n/10 Abbildung 1.1[][]: []|\T1/XCharter-TOsF/m/n/
-10 (+20) QR-Code Struk-tur-bei-spiel| 
- []
-
-<images/QR_Code_Struktur_Beispiel.png, id=50, 1194.4625pt x 626.34pt>
+<images/QR_Code_Struktur_Beispiel.png, id=57, 1194.4625pt x 626.34pt>
 File: images/QR_Code_Struktur_Beispiel.png Graphic file (type png)
 
 <use images/QR_Code_Struktur_Beispiel.png>
 Package pdftex.def Info: images/QR_Code_Struktur_Beispiel.png used on input lin
-e 15.
+e 14.
 (pdftex.def)             Requested size: 358.3415pt x 187.90344pt.
 
-Underfull \hbox (badness 1622) in paragraph at lines 15--16
- [][] 
+Underfull \hbox (badness 1490) in paragraph at lines 14--15
+ [][] [][][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 15--15
+ [][][]\T1/SourceSansPro-LF/b/n/10 Abbildung 1.1[][]: []|\T1/XCharter-TOsF/m/n/
+10 (+20) QR-Code Struk-tur-bei-spiel| 
  []
 
 Package hyperref Info: bookmark level for unknown todo defaults to 0 on input l
@@ -2989,7 +3067,7 @@ Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 20.
 [5 <./images/QR_Code_Struktur_Beispiel.png>]
 
-Package caption Warning: \label without proper reference on input line 13.
+Package caption Warning: \label without proper reference on input line 15.
 See the caption package documentation for explanation.
 
 
@@ -3012,20 +3090,9 @@ LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/n' will be
 (Font)              scaled to size 6.2pt on input line 24.
 LaTeX Font Info:    Font shape `T1/XCharter-TOsF/m/it' will be
 (Font)              scaled to size 8.0pt on input line 24.
-LaTeX Font Info:    Try loading font information for T1+SourceCodePro-TLF on in
-put line 24.
-(/usr/share/texlive/texmf-dist/tex/latex/sourcecodepro/T1SourceCodePro-TLF.fd
-File: T1SourceCodePro-TLF.fd 2015/01/11 (autoinst) Font definitions for T1/Sour
-ceCodePro-TLF.
-)
 LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
 (Font)              scaled to size 7.19995pt on input line 24.
-Package microtype Info: Loading generic settings for font family
-(microtype)             `SourceCodePro-TLF' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-
-<images/wwulogo.pdf, id=66, 2163.08125pt x 465.74pt>
+<images/wwulogo.pdf, id=73, 2163.08125pt x 465.74pt>
 File: images/wwulogo.pdf Graphic file (type pdf)
  <use images/wwulogo.pdf>
 Package pdftex.def Info: images/wwulogo.pdf used on input line 28.
@@ -3079,8 +3146,6 @@ Package babel Info: Redefining ngerman shorthand "|
 (babel)             in language  on input line 28.
 Package babel Info: Redefining ngerman shorthand "~
 (babel)             in language  on input line 28.
-LaTeX Font Info:    Font shape `T1/SourceCodePro-TLF/m/n' will be
-(Font)              scaled to size 8.99994pt on input line 30.
 Package hyperref Info: bookmark level for unknown tcolorbox defaults to 0 on in
 put line 31.
 (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
@@ -3171,7 +3236,7 @@ Package csquotes Info: Input encoding change on input line 47.
 (/usr/share/texlive/texmf-dist/tex/latex/base/latin1.def
 File: latin1.def 2015/03/17 v1.2c Input encoding file
 )
-<images/qrcode-adler-wand_1___BINARIZED___.jpg, id=126, 1502.61375pt x 845.1575
+<images/qrcode-adler-wand_1___BINARIZED___.jpg, id=132, 1502.61375pt x 845.1575
 pt>
 File: images/qrcode-adler-wand_1___BINARIZED___.jpg Graphic file (type jpg)
  <use images/qrcode-adler-wand_1___BINARIZED___.jpg>
@@ -3179,7 +3244,7 @@ Package pdftex.def Info: images/qrcode-adler-wand_1___BINARIZED___.jpg used on
 input line 54.
 (pdftex.def)             Requested size: 150.27017pt x 84.52069pt.
 
-<images/qrcode-adler-wand_2___BINARIZED___.jpg, id=127, 1502.61375pt x 845.1575
+<images/qrcode-adler-wand_2___BINARIZED___.jpg, id=133, 1502.61375pt x 845.1575
 pt>
 File: images/qrcode-adler-wand_2___BINARIZED___.jpg Graphic file (type jpg)
  <use images/qrcode-adler-wand_2___BINARIZED___.jpg>
@@ -3285,11 +3350,11 @@ Package logreq Info: Writing requests to 'qrcode.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 55337 strings out of 493029
- 1048765 string characters out of 6136235
+ 55342 strings out of 493029
+ 1048930 string characters out of 6136235
  1636374 words of memory out of 5000000
- 57797 multiletter control sequences out of 15000+600000
- 246988 words of font info for 185 fonts, out of 8000000 for 9000
+ 57801 multiletter control sequences out of 15000+600000
+ 257071 words of font info for 188 fonts, out of 8000000 for 9000
  1145 hyphenation exceptions out of 8191
  67i,23n,126p,10436b,2114s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/xcharter/xch_jfcsri.enc}{/usr/
@@ -3298,20 +3363,21 @@ share/texlive/texmf-dist/fonts/enc/dvips/sourcecodepro/a_mqb3sg.enc}{/usr/share
 /texmf-dist/fonts/enc/dvips/xcharter/xch1_bwwzc2.enc}{/usr/share/texlive/texmf-
 dist/fonts/enc/dvips/xcharter/xch1_gq3a6i.enc}{/usr/share/texlive/texmf-dist/fo
 nts/enc/dvips/sourcesanspro/a_5tbsmu.enc}{/usr/share/texlive/texmf-dist/fonts/e
-nc/dvips/xcharter/xch1_d2abnl.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvip
-s/sourcesanspro/a_ggs4wk.enc}</usr/share/texlive/texmf-dist/fonts/type1/adobe/s
+nc/dvips/sourcesanspro/a_ggs4wk.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dv
+ips/xcharter/xch1_d2abnl.enc}</usr/share/texlive/texmf-dist/fonts/type1/adobe/s
 ourcecodepro/SourceCodePro-Bold.pfb></usr/share/texlive/texmf-dist/fonts/type1/
 adobe/sourcecodepro/SourceCodePro-Regular.pfb></usr/share/texlive/texmf-dist/fo
 nts/type1/adobe/sourcesanspro/SourceSansPro-Bold.pfb></usr/share/texlive/texmf-
 dist/fonts/type1/adobe/sourcesanspro/SourceSansPro-It.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/xcharter/XCharter-Bold.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/xcharter/XCharter-Italic.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/xcharter/XCharter-Roman.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/txfonts/txsy.pfb>
-Output written on qrcode.pdf (9 pages, 1857969 bytes).
+exmf-dist/fonts/type1/adobe/sourcesanspro/SourceSansPro-Regular.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/xcharter/XCharter-Bold.pfb></usr/share/t
+exlive/texmf-dist/fonts/type1/public/xcharter/XCharter-Italic.pfb></usr/share/t
+exlive/texmf-dist/fonts/type1/public/xcharter/XCharter-Roman.pfb></usr/share/te
+xlive/texmf-dist/fonts/type1/public/txfonts/txsy.pfb>
+Output written on qrcode.pdf (9 pages, 1888561 bytes).
 PDF statistics:
- 228 PDF objects out of 1000 (max. 8388607)
- 192 compressed objects within 2 object streams
+ 237 PDF objects out of 1000 (max. 8388607)
+ 200 compressed objects within 2 object streams
  63 named destinations out of 1000 (max. 500000)
- 45142 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 46166 words of extra memory for PDF output out of 51595 (max. 10000000)
 
