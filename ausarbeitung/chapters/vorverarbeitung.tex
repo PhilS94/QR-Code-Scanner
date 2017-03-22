@@ -1,5 +1,5 @@
 \chapter{Bildvorverarbeitung}
-Die Bildvorverarbeitung ist ein essenzieller Schritt um die QR-Codes richtig lokalisieren zu können. Das Eingabebild soll in dieser Phase erstmal in ein Graustufenbild umgewandelt werden und danach binarisiert werden. \emph{OpenCV} bietet die Möglichkeit bilder direkt als Graustufenbild einzulesen oder sie in eins umzuwandeln. Das in Graustufen vorhandene Bild kann weiter verarbeitet werden.
+Die Bildvorverarbeitung ist ein essenzieller Schritt um die \QRCodes richtig lokalisieren zu können. Das Eingabebild soll in dieser Phase erstmal in ein Graustufenbild umgewandelt werden und danach binarisiert werden. \OpenCV bietet die Möglichkeit bilder direkt als Graustufenbild einzulesen oder sie in eins umzuwandeln. Das in Graustufen vorhandene Bild kann weiter verarbeitet werden.
 Die Klasse \texttt{ImageBinarization} ist für die binarisierung zuständig. 
 \inputCPP[label={lst:binarize}][][Der Gesamtablauf der Binarisierung.]{code/binarize-run.cpp}
 
@@ -10,10 +10,10 @@ Listing \ref{lst:binarize} zeigt den Ablauf der Binarisierung. In Zeile 4 wird d
 	\item Gauß'sches Schwellwertverfahren.
 \end{itemize} 
 Im ersten durchlauf wird das globale Schwellwertverfahren angewandt. Sollte dies keine gültige Ergebnisse liefern (keine drei \emph{Finder Pattern} enthalten), so wird das nächste Verfahren gewählt.
-Abhängig von der Wahl werden zwei verschiedene \emph{OpenCV} Methoden verwendett. Bei der globalen Schwellwert Berechnung wird auf die \texttt{threshold} Methode wie sie im Listing \ref{lst:globalthreshold} steht zurückgegriffen. Der Methode werden das Ein- und Ausgabe Bild, die Schwellwertgrenze, der maximale Farbwert und die Wahl des Algorithmus übergeben. 
+Abhängig von der Wahl werden zwei verschiedene \OpenCV Methoden verwendett. Bei der globalen Schwellwert Berechnung wird auf die \texttt{threshold} Methode wie sie im Listing \ref{lst:globalthreshold} steht zurückgegriffen. Der Methode werden das Ein- und Ausgabe Bild, die Schwellwertgrenze, der maximale Farbwert und die Wahl des Algorithmus übergeben. 
 \inputCPP[label={lst:globalthreshold}][][Binarisierung anhand des globalen Schwellwertverfahrens.]{code/global-binarize.cpp}
 
-Wir haben uns hier auf den Algorithmus von Otsu\footnote{Mehr Information zu dem Algorithmus auf der zugehörigen \emph{OpenCV} Seite:\url{http://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html\#threshold}} geeinigt, da er sehr gute Ergebnisse mit einer geringen Laufzeit liefert.
+Wir haben uns hier auf den Algorithmus von Otsu\footnote{Mehr Information zu dem Algorithmus auf der zugehörigen \OpenCV Seite:\url{http://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html\#threshold}} geeinigt, da er sehr gute Ergebnisse mit einer geringen Laufzeit liefert.
 
 Bei den lokalen Schwellwertverfahren hingegen wird die Methode \texttt{adaptiveThreshold} verwendett. Listing \ref{lst:localthreshold} veranschaulicht die Methode die für die zwei lokalen Verfahren verwendet wird. Für die jeweiligen Verfahren wird der Parameter \texttt{adaptiveMethod} passend übergeben.
 \inputCPP[label={lst:localthreshold}][][Binarisierung anhand eines lokalen Schwellwertverfahrens.]{code/local-binarize.cpp}
