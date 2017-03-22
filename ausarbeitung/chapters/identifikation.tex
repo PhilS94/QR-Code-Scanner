@@ -1,0 +1,21 @@
+\chapter{Patternidentifikation}
+Der nächste Schritt auf dem Weg zur lokalisierung der QR-Codes ist das identifizieren der \emph{Finder Patterns}. Dafür wird die durch \emph{OpenCV} bereitgestellte \texttt{findContours} Methode verwendet. Sie basiert auf dem Algorithmus von Suzuki und wird eingesetzt um die Konturen aus dem Binärbild zu bestimmen.
+\inputCPP[label={lst:findcontours}][][Aufruf der \texttt{findContours} Methode um die Konturen zu bestimmen.]{code/findContours.cpp}
+Listing \ref{lst:findcontours} zeigt den Aufruf um alle Konturen des übergebenen Bildes zu erhalten.
+
+\section{Vorgehensweise des Algorithmus von Suzuki}
+Das Binärbild wird als ein Raster durch iterriert. Für jeden Pixel $p_{i,j}$ wird geprüft ob er die Bedingungen erfüllt ein Teil einer Kontur sein könnte. Das Paper   \todo{verweis}  führt hierzu zwei Formen von Konturen ein \emph{outer border} und \emph{hole border}. Sind beide Bedingungen erfüllt ist der Pixel $p_{i,j}$ ein Anfangspunkt einer neuen Kontur. Diese Kontur muss eindeutig identifizierbar sein daher wird sie mit einer \emph{KonturID} versehen. Großer Vorteil dieses Algorithmus ist die abgespeicherte Hierarchy der Konturen. Um dies zu gewährleisten muss die \emph{parent}-Kontur für die neue Kontur gesetzt werden. Während des scannens des Gitters wird immer die äußere Kontur zwischen gespeichert, diese ist entweder die \emph{parent}-Kontur oder die Kontur die, die neue Kontur und die \emph{parent}-Kontur teilt. Wenn alle Werte gesetzt sind, wird die Kontur durch sukzessives hinzunehmen von Pixeln erzeugt. Nach jeder Kontur erzeugung springt der Algorithmus zurück zum Raster Scan. Der Algorithmus terminiert bei erreichen der rechten unteren Ecke.
+
+Das Orginal Paper beschreibt ausfürlich das Vorgehen anhand Beispielen und Pseudocode.
+
+\section{Filtern der Konturen}
+Nachdem die Konturen bestimmt wurden, müssen die Konturen gefiltert werden da abhängig vom Bild können eine variable Anzahl an Konturen
+erkannt werden. Beispielsweise werden bei der Ausführung der adaptiven Schwellwertoperation sehr viele zu kleine Konturen erkannt. Daher werden Konturen in folgenden Fällen ignoriert:
+\begin{enumerate}
+	\item Die Kontur ist zu klein oder zu groß.
+	\item Die Kontur besitzt kein \emph{parent}-Kontur.
+	\item Konturen die Nachbarkonturen besitzen.
+	\item Konturen die eine \emph{child}-Kontur besitzen.
+\end{enumerate}
+Für die äußeren Konturen also die \emph{parent}-Konturen müssen die Bedingungen 1.-3. natürlich auch gelten. Zusätzlich muss für die äußerste Kontur eine Trapezoide Form gelten.
+
