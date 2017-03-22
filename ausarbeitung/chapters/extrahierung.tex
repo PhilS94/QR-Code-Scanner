@@ -1,19 +1,12 @@
 \chapter{Extrahierung}
-\section{Pattern Kanten approximieren}
 
-Kantengeraden bestimmen (Besserer Titel)
+Der nächste Schritt auf dem Weg zum finden eines gültigen \QRCodes besteht darin alle möglichen Dreier Kombinationen von \fps zu prüfen und festzustellen ob diese zur Extrahierung eines gültigen \QRCodes führen. Dies führt zu $\binom{n}{3}$ möglichen Kombinationen von \fps, wobei \emph{n} die Anzahl aller gefundenen \fps ist. Für Bilder mit großem \emph{n} kann dies schnell zu großem Rechenaufwand führen. Deswegen gibt es im folgenden mehrere Stellen an denen Kombinationen verworfen werden, sobald deutlich wird das diese zu keinem korrekten Ergebnis führen können.
 
-Nachdem mehrere Kandidaten für Finder Patterns gefunden wurden, wird als nächstes die äußerste Kontur dieser Kandidaten betrachtet. Zuvor haben wir alle Konturen ohne Approximation erstellt, weswegen jede Kontur jetzt eine zusammenhängende Kette von Punkten darstellt. Für jeden Kandidat soll mit der Hilfe dieser Punkte die Vier Kanten der Finder Patterns bestimmt werden. Dazu teilen wir die Kontur in Vier Segmente auf und benutzen diese im späteren Verlauf um die Kantengeraden zu approximieren. Um die Schnittpunkte zu finden, an welchen die Kontur geteilt werden muss, verwenden wir die zuvor berechneten vier Punkte, welche genutzt wurden um festzustellen ob es sich bei dir Kontur um ein Trapezoid handelt. (Erklären auf welche Weise diese Vier Punkte approximiert wurden) Diese Punkte liegen allerdings nicht immer exakt auf den Ecken der Patterns und außerdem kann es durch schlechte Bildqualität zu abgerundeten Ecken im Bild kommen. Deswegen werden zusätzlich nachdem die Kontur zerteilt wurde jeweils 10\% aller Punkte an den Enden jedes Segments verworfen, sodass ein Segment 80\% aller Punkte nachdem zerteilen behält. Diese Segmente werden dann verwendet um mit Hilfe der fitLine Methode (Genauere Funktionsweise der fitLine Methode erläutern. Feststellen das der berechnete Stützvektor sich immer in der Mitte des Segments befindet. Sagen des es sich um Stütz und Richtungsvektor handelt.) die Kantengeraden für jeden Finder Pattern Kandidaten zu bestimmen.
-
-Das Ergebnis ist, dass für jeden Kandidaten die äußerste Kontur, die vier Segmente welche die Kanten beschreiben sollen und die approximierten Kantengeraden bekannt sind.
-
-
-
-Finder Pattern Kombinationen evaluieren
-
-Der nächste Schritt besteht darin alle möglichen Kombinationen von drei Finder Patterns zu prüfen und festzustellen ob diese zur Extrahierung eines gültigen QRCodes führen. Dies führt zu (n über k) (richtig aufschreiben) Kombinationen von Finder Patterns. Für Bilder in denen fälschlicher Weise viele Finder Patterns erkannt werden oder viele Patterns vorhanden sind, kann dies schnell zu großem Rechenaufwand führen. Deswegen gibt es im folgenden mehrere Stellen an denen Kombinationen verworfen werden, sobald deutlich wird das diese zu keinem korrekten Ergebnis führen können.
-
-Es werden also Drei Finder Patterns ausgesucht welche zunächst zufällig in einem Array liegen. Damit es von hier aus möglich ist den QRCode korrekt zu extrahieren muss bestimmt werden welches dieser Patterns welche Position im QRCode einnimmt (Oben Links/Oben Rechts/Unten Links). Um dies korrekt zu tun ordnen wir die Patterns zuerst so an, wie sie im Uhrzeigersinn im Bild zu finden sind. Dazu verwenden wir die Gaußsche Trapezformel. (Formel aufschreiben und Flächen Berechnung erklären). Sind die Patterns nun in korrekter Reihenfolge, bestimmen wir als nächstes das obere linke Pattern.
+\section{Pattern Positionierung} \todo{Besserer Section Titel.}
+Hat man drei \fps ausgewählt, muss für die korrekte Extrahierung zuerst festgestellt werden, welche Position im \QRCode jedes \fp einnimmt. Um dies korrekt zu tun, ordnen wir die \fps so an wie sie im Uhrzeigersinn im Bild zu finden sind. Dazu verwenden wir die Gaußsche Trapezformel:
+$$ A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n}) $$
+In einem geodätisches Koordinatensystem wie es 
+ (Formel aufschreiben und Flächen Berechnung erklären). Sind die Patterns nun in korrekter Reihenfolge, bestimmen wir als nächstes das obere linke Pattern.
 
 Zurzeit haben wir durch die drei Patterns insgesamt 12 approximierte Kanten. Da die Finder Patterns in einem korrekten QRCode allerdings so ausgerichtet sind, dass das obere linke Pattern ausschließlich Kanten hat die mit einem der anderen beiden Patterns identisch sind, haben wir nur 8 einzigartige Kanten. Stellt man also fest welche der 12 Geraden die gleiche Kantengerade im QRCode beschreiben kann festgestellt werden, welches Pattern das obere linke Pattern ist.
 

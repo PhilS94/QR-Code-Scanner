@@ -17,5 +17,15 @@ erkannt werden. Beispielsweise werden bei der Ausführung der adaptiven Schwellw
 	\item Konturen die Nachbarkonturen besitzen.
 	\item Konturen die eine \emph{child}-Kontur besitzen.
 \end{enumerate}
-Für die äußeren Konturen also die \emph{parent}-Konturen müssen die Bedingungen 1.-3. natürlich auch gelten. Zusätzlich muss für die äußerste Kontur eine Trapezoide Form gelten.
+Für die äußeren Konturen also die \emph{parent}-Konturen müssen die Bedingungen 1.-3. natürlich auch gelten. Zusätzlich muss für die äußerste Kontur eine Trapezoide Form gelten. Um die letzte Bedingung zu überprüfen wird dazu die Form der Kontur mit \texttt{approxPolyDP} approximiert \todo{genauer erklären?}  und wenn diese aus genau vier Punkten besteht, wird es als Trapezoid anerkannt.
 
+\section{Kanten approximieren}
+Nachdem mehrere Kandidaten von \fps gefunden wurden, wird als nächstes die äußerste Kontur dieser Kandidaten verwendet um deren Kanten zu approximieren. Zuvor haben wir mit \OpenCV und Suzukis Algorithmus \ref{test} \todo{verweis} alle Konturen mit \texttt{CV\_CHAIN\_APPROX\_NONE} im Bild lokalisiert, weswegen jede Kontur jetzt eine zusammenhängende Kette von Punkten darstellt. Für jeden Kandidat soll mit Hilfe dieser Punktmenge die Vier äußeren Kanten des \fps approximiert werden. Dazu teilen wir die Kontur in Vier Segmente auf und benutzen diese im späteren Verlauf um die Kantengeraden zu approximieren. Um die Schnittpunkte zu finden, an welchen die Kontur geteilt werden muss, verwenden wir die zuvor berechneten vier Punkte die bereits genutzt wurden um festzustellen, ob es sich bei dir Kontur um ein Trapezoid handelt. Diese liegen jedoch im Regelfall nicht exakt auf den Ecken der \fps und zusätzlich kann es durch schlechte Bildqualität zu abgerundeten oder leicht verschobenen Ecken im Originalbild kommen. Deswegen wird nachdem die Kontur zerteilt wurde, jeweils 10\% aller Punkte am Anfang und Ende jedes Segments verworfen, sodass ein Segment nur noch 80\% aller Punkte einer Kante beinhaltet. Diese Segmente werden dann genutzt um mit der \texttt{fitLine} Methode die Kantengeraden zu approximieren. \todo{fitLine Methode Code ausschnitt und Parameter erklären. Insbesondere verwendeter fit type und das der Stützvektor immer im Zentrum liegt und das Ergebnis ein Stütz und Richtungsvektor ist}
+\\\\
+Am Ende der Identifikation aller möglichen \fps erhält man somit folgende Informationen:
+\begin{itemize}
+	\item Mindestens drei \fp Kandidaten
+	\item Eine Kontur pro \fp
+	\item Vier Segmente pro \fp
+	\item Vier Kantengeraden pro \fp
+\end{itemize}
