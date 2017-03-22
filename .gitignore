@@ -36,3 +36,11 @@ ScannedQR
 */ScanResult
 ScanPositive
 ScanNegative
+
+# LaTeX
+*.log
+*.bcf
+*.run.xml
+*.synctex.gz
+*.tdo
+*.aux
