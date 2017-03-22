@@ -44,3 +44,4 @@ ScanNegative
 *.synctex.gz
 *.tdo
 *.aux
+*.bak
