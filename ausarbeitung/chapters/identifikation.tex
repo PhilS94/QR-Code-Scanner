@@ -1,5 +1,5 @@
 \chapter{Patternidentifikation}
-Der nächste Schritt auf dem Weg zur lokalisierung der QR-Codes ist das identifizieren der \emph{Finder Patterns}. Dafür wird die durch \emph{OpenCV} bereitgestellte \texttt{findContours} Methode verwendet. Sie basiert auf dem Algorithmus von Suzuki und wird eingesetzt um die Konturen aus dem Binärbild zu bestimmen.
+Der nächste Schritt auf dem Weg zur lokalisierung der \QRCodes ist das identifizieren der \emph{Finder Patterns}. Dafür wird die durch \OpenCV bereitgestellte \texttt{findContours} Methode verwendet. Sie basiert auf dem Algorithmus von Suzuki und wird eingesetzt um die Konturen aus dem Binärbild zu bestimmen.
 \inputCPP[label={lst:findcontours}][][Aufruf der \texttt{findContours} Methode um die Konturen zu bestimmen.]{code/findContours.cpp}
 Listing \ref{lst:findcontours} zeigt den Aufruf um alle Konturen des übergebenen Bildes zu erhalten.
 
@@ -18,4 +18,5 @@ erkannt werden. Beispielsweise werden bei der Ausführung der adaptiven Schwellw
 	\item Konturen die eine \emph{child}-Kontur besitzen.
 \end{enumerate}
 Für die äußeren Konturen also die \emph{parent}-Konturen müssen die Bedingungen 1.-3. natürlich auch gelten. Zusätzlich muss für die äußerste Kontur eine Trapezoide Form gelten.
+
 
