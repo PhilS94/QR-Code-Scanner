@@ -18,7 +18,7 @@ Sollte diese Methode nicht mindestens drei \fps lokalisieren, wird das nächste 
 
 Bei den lokalen Schwellwertverfahren wird die Methode \texttt{adaptiveThreshold} verwendet, welche in Listing \ref{lst:localthreshold} veranschaulicht wird. Im Gegensatz zum globalen Schwellwertverfahren, wird hier für jeden Pixel anhand der Nachbarschaft ein eigener Schwellwert errechnet. Als empirisch gut geeignet hat sich eine Nachbarschaft von $11 \times 11$ herausgestellt.
 
-Die Berechenung des Schwellwerts für die Nachbarschaft erfolgt auf zwei unterschiedliche Verfahren:
+Die Berechnung des Schwellwerts für die Nachbarschaft erfolgt auf zwei unterschiedliche Verfahren:
 \begin{description}
 	\item[\texttt{ADAPTIVE\_THRESH\_MEAN\_C}:] Der Mittelwert der Nachbarschaft.
 	\item[\texttt{ADAPTIVE\_THRESH\_GAUSSIAN\_C}:] Ein Gauß gewichteter Mittelwert der Nachbarschaft.

@@ -1,5 +1,5 @@
 \chapter{Patternidentifikation}
-Der nächste Schritt auf dem Weg zur lokalisierung der \QRCodes ist das identifizieren der \fps. Dafür wird die durch \OpenCV bereitgestellte \texttt{findContours} Methode verwendet. Sie basiert auf dem Algorithmus von Suzuki und wird eingesetzt um die Konturen aus dem Binärbild zu bestimmen.
+Der nächste Schritt auf dem Weg zur Lokalisierung der \QRCodes ist das Identifizieren der \fps. Dafür wird die durch \OpenCV bereitgestellte \texttt{findContours} Methode verwendet. Sie basiert auf dem Algorithmus von Suzuki und wird eingesetzt, um die Konturen aus dem Binärbild zu bestimmen.
 \inputCPP[label={lst:findcontours}][][Aufruf der \texttt{findContours} Methode um die Konturen zu bestimmen.]{code/findContours.cpp}
 Listing \ref{lst:findcontours} zeigt den Aufruf um alle Konturen des übergebenen Bildes zu erhalten.
 
