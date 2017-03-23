@@ -11,9 +11,9 @@ Diese Formel berechnet den Flächeninhalt eines einfachen Polygons. Dabei ist $n
 
 Angewendet wird die Formel auf das Polygon welches aus dem jeweils ersten Punkt der Kontur jedes \fps besteht. Ist der Flächeninhalt negativ wird die Reihenfolge der \fps geändert indem das erste und zweite \fp miteinander vertauscht werden.
 \subsubsection{Ähnlichkeitsmaß für Geraden}
-Sind die \fps in korrekter Reihenfolge, wird als nächstes das \olfp bestimmt. Zurzeit haben wir durch die drei \fps insgesamt 12 approximierte Geraden. Betrachtet man den Aufbau von \QRCodes wird deutlich das davon jeweils 4 Geraden Paare die selbe Kante approximieren. Es gibt insgesamt also nur 8 unterschiedliche Kanten und nur das \olfp teilt sich jede Kante mit einem anderen \fp. Die anderen beiden \fps teilen sich je nur 2 Kanten mit dem \olfp. Stellt man also fest welche der 12 Geraden die gleichen Kanten im \QRCode approximieren, ergibt sich welches \fp das \olfp ist.
+Sind die \fps in korrekter Reihenfolge, wird als nächstes das \olfp bestimmt. Zurzeit sind durch die drei \fps insgesamt 12 approximierte Geraden bekannt. Betrachtet man den Aufbau von \QRCodes wird deutlich das davon jeweils 4 Geradenpaare die selbe Kante beschreiben. Es gibt insgesamt also nur 8 unterschiedliche Kanten und nur das \olfp teilt sich jede Kante mit einem anderen \fp. Die anderen beiden \fps teilen sich je nur 2 Kanten mit dem \olfp. Stellt man also fest welche der 12 Geraden die gleichen Kanten im \QRCode approximieren, ergibt sich welches \fp das \olfp ist.
 
-Für das effiziente Zuordnen von Geraden wird ausgenutzt, dass die Stützvektoren der Kantengeraden stets im Mittelpunkt der Segmente liegen durch welche sie approximiert wurden. Die Ähnlichkeit von zwei Geraden wird dann definiert über die Summe der Entfernungen des Stützvektors der ersten Gerade zur zweiten Gerade und umgekehrt.
+Für das effiziente Zuordnen von Geraden wird ausgenutzt, dass die Stützvektoren der Kantengeraden stets im Mittelpunkt der Segmente liegen durch welche sie approximiert wurden. Die Ähnlichkeit von zwei Geraden wird dann definiert über die Summe der Entfernung des Stützvektors der ersten Gerade zur zweiten Gerade und umgekehrt.
 
 \inputCPP[label={lst:similarity}][][Ähnlichkeitsmaß für zwei Geraden]{code/similarity.cpp}
 
@@ -22,7 +22,7 @@ Für das effiziente Zuordnen von Geraden wird ausgenutzt, dass die Stützvektore
 Da zuvor die \fps im Uhrzeigersinn angeordnet wurden, können wir durch Rotation im Uhrzeigersinn nicht nur das \olfp an die erste Stelle des Pattern Arrays bringen, sondern wissen auch direkt das sich an der zweiten Stelle das \orfp und an der dritten Stelle das \ulfp befindet. Mit Ausnahme für Spiegel verkehrte \QRCodes kann zuverlässig die korrekte Position aller \fps im \QRCode bestimmt werden.
 
 \section{Kanten Zuordnung}
-Um die Eckpunkte des \QRCodes durch Schnittpunktbildung der äußeren Kanten zu berechnen, muss als nächstes festgestellt werden, welche Geraden die Außenkanten des \QRCodes approximieren.
+Um die Eckpunkte des \QRCodes durch Schnittpunktbildung der äußeren Kanten zu berechnen, muss als nächstes festgestellt werden, welche Geraden die Außenkanten des \QRCodes beschreiben.
 
 \subsubsection{Vertikale und Horizontale Geraden}
 Da bereits berechnet wurde, welche der Geraden die selbe Kante approximieren, kann diese Information benutzt werden um eine qualitativ bessere Approximation für alle Kanten des \olfp zu berechnen. Dazu werden die zugrunde liegenden Segmente von den gepaarten Geraden genommen und auf der Vereinigung dieser Segmente wird erneut der Approximationsprozess ausgeführt. Indem dabei festgestellt wird ob mit einer Geraden aus dem \orfp oder dem \ulfp vereinigt wird, ergibt sich ob die neue Gerade im \QRCode Koordinatensystem eine horizontale oder vertikale Kante beschreibt. Die nicht verwendeten Kanten am Ende des Prozesses sind danach ebenfalls trivial zuzuordnen. Falls an dieser Stelle nicht genau je zwei Geradenpaare von \olfp und \orfp, sowie zwei Geradenpaare von \olfp und \orfp vereinigt wurden, ist die Kombination von \fps kein \QRCode und es kann abgebrochen werden.
@@ -30,9 +30,9 @@ Da bereits berechnet wurde, welche der Geraden die selbe Kante approximieren, ka
 War die Vereinigung erfolgreich gibt es genau vier horizontal und vier vertikal zugeordnete Geraden.
 
 \subsubsection{Sortieren der Geraden}
-Um festzustellen welche von den Geraden die äußeren Kanten des \QRCodes beschreiben, werden die horizontalen Geraden entlang einer beliebigen vertikalen Gerade sortiert, welche von nun an als Sortier-Achse bezeichnet wird. 
+Danach werden die horizontalen Geraden entlang einer beliebigen vertikalen Gerade sortiert, welche von nun an als Sortier-Achse bezeichnet wird. 
 
-Wie in Abbildung \todo{referenz} gezeigt, werden dazu alle Schnittpunkte zwischen der Sortier-Achse und den horizontalen Geraden berechnet. Dann wird eine Koordinatensystem Transformation ausgeführt, sodass die Sortier-Achse zur neuen X-Achse des Koordinatensystems wird. Danach können die horizontalen Geraden nach der Größe der X-Werte der Schnittpunkte mit der Sortier-Achse sortiert werden. Zuletzt wird festgestellt ob das erste Element der so sortierten Liste von horizontalen Geraden mit einer Gerade des \olfp übereinstimmt. Falls nicht wird die Liste umgedreht.
+Wie in Abbildung \todo{referenz} gezeigt, werden dazu alle Schnittpunkte zwischen der Sortier-Achse und den horizontalen Geraden berechnet. Dann wird eine Koordinatensystem Transformation ausgeführt, sodass die Sortier-Achse zur neuen X-Achse des Koordinatensystems wird. Somit können die horizontalen Geraden nach der Größe der X-Werte der Schnittpunkte mit der Sortier-Achse sortiert werden. Zuletzt wird festgestellt ob das erste Element der so sortierten Liste von horizontalen Geraden mit einer Gerade des \olfp übereinstimmt. Falls nicht wird die Liste umgedreht.
 
 Für die vertikalen Geraden kann dies analog durchgeführt werden. Diese Methode wurde gewählt, um sicherzustellen das unabhängig von perspektivischen Verzerrungen die Sortierreihenfolge stabil bleibt.
 
