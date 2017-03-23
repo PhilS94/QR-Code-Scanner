@@ -38,6 +38,7 @@ Nachdem mehrere Kandidaten von \fps gefunden wurden, wird als nächstes die äu�
 \centering
 \includegraphics[scale=0.25]{images/qrcode-adler-wand_4___SEGMENTS___.jpg}
 \caption{Segmentierung}
+\label{fig:segments}
 \end{subfigure}%
 \begin{subfigure}[t]{0.48\textwidth}
 \centering
@@ -48,7 +49,7 @@ Nachdem mehrere Kandidaten von \fps gefunden wurden, wird als nächstes die äu�
 \caption{Aufteilen der einzelnen Konturen in Segmente und Approximation der Kanten durch Geraden.}
 \end{figure}
 
-Es müssen zunächst die Schnittpunkte gefunden werden, an denen die Kontur geteilt werden soll. Dazu werden die bereits zuvor berechneten Punkte, die durch Approximation der Trapezoiden Form der äußersten Kontur gefunden wurden, verwendet. Diese liegen jedoch im Regelfall nicht exakt auf den Ecken der \fps. Außerdem kann schlechte Bildqualität zu Abrundungen oder verschobenen Ecken führen. Um bessere Kanten Approximationen zu erhalten, werden jeweils 10\% aller Punkte am Anfang und Ende jedes Segments verworfen. Diese Segmente werden dann genutzt, um mit der \texttt{fitLine}-Methode die Kanten zu approximieren.
+Es müssen zunächst die Schnittpunkte gefunden werden, an denen die Kontur geteilt werden soll. Dazu werden die bereits zuvor berechneten Punkte, die durch Approximation der Trapezoiden Form der äußersten Kontur gefunden wurden, verwendet. Diese liegen jedoch im Regelfall nicht exakt auf den Ecken der \fps. Außerdem kann schlechte Bildqualität zu Abrundungen oder verschobenen Ecken führen. Um bessere Kanten Approximationen zu erhalten, werden jeweils 10\% aller Punkte am Anfang und Ende jedes Segments verworfen. Diese Segmente, wie sie in Abbildung \ref{fig:segments} zu sehen sind, werden dann genutzt, um mit der \texttt{fitLine}-Methode die Kanten zu approximieren.
 
 Die \texttt{fitLine}-Methode beruht auf dem Prinzip von \emph{M-Estimators} und verwendet als Minimierungsfunktion den, in \OpenCV durch \texttt{CV\_DIST\_FAIR} definierten, Ausdruck. Die approximierten Geraden werden durch einen Stützvektor und Richtungsvektor beschrieben. Eine wichtige Eigenschaft der Stützvektoren ist, dass Sie sich innerhalb der konvexen Hülle aller Punkte befinden, welche zur Approximation verwendet wurden.
 \\\\
