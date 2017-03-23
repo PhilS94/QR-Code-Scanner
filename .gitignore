@@ -46,3 +46,5 @@ ScanNegative
 *.aux
 *.bak
 *.pdf
+*.toc
+*.blg

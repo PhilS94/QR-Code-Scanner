@@ -4,9 +4,19 @@ Der nächste Schritt auf dem Weg zum finden eines gültigen \QRCodes besteht dar
 
 \section{Pattern Positionierung}
 Hat man drei \fps ausgewählt, muss für die korrekte Extrahierung festgestellt werden, welche Position im \QRCode jedes \fp einnimmt.
-\subsubsection{Gaußsche Trapezformel} \todo{subsections entfernen?}
-Zuerst ordnen wir die \fps im Uhrzeigersinn an, durch Verwendung der Gaußschen Trapezformel: \todo{Formel schöner formatieren?}
-$$ A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n}) $$
+\begin{theorem}[Gaußsche Trapezformel]
+Zuerst ordnen wir die \fps im Uhrzeigersinn an, durch Verwendung der Gaußschen Trapezformel: \todo{So besser?}
+\begin{align}
+A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n})
+\end{align}
+\end{theorem}
+%--------------------------------------------------------------------------------
+%-- \subsubsection{Gaußsche Trapezformel} \todo{subsections entfernen?}
+%-- Zuerst ordnen wir die \fps im Uhrzeigersinn an, durch Verwendung der Gaußschen Trapezformel: \todo{Formel schöner formatieren?}
+%-- \begin{align}
+%-- A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n})
+%-- \end{align}
+%--------------------------------------------------------------------------------
 Diese Formel berechnet den Flächeninhalt eines einfachen Polygons. Dabei ist $n$ die Anzahl der Punkte in einem Polygon und $x_i$ und $y_i$ die Punktkoordinaten. Abhängig vom Drehsinn der Punkte im Bezug auf das Koordinatensystem ist dieser Flächeninhalt entweder positiv oder negativ. In einem geodätischen Koordinatensystem entspricht ein positiver Flächeninhalt dabei einem Drehsinn im Uhrzeigersinn und ein negativer gegen den Uhrzeigersinn.
 
 Angewendet wird die Formel auf das Polygon welches aus dem jeweils ersten Punkt der Kontur jedes \fps besteht. Ist der Flächeninhalt negativ wird die Reihenfolge der \fps geändert indem das erste und zweite \fp miteinander vertauscht werden.
