@@ -1,18 +1,17 @@
 \chapter{Normalisierung}
-
 \section{Rasterisierung}
-Nach der perspektivischen Transformation, liegt das Bild in einem $n\times n$ großem binärisiertem Zustand vor. Nun muss der QR Code rasterisiert werden. 
+Nach der perspektivischen Transformation, liegt das Bild in einem $n\times n$ großem binärisiertem Zustand vor. Nun muss der \QRCode rasterisiert werden. 
 Man betrachte dazu die untere rechte Ecke des oberen linken Finder Pattern. Es ist bekannt, dass ein Finder Pattern die Dimension $7 \times 7$ hat,
 sodass man die $x$ bzw. $y$-Koordinate der genannten Ecke durch $7$ dividiert.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{images/Gitter_step.png}
-\label{fig:raster-qrcode}\caption{Raster)}
+\label{fig:raster-qrcode}\caption{Raster}
 \end{figure}
 
 Dies liefert die Zellenlänge $z$ des Rasters,
 woraus sich die Anzahl der Module $m$ via Division von $n$ mit $z$ berechnen lässt. Im Normalfall gilt jedoch $m \notin \mathbb{Z}$.
-Es ist jedoch bekannt, dass ein QR Code nur 
+Es ist jedoch bekannt, dass ein \QRCode nur 
 \begin {equation}
 	17 + 4 \cdot version,
 \end{equation}
@@ -20,7 +19,7 @@ für $version \in \left\{1, ..., 40\right\} \subset \mathbb{N}$, Module besitzen
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.4]{images/QRVersion.png}
-\label{fig:version-qrcode}\caption{Mögliche Modulgrößen von QR-Codes)}
+\label{fig:version-qrcode}\caption{Mögliche Modulgrößen von QR-Codes}
 \end{figure}
 
 Man runde die Anzahl der berechneten Module $m$ auf die nächstliegende Versionsnummer via
@@ -34,8 +33,8 @@ Die zugehörige Anzahl der Module ist dann also gegeben durch
 Die Zellenlänge des Rasters ist letztendlich gegeben durch Divison von $n$ mit $modules$.
 
 \section{Normalisierung}
-Die Normalisierung wird mithilfe des Rasters durchgeführt, indem majority votes pro Zelle den Pixelwert des normalisierten QR Codes festlegen.
-Das Ergebnis ist also ein $modules \times modules$ großer normalisierter QR Code.
+Die Normalisierung wird mithilfe des Rasters durchgeführt, indem majority votes pro Zelle den Pixelwert des normalisierten \QRCodes festlegen.
+Das Ergebnis ist also ein $modules \times modules$ großer normalisierter \QRCode.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.3]{images/gitter.png}
@@ -43,13 +42,13 @@ Das Ergebnis ist also ein $modules \times modules$ großer normalisierter QR Cod
 \end{figure}
 
 \section{Verifikation}
-Um fälschlicherweise erkannte QR Codes vorzubeugen, wird im Anschluss noch eine Verifikation durchgeführt. Dies geschieht, indem die Pixel des normalisierten Bildes, an denen die Finder Patterns und timing Patterns liegen mit den Finder bzw. timing Patterns eines Standard QR Codes verglichen werden.
+Um fälschlicherweise erkannte \QRCodes vorzubeugen, wird im Anschluss noch eine Verifikation durchgeführt. Dies geschieht, indem die Pixel des normalisierten Bildes, an denen die Finder Patterns und timing Patterns liegen mit den Finder bzw. timing Patterns eines Standard \QRCodes verglichen werden.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{images/verifikation.png}
 \label{fig:version-qrcode}\caption{Finder und Timing Patterns eines Standard \QRCode}
 \end{figure}
 
-Ist die Übereinstimmung des normalisierten Bildes mit einem Standard QR Code geringer als $85\%$, so wiederhole die Normalisierung und die Verifikation, falls möglich, mit einer Versionsnummer von $\pm 1$, um falsche Rundungen bei der Rasterisierung vorzubeugen.
+Ist die Übereinstimmung des normalisierten Bildes mit einem Standard \QRCode geringer als $85\%$, so wiederhole die Normalisierung und die Verifikation, falls möglich, mit einer Versionsnummer von $\pm 1$, um falsche Rundungen bei der Rasterisierung vorzubeugen.
 
-Sind alle Übereinstimmungen unter $65\%$, so wird der QR Code verworfen, andernfalls wird der QR Code mit der höchsten Übereinstimmung gewählt und schlussendlich ausgegeben.
+Sind alle Übereinstimmungen unter $65\%$, so wird der \QRCode verworfen, andernfalls wird der \QRCode mit der höchsten Übereinstimmung gewählt und schlussendlich ausgegeben.

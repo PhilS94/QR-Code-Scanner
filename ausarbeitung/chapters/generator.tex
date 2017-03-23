@@ -4,7 +4,7 @@ Um den implementierten Algorithmus zu testen, werden sowohl reale als auch synth
 
 \section{Ablauf der synthetischen Generierung}
 
-\texttt{Input}: Menge von groundtruth QR Codes \\
+\texttt{Input}: Menge von groundtruth \QRCodes \\
 \texttt{Output}: Datenbank von synthetischen Bildern
 
 \begin{enumerate}
@@ -28,8 +28,8 @@ Einzelne Schrittweiten und Maximalwerte können angegeben werden, beispielsweise
 \end{enumerate}
 
 \textbf{Verbesserungen der synthetischen Datenbank}\\
-Die synthetische Datenbank kann um viele Aspekte erweitert werden. So können unterschiedliche Belichtungen simuliert werden, oder Stellen der QR Codes „verdeckt“ werden oder auch Wölbungen generiert werden. Auch könnte man mehr als ein QR Code in ein Bild einbetten.
-Ebenfalls wäre es möglich Testbilder zu generieren, welche Aussagen über die false-positive Rate der QR Detektion treffen. Das heißt Bilder generieren, welche keine QR Codes aber Formen, die den Finder Pattern ähnlich sind, enthalten.
+Die synthetische Datenbank kann um viele Aspekte erweitert werden. So können unterschiedliche Belichtungen simuliert werden, oder Stellen der \QRCodes „verdeckt“ werden oder auch Wölbungen generiert werden. Auch könnte man mehr als ein \QRCode in ein Bild einbetten.
+Ebenfalls wäre es möglich Testbilder zu generieren, welche Aussagen über die false-positive Rate der QR Detektion treffen. Das heißt Bilder generieren, welche keine \QRCodes aber Formen, die den Finder Pattern ähnlich sind, enthalten.
 
 \section{Evaluation}
 
@@ -47,10 +47,10 @@ Ebenfalls wäre es möglich Testbilder zu generieren, welche Aussagen über die 
 %Bearbeite diese Legende, so unschön
 Skalierung: Skalierungsfaktor $6$, IL $=$ lineare Interpolation, IN $=$ nearest neighbour Interpolation\\
 Perspektive: Position der oberen linken Ecke in Prozent bzgl. Dimension des Bildes \\
-Einbettung: Größe des QR Codes innerhalb des Hintergrundes \\
+Einbettung: Größe des \QRCodes innerhalb des Hintergrundes \\
 
 \textbf{Evaluation von realen Datenbanken} \\
-Quelle: \url{http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode} [dataset1.zip] [dataset2.zip] \\
+
 
 %Diese Evaluation nochmals durchführen und werte übertragen! Laufzeit bzgl welchen Systems?
 \begin{tabular}{l c c c c}
@@ -59,8 +59,8 @@ Quelle: \url{http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?
 		dataset2 & $400$ & $300$ & $75\%$ & $20$s \\
 \end{tabular}
 \\ \\
-Die Erkennungsrate bei dem \emph{dataset1} ist relativ niedrig, denn der Algorithmus scheiterte an der zu kleinen  \emph{Quietzone}.
-Die Schneidung von Text mit dem QR Code führt zu einer Problematik bei der Konturdetektion. Ebenfalls scheiterte die Detektion an zu starken unebenen Belichtungen. Beispielsweise ein Schatten, der quer durch den QR Code verläuft.
+Die Erkennungsrate bei dem \emph{dataset1}\footnote{Quelle: \url{http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode} [dataset1.zip] [dataset2.zip]} ist relativ niedrig, denn der Algorithmus scheiterte an der zu kleinen  \emph{Quietzone}.
+Die Schneidung von Text mit dem \QRCode führt zu einer Problematik bei der Konturdetektion. Ebenfalls scheiterte die Detektion an zu starken unebenen Belichtungen. Beispielsweise ein Schatten, der quer durch den \QRCode verläuft.
 Bei dem \emph{dataset2} scheiterte der Algorithmus ebenfalls an der zu kleinen \emph{Quietzone}. \\ \\
 
 
