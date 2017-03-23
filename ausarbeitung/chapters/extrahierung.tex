@@ -4,20 +4,15 @@ Der nächste Schritt auf dem Weg zum finden eines gültigen \QRCodes besteht dar
 
 \section{Pattern Positionierung}
 Hat man drei \fps ausgewählt, muss für die korrekte Extrahierung festgestellt werden, welche Position im \QRCode jedes \fp einnimmt.
+
+Zuerst werden dazu die \fps, durch Verwendung der Gaußschen Trapezformel, im Uhrzeigersinn angeordnet.
 \begin{theorem}[Gaußsche Trapezformel]
-Zuerst ordnen wir die \fps im Uhrzeigersinn an, durch Verwendung der Gaußschen Trapezformel: \todo{So besser?}
+Berechnet den Flächeninhalt eines einfachen Polygons.
 \begin{align}
 A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n})
 \end{align}
 \end{theorem}
-%--------------------------------------------------------------------------------
-%-- \subsubsection{Gaußsche Trapezformel} \todo{subsections entfernen?}
-%-- Zuerst ordnen wir die \fps im Uhrzeigersinn an, durch Verwendung der Gaußschen Trapezformel: \todo{Formel schöner formatieren?}
-%-- \begin{align}
-%-- A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n})
-%-- \end{align}
-%--------------------------------------------------------------------------------
-Diese Formel berechnet den Flächeninhalt eines einfachen Polygons. Dabei ist $n$ die Anzahl der Punkte in einem Polygon und $x_i$ und $y_i$ die Punktkoordinaten. Abhängig vom Drehsinn der Punkte im Bezug auf das Koordinatensystem ist dieser Flächeninhalt entweder positiv oder negativ. In einem geodätischen Koordinatensystem entspricht ein positiver Flächeninhalt dabei einem Drehsinn im Uhrzeigersinn und ein negativer gegen den Uhrzeigersinn.
+Dabei ist $n$ die Anzahl der Punkte in einem Polygon und $x_i$ und $y_i$ die Punktkoordinaten des $i$-ten Punkts. Abhängig vom Drehsinn der Punkte im Bezug auf das Koordinatensystem ist dieser Flächeninhalt entweder positiv oder negativ. In einem geodätischen Koordinatensystem entspricht ein positiver Flächeninhalt dabei einem Drehsinn im Uhrzeigersinn und ein negativer gegen den Uhrzeigersinn.
 
 Angewendet wird die Formel auf das Polygon welches aus dem jeweils ersten Punkt der Kontur jedes \fps besteht. Ist der Flächeninhalt negativ wird die Reihenfolge der \fps geändert indem das erste und zweite \fp miteinander vertauscht werden.
 \subsubsection{Ähnlichkeitsmaß für Geraden}
@@ -27,9 +22,17 @@ Für das effiziente Zuordnen von Geraden wird ausgenutzt, dass die Stützvektore
 
 \inputCPP[label={lst:similarity}][][Ähnlichkeitsmaß für zwei Geraden]{code/similarity.cpp}
 
-\todo{Bild für Verständnis von Distanz maß} Ein kleinerer Wert bedeutet bei dieser Definition das sich zwei Geraden besonders ähnlich sind. In Abbildung \todo{Abbildung einfügen} ist dabei gut zu erkennen, dass wenn es sich um einen \QRCode handelt, welcher mit ausreichend guter Qualität für eine korrekte Kantenapproximation abgebildet ist, sich dieses Maß ausreichend gut eignet um festzustellen, welche Geraden die selbe Kante approximieren. Für das \olfp gilt dann das es das \fp mit den vier kleinsten Ähnlichkeitsmaßen ist.
+Ein kleinerer Wert bedeutet bei dieser Definition das sich zwei Geraden besonders ähnlich sind. In Abbildung \ref{fig:lines} ist dabei gut zu erkennen, dass wenn es sich um einen \QRCode handelt, welcher mit ausreichend guter Qualität für eine korrekte Kantenapproximation abgebildet ist, sich dieses Maß ausreichend gut eignet um festzustellen, welche Geraden die selbe Kante approximieren. Für das \olfp gilt dann, dass es das \fp mit den vier kleinsten Ähnlichkeitsmaßen ist.
 
 Da zuvor die \fps im Uhrzeigersinn angeordnet wurden, können wir durch Rotation im Uhrzeigersinn nicht nur das \olfp an die erste Stelle des Pattern Arrays bringen, sondern wissen auch direkt das sich an der zweiten Stelle das \orfp und an der dritten Stelle das \ulfp befindet. Mit Ausnahme für Spiegel verkehrte \QRCodes kann zuverlässig die korrekte Position aller \fps im \QRCode bestimmt werden.
+
+\begin{figure}[h]
+\center
+\includegraphics[scale=1]{images/similarity_measure.png}
+\hspace{5px}
+\includegraphics[scale=0.25]{images/qrcode-adler-wand_6___SPLIT___0_.jpg}
+\caption{Links: Ähnlichkeitsmaß von zwei Geraden. Rechts: Zuordnung der Geraden zu horizontalen oder vertikalen Kanten.}
+\end{figure}
 
 \section{Kanten Zuordnung}
 Um die Eckpunkte des \QRCodes durch Schnittpunktbildung der äußeren Kanten zu berechnen, muss als nächstes festgestellt werden, welche Geraden die Außenkanten des \QRCodes beschreiben.
@@ -42,8 +45,16 @@ War die Vereinigung erfolgreich gibt es genau vier horizontal und vier vertikal 
 \subsubsection{Sortieren der Geraden}
 Danach werden die horizontalen Geraden entlang einer beliebigen vertikalen Gerade sortiert, welche von nun an als Sortier-Achse bezeichnet wird. 
 
-Wie in Abbildung \todo{referenz} gezeigt, werden dazu alle Schnittpunkte zwischen der Sortier-Achse und den horizontalen Geraden berechnet. Dann wird eine Koordinatensystem Transformation ausgeführt, sodass die Sortier-Achse zur neuen X-Achse des Koordinatensystems wird. Somit können die horizontalen Geraden nach der Größe der X-Werte der Schnittpunkte mit der Sortier-Achse sortiert werden. Zuletzt wird festgestellt ob das erste Element der so sortierten Liste von horizontalen Geraden mit einer Gerade des \olfp übereinstimmt. Falls nicht wird die Liste umgedreht.
+Wie in Abbildung \ref{fig:sort} gezeigt, werden dazu alle Schnittpunkte zwischen der Sortier-Achse und den horizontalen Geraden berechnet. Dann wird eine Koordinatensystem Transformation ausgeführt, sodass die Sortier-Achse zur neuen X-Achse des Koordinatensystems wird. Somit können die horizontalen Geraden nach der Größe der X-Werte der Schnittpunkte mit der Sortier-Achse sortiert werden. Zuletzt wird festgestellt ob das erste Element der so sortierten Liste von horizontalen Geraden mit einer Gerade des \olfp übereinstimmt. Falls nicht wird die Liste umgedreht.
 
 Für die vertikalen Geraden kann dies analog durchgeführt werden. Diese Methode wurde gewählt, um sicherzustellen das unabhängig von perspektivischen Verzerrungen die Sortierreihenfolge stabil bleibt.
 
-Das Ergebnis sind zwei Listen von Geraden die im \QRCode Koordinatensystem von oben links nach unten rechts sortiert sind. Dementsprechend können nun trivial die Schnittpunkte der ersten und letzten Geraden berechnet werden, wodurch die Eckpunkte des \QRCodes bestimmt werden. Mit diesen vier Punkten und der \OpenCV Funktion  \texttt{getPerspectiveTransform} sowie \texttt{warpPerspective} wird dann eine perspektivische Transformationsmatrix errechnet und der \QRCode extrahiert. \todo{fehlende Bilder einfügen.}
+\begin{figure}[h]
+\center
+\includegraphics[scale=0.25]{images/qrcode-adler-wand_7___SORT___0_.jpg}
+\hspace{5px}
+\includegraphics[scale=0.25]{images/qrcode-adler-wand_9___INTERSECTIONS___0_.jpg}
+\caption{Links: Sortieren der Geraden entlang einer Achse.\label{fig:sort} Rechts: Sortiere Geraden und identifizierte Eckpunte.\label{fig:lines}}
+\end{figure}
+
+Das Ergebnis sind zwei Listen von Geraden die im \QRCode Koordinatensystem von oben links nach unten rechts sortiert sind. Dementsprechend können nun trivial die Schnittpunkte der ersten und letzten Geraden berechnet werden, wodurch die Eckpunkte des \QRCodes bestimmt werden. Mit diesen vier Punkten und der \OpenCV Funktion  \texttt{getPerspectiveTransform} sowie \texttt{warpPerspective} wird dann eine perspektivische Transformationsmatrix errechnet und der \QRCode extrahiert.
