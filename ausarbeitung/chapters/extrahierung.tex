@@ -22,6 +22,16 @@ Für das effiziente Zuordnen von Geraden wird ausgenutzt, dass die Stützvektore
 
 \inputCPP[label={lst:similarity}][][Ähnlichkeitsmaß für zwei Geraden]{code/similarity.cpp}
 
+\begin{wrapfigure}{R}{0.4\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[scale=0.25]{images/qrcode-adler-wand_6___SPLIT___0_.jpg}
+  \end{center}
+  \vspace{-10pt}
+  \caption{Zuordnung der Geraden zu horizontalen oder vertikalen Kanten.}
+  \vspace{-10pt}
+\end{wrapfigure}
+
 Ein kleinerer Wert bedeutet bei dieser Definition das sich zwei Geraden besonders ähnlich sind. In Abbildung \ref{fig:lines} ist dabei gut zu erkennen, dass wenn es sich um einen \QRCode handelt, welcher mit ausreichend guter Qualität für eine korrekte Kantenapproximation abgebildet ist, sich dieses Maß ausreichend gut eignet um festzustellen, welche Geraden die selbe Kante approximieren. Für das \olfp gilt dann, dass es das \fp mit den vier kleinsten Ähnlichkeitsmaßen ist.
 
 Da zuvor die \fps im Uhrzeigersinn angeordnet wurden, können wir durch Rotation im Uhrzeigersinn nicht nur das \olfp an die erste Stelle des Pattern Arrays bringen, sondern wissen auch direkt das sich an der zweiten Stelle das \orfp und an der dritten Stelle das \ulfp befindet. Mit Ausnahme für Spiegel verkehrte \QRCodes kann zuverlässig die korrekte Position aller \fps im \QRCode bestimmt werden.
@@ -29,9 +39,7 @@ Da zuvor die \fps im Uhrzeigersinn angeordnet wurden, können wir durch Rotation
 \begin{figure}[h]
 \center
 \includegraphics[scale=1]{images/similarity_measure.png}
-\hspace{5px}
-\includegraphics[scale=0.25]{images/qrcode-adler-wand_6___SPLIT___0_.jpg}
-\caption{Links: Ähnlichkeitsmaß von zwei Geraden. Rechts: Zuordnung der Geraden zu horizontalen oder vertikalen Kanten.}
+\caption{Links: Ähnlichkeitsmaß von zwei Geraden.}
 \end{figure}
 
 \section{Kanten Zuordnung}
@@ -50,11 +58,18 @@ Wie in Abbildung \ref{fig:sort} gezeigt, werden dazu alle Schnittpunkte zwischen
 Für die vertikalen Geraden kann dies analog durchgeführt werden. Diese Methode wurde gewählt, um sicherzustellen das unabhängig von perspektivischen Verzerrungen die Sortierreihenfolge stabil bleibt.
 
 \begin{figure}[h]
-\center
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
 \includegraphics[scale=0.25]{images/qrcode-adler-wand_7___SORT___0_.jpg}
-\hspace{5px}
+\caption{Schnittpunkte entlang der Sortier-Achse}\label{fig:sort}
+\end{subfigure}%
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
 \includegraphics[scale=0.25]{images/qrcode-adler-wand_9___INTERSECTIONS___0_.jpg}
-\caption{Links: Sortieren der Geraden entlang einer Achse.\label{fig:sort} Rechts: Sortiere Geraden und identifizierte Eckpunte.\label{fig:lines}}
+\caption{Schnittpunkte aller horizontalen und vertikalen Geraden}
+\end{subfigure}
+\caption{Sortieren aller Geraden entlang einer Achse und Berechnung der Eckpunkte.}
 \end{figure}
 
 Das Ergebnis sind zwei Listen von Geraden die im \QRCode Koordinatensystem von oben links nach unten rechts sortiert sind. Dementsprechend können nun trivial die Schnittpunkte der ersten und letzten Geraden berechnet werden, wodurch die Eckpunkte des \QRCodes bestimmt werden. Mit diesen vier Punkten und der \OpenCV Funktion  \texttt{getPerspectiveTransform} sowie \texttt{warpPerspective} wird dann eine perspektivische Transformationsmatrix errechnet und der \QRCode extrahiert.

@@ -1,13 +1,19 @@
 \chapter{Normalisierung}
 \section{Rasterisierung}
+
+\begin{wrapfigure}{R}{0.4\textwidth}
+  \vspace{-20pt}
+  \begin{center}
+    \includegraphics[scale=0.25]{images/Gitter_step.png}
+  \end{center}
+  \vspace{-10pt}
+  \label{fig:raster-qrcode}\caption{Raster}
+  \vspace{-10pt}
+\end{wrapfigure}
+
 Nach der perspektivischen Transformation, liegt das Bild in einem $n\times n$ großem binärisiertem Zustand vor. Nun muss der \QRCode rasterisiert werden. 
 Man betrachte dazu die untere rechte Ecke des oberen linken Finder Pattern. Es ist bekannt, dass ein Finder Pattern die Dimension $7 \times 7$ hat,
 sodass man die $x$ bzw. $y$-Koordinate der genannten Ecke durch $7$ dividiert.
-\begin{figure}[h]
-\centering
-\includegraphics[scale=0.3]{images/Gitter_step.png}
-\label{fig:raster-qrcode}\caption{Raster}
-\end{figure}
 
 Dies liefert die Zellenlänge $z$ des Rasters,
 woraus sich die Anzahl der Module $m$ via Division von $n$ mit $z$ berechnen lässt. Im Normalfall gilt jedoch $m \notin \mathbb{Z}$.
@@ -15,10 +21,12 @@ Es ist jedoch bekannt, dass ein \QRCode nur
 \begin {equation}
 	17 + 4 \cdot version,
 \end{equation}
-für $version \in \left\{1, ..., 40\right\} \subset \mathbb{N}$, Module besitzen kann. 
+für $version \in \left\{1, ..., 40\right\} \subset \mathbb{N}$, Module besitzen kann.
+
+\todo{Quelle angeben!}
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.4]{images/QRVersion.png}
+\includegraphics[scale=0.5]{images/QRVersion.png}
 \label{fig:version-qrcode}\caption{Mögliche Modulgrößen von QR-Codes}
 \end{figure}
 
@@ -37,7 +45,7 @@ Die Normalisierung wird mithilfe des Rasters durchgeführt, indem majority votes
 Das Ergebnis ist also ein $modules \times modules$ großer normalisierter \QRCode.
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.3]{images/gitter.png}
+\includegraphics[scale=0.25]{images/gitter.png}
 \label{fig:version-qrcode}\caption{Normalisierung des \QRCode}
 \end{figure}
 
