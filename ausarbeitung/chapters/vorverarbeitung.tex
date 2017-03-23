@@ -27,9 +27,16 @@ Die Berechenung des Schwellwerts für die Nachbarschaft erfolgt auf zwei untersc
 Der Parameter \texttt{C} wird vom Mittelwert subtrahiert. In der Implementierung wird \texttt{C} konstant $0$ gewählt.
 
 \begin{figure}[h]
-\center
+\centering
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
 \includegraphics[scale=0.12]{images/qrcode-adler-wand_1___BINARIZED___.jpg}
-\hspace{5px}
+\caption{globales Schwellwertverfahren}
+\end{subfigure}%
+\begin{subfigure}[t]{0.48\textwidth}
+\centering
 \includegraphics[scale=0.12]{images/qrcode-adler-wand_2___BINARIZED___.jpg}
+\caption{lokales Schwellwertverfahren}
+\end{subfigure}
 \caption{Das Resultat der Binarisierung mit den jeweiligen Verfahren. Links global und Rechts lokal.}
 \end{figure}
