@@ -44,9 +44,8 @@ Einzelne Schrittweiten und Maximalwerte können angegeben werden, beispielsweise
 Skalierung: Skalierungsfaktor $6$, IL $=$ lineare Interpolation, IN $=$ nearest neighbour Interpolation\\
 Perspektive: Position der oberen linken Ecke in Prozent bzgl. Dimension des Bildes \\
 Einbettung: Größe des \QRCodes innerhalb des Hintergrundes \\
-
+\\
 \textbf{Evaluation von realen Datenbanken} \\
-
 
 %Diese Evaluation nochmals durchführen und werte übertragen! Laufzeit bzgl welchen Systems?
 \begin{tabular}{l c c c c}
@@ -56,24 +55,20 @@ Einbettung: Größe des \QRCodes innerhalb des Hintergrundes \\
 \end{tabular}
 \\ \\
 Die Erkennungsrate bei dem \emph{dataset1}\footnote{Quelle: \url{http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode} [dataset1.zip] [dataset2.zip]} ist relativ niedrig, denn der Algorithmus scheiterte an der zu kleinen  \emph{Quietzone}.
-Die Schneidung von Text mit dem \QRCode führt zu einer Problematik bei der Konturdetektion. Ebenfalls scheiterte die Detektion an zu starken unebenen Belichtungen. Beispielsweise ein Schatten, der quer durch den \QRCode verläuft.
-Bei dem \emph{dataset2} scheiterte der Algorithmus ebenfalls an der zu kleinen \emph{Quietzone}. \\ \\
-
-
+Die Schneidung von Text mit dem \QRCode führt zu einer Problematik bei der Konturdetektion. Ebenfalls scheiterte die Detektion an zu starken unebenen Belichtungen. Beispielsweise ein Schatten, der quer durch den \QRCode verläuft.\\
+Bei dem \emph{dataset2} scheiterte der Algorithmus ebenfalls an der zu kleinen \emph{Quietzone}. \\ 
+\\
 \textbf{Probleme der implementierten QR Detektion} \\
 Der implementierte Algorithmus hat Probleme unter den folgenden Bedingungen:
 \begin{enumerate}
-\item Stark unebene Belichtungen: Obwohl adaptive Schwellenwerte verwendet werden, wird das Bild nicht optimal binärisiert. Dies liegt höchstwahrscheinlich daran, dass die Parameter des adaptiven Schwellenwertes nicht optimal eingestellt sind. 
+\item Stark unebene Belichtungen: Obwohl adaptive Schwellenwerte verwendet werden, wird das Bild nicht optimal binärisiert. Ein Grund dafür sind die
+	gewählten Parameter. So kann der Parameter \texttt{C} in der \texttt{adaptiveThreshold} Methode größer als $0$ gesetzt werden,
+	um die Körnung der Binärbilder zu vermindern.
 
-\item Zu kleine Quietzone: Falls die Quietzone zu klein ist, kann es vorkommen, dass die Konturen der Finder Patterns nicht richtig erkannt werden. Die gefundene Kontur verläuft dann oftmals durch die Umgebung des FinderPatterns.
+\item Zu kleine Quietzone: Falls die Quietzone zu klein ist, kann es vorkommen, dass die Konturen der Finder Patterns nicht richtig erkannt werden. Die gefundene Kontur verläuft dann oftmals durch die Umgebung des FinderPatterns. \\
 \end{enumerate}
-%Hier vielleicht Problembilder einfügen?
 
-\textbf{Verbesserungen der synthetischen Datenbank}\\
+\textbf{Mögliche Verbesserungen der synthetischen Datenbank}\\
 Die synthetische Datenbank kann um viele Aspekte erweitert werden. So können unterschiedliche Belichtungen simuliert werden, oder Stellen der \QRCodes „verdeckt“ werden oder auch Wölbungen generiert werden. Auch könnte man mehr als ein \QRCode in ein Bild einbetten.
-Ebenfalls wäre es möglich Testbilder zu generieren, welche Aussagen über die false-positive Rate der QR Detektion treffen. Das heißt Bilder generieren, welche keine \QRCodes aber Formen, die den Finder Pattern ähnlich sind, enthalten.
-
-
-
-\textbf{Ausblick:} Durch das verändern des Parameters \texttt{C} in der \texttt{adaptiveThreshold} Methode kann eine ausgeglichenere Binarisierung erzielt werden. Allerdings können aus leicht Informationen verloren gehen!
+Ebenfalls wäre es möglich Testbilder zu generieren, welche Aussagen über die false-positive Rate der QR Detektion treffen. Das heißt Bilder generieren, welche keine \QRCodes enthalten, aber Formen beinhalten, die den Finder Patterns sehr ähnlich sind.
 
