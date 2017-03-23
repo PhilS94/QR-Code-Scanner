@@ -12,7 +12,7 @@ In Zeile 4 wird die Methode \texttt{computeSmoothing} aufgerufen, die eine Gauß
 \inputCPP[label={lst:globalthreshold}][][Binarisierung anhand des globalen Schwellwertverfahrens.]{code/global-binarize.cpp}
 Im ersten Durchlauf wird das globale Schwellwertverfahren angewandt. Bei der Berechnung wird auf die \texttt{threshold} Methode, wie sie im Listing \ref{lst:globalthreshold} steht, zurückgegriffen. Diese verwendet den \emph{Otsu} Algorithmus\footnote{Mehr Information zu dem Algorithmus auf der zugehörigen \OpenCV Seite:\url{http://docs.opencv.org/2.4/modules/imgproc/doc/miscellaneous_transformations.html\#threshold}}, um einen globalen Schwellwert zu berechnen und dann das Bild zu binarisieren.
 
-Sollte diese Methode nicht mindestens drei \fps lokalisieren, wird das nächste Verfahren ausgeführt.
+Sollte mit dieser Methode im späteren Verlauf nicht mindestens drei \fps lokalisiert werden, wird das nächste Verfahren ausgeführt.
 
 \inputCPP[label={lst:localthreshold}][][Binarisierung anhand eines lokalen Schwellwertverfahrens.]{code/local-binarize.cpp}
 

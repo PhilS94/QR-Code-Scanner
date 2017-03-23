@@ -1,20 +1,20 @@
 \chapter{Extrahierung}
 
-Der nächste Schritt auf dem Weg zum finden eines gültigen \QRCodes besteht darin alle möglichen Dreier Kombinationen von \fps zu prüfen und festzustellen ob diese zur Extrahierung eines gültigen \QRCodes führen. Für jede Kombination wird versucht die vier Eckpunkte des \QRCodes zu berechnen, um aus diesem eine Matrix für eine perspektivische Transformation in eine 2D-Ebene zu berechnen. Dies führt zu $\binom{n}{3}$ möglichen Kombinationen von \fps, wobei $n$ die Anzahl aller gefundenen \fps ist. Für Bilder mit großem $n$ kann dies schnell zu viel Rechenaufwand führen. Deswegen wird die Extrahierung abgebrochen, wenn schon vorzeitig festgestellt werden kann, dass kein korrekter \QRCode gefunden wurde.
+Der nächste Schritt auf dem Weg zum finden eines gültigen \QRCodes besteht darin, alle Möglichen Dreier-Kombinationen von \fps zu prüfen und festzustellen, ob diese zur Extrahierung eines gültigen \QRCodes führen. Für jede Kombination wird versucht, die vier Eckpunkte des \QRCodes zu berechnen, um aus diesem eine Matrix für eine perspektivische Transformation in eine 2D-Ebene zu berechnen. Dies führt zu $\binom{k}{3}$ möglichen Kombinationen von \fps, wobei $k$ die Anzahl aller gefundenen \fps ist.
 
 \section{Pattern Positionierung}
 Hat man drei \fps ausgewählt, muss für die korrekte Extrahierung festgestellt werden, welche Position im \QRCode jedes \fp einnimmt.
 
-Zuerst werden dazu die \fps, durch Verwendung der Gaußschen Trapezformel, im Uhrzeigersinn angeordnet.
+Zuerst werden dazu die \fps durch Verwendung der Gaußschen Trapezformel im Uhrzeigersinn angeordnet.
 \begin{theorem}[Gaußsche Trapezformel]
 Berechnet den Flächeninhalt eines einfachen Polygons.
 \begin{align}
 A=\frac{1}{2} \sum_{0}^{n-1} (y_i + y_{i+1\ mod\ n})(x_i - x_{i+1\ mod\ n})
 \end{align}
 \end{theorem}
-Dabei ist $n$ die Anzahl der Punkte in einem Polygon und $x_i$ und $y_i$ die Punktkoordinaten des $i$-ten Punkts. Abhängig vom Drehsinn der Punkte im Bezug auf das Koordinatensystem ist dieser Flächeninhalt entweder positiv oder negativ. In einem geodätischen Koordinatensystem entspricht ein positiver Flächeninhalt dabei einem Drehsinn im Uhrzeigersinn und ein negativer gegen den Uhrzeigersinn.
+Dabei ist $n$ die Anzahl der Punkte in einem Polygon und $x_i$ und $y_i$ die Punktkoordinaten des $i$-ten Punkts. Abhängig vom Drehsinn der Punkte im Bezug auf das Koordinatensystem ist der Flächeninhalt entweder positiv oder negativ. In einem kartesischen Koordinatensystem entspricht ein positiver Flächeninhalt einem Drehsinn im Uhrzeigersinn und ein negativer gegen den Uhrzeigersinn.
 
-Angewendet wird die Formel auf das Polygon welches aus dem jeweils ersten Punkt der Kontur jedes \fps besteht. Ist der Flächeninhalt negativ wird die Reihenfolge der \fps geändert indem das erste und zweite \fp miteinander vertauscht werden.
+Angewendet wird die Formel auf das Polygon welches aus dem jeweils ersten Punkt der Kontur jedes \fps besteht. Ist der Flächeninhalt negativ wird die Reihenfolge der \fps geändert, indem das erste und zweite \fp miteinander vertauscht werden.
 \subsubsection{Ähnlichkeitsmaß für Geraden}
 Sind die \fps in korrekter Reihenfolge, wird als nächstes das \olfp bestimmt. Zurzeit sind durch die drei \fps insgesamt 12 approximierte Geraden bekannt. Betrachtet man den Aufbau von \QRCodes wird deutlich das davon jeweils 4 Geradenpaare die selbe Kante beschreiben. Es gibt insgesamt also nur 8 unterschiedliche Kanten und nur das \olfp teilt sich jede Kante mit einem anderen \fp. Die anderen beiden \fps teilen sich je nur 2 Kanten mit dem \olfp. Stellt man also fest welche der 12 Geraden die gleichen Kanten im \QRCode approximieren, ergibt sich welches \fp das \olfp ist.
 
