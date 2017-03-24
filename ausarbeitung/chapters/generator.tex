@@ -64,6 +64,7 @@ $\sigma$ &$\widehat{=}$& Standardabweichung
 \end{tabular}
 \end{flushleft}
 \caption{Evaluation der synthetischen Datenbank.}
+\label{tab:syntdata}
 \end{table}
 
 \noindent Die Datenbanken von abfotografierten \QRCodes \cite{databasebrno} stammen von einer Forschungsgruppe der \emph{Brno University of Technology}. Die Bilder zeigen \QRCodes umschlossen von Text, unter verschiedenen Belichtungsszenarien, in realen Arbeitsumgebungen, in der freien Natur oder vor künstlichen, besonders gekachelten Hintergründen.
@@ -78,11 +79,12 @@ Für diese \QRCodes sind \emph{Ground Truth} Bilder vorhanden, jedoch nicht in d
 		dataset2 & $400$ & $300$ & $75\%$ & $\approx20$s \\
 \end{tabular}
 \caption{Evaluation von Foto Datenbanken.}
+\label{tab:fotodata}
 \end{table}
 
 \newpage
 \section{Auswertung}
-Bei der synthetischen Datenbank zeigt sich, dass Skalierung, Rotation und Perspektivische Verzerrung keine Nennenswerten Probleme für die Detektion von \QRCodes darstellen. Die einzigen Ausreißer beschränken sich auf \QRCodes mit hoher Versionsnummer oder sehr extremen Perspektiven.
+Bei der synthetischen Datenbank zeigt sich, wie in Tabelle \ref{tab:syntdata} zu sehen ist, dass Skalierung, Rotation und Perspektivische Verzerrung keine Nennenswerten Probleme für die Detektion von \QRCodes darstellen. Die einzigen Ausreißer beschränken sich auf \QRCodes mit hoher Versionsnummer oder sehr extremen Perspektiven.
 
 Die Verluste der erkannten \QRCodes von Perspektive zu Einbettung, sind den kumulativen Effekten der erneuten Skalierung zuzuschreiben. Insbesondere Große \QRCodes besitzen nach diesem Vorgang teilweise keine ausreichend großen \fps mehr.
 Bei der Glättung und dem Rauschen kommt es durch weitere kumulative Effekte zu noch mehr schwierigen Situationen, sodass selbst das menschliche Auge langsam versagt.
@@ -91,7 +93,7 @@ Die Einzelnen Komponenten stellen für den implementierten QR-Code-Detektor kein
 Ist der Detektor aber in der Lage die \fps zu lokalisieren, so extrahiert er im Durchschnitt mit sehr guter Qualität die gefundenen \QRCodes.
 Einen Schluss den wir aus diesen Ergebnissen ziehen, ist dass der Detektor am ehesten von einer Verbesserung der Lokalisierung der \fps profitiert. Dies könnte zum Beispiel durch besser geeignete Schwellenwerte bei der Binarisierung geschehen. Eine erste einfache Verbesserung wäre zum Beispiel die zurzeit mit $0$ gewählte Konstante \texttt{C} bei der Binarisierung auf einen sinnvolleren Wert zu setzen. Dies würde der derzeitig starken Körnung von adaptiv binarisierten Bildern entgegenwirken und die Konturdetektion verbessern.
 \\
-Bei der Foto Datenbank zeigt sich eine grundlegende Schwäche der Lokalisierung von \fps durch Konturen. Selbst kleine Verletzungen der \emph{Quietzone} durch, wie in diesem Fall, Text oder Schmutz führen direkt zu einem Versagen der Lokalisierung der \fps. Zudem stellen starke Beleuchtungsunterschiede immer noch ein schwieriges Hindernis dar, trotz adaptiven Schwellwertverfahren für die Binarisierung. Beispielsweise ein kräftiger Schatten, der quer durch den \QRCode verläuft.
+Bei der Foto Datenbank zeigt sich, wie in Tabelle \ref{tab:fotodata} zu sehen ist, eine grundlegende Schwäche der Lokalisierung von \fps durch Konturen. Selbst kleine Verletzungen der \emph{Quietzone} durch, wie in diesem Fall, Text oder Schmutz führen direkt zu einem Versagen der Lokalisierung der \fps. Zudem stellen starke Beleuchtungsunterschiede immer noch ein schwieriges Hindernis dar, trotz adaptiven Schwellwertverfahren für die Binarisierung. Beispielsweise ein kräftiger Schatten, der quer durch den \QRCode verläuft.
 
 Szenarien die komplexe Probleme für klassische auf Hough-Transformation basierende Detektoren bereitstellten, sind jedoch problemlos gelöst worden. Auch mehrere \QRCodes in einem Bild direkt nebeneinander oder über das Bild verteilt stellen kein Problem dar, solange alle \fps gefunden werden.
 
