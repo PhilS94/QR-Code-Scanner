@@ -1,0 +1,133 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 2.8 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\sortlist[entry]{anyt/global/}
+  \entry{databasebrno}{online}{}
+    \name{author}{1}{}{%
+      {{hash=DMHJHA}{%
+         family={Dubska\bibnamedelima M.},
+         familyi={D\bibinitperiod\bibinitdelim M\bibinitperiod},
+         suffix={Herout\bibnamedelima A.},
+         suffixi={H\bibinitperiod\bibinitdelim A\bibinitperiod},
+         given={Havel\bibnamedelima J.},
+         giveni={H\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DMHAHJ1}
+    \strng{fullhash}{DMHAHJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelalpha}{DM m}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \field{title}{Foto Datenbank}
+    \verb{url}
+    \verb http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id
+    \verb =2012-JRTIP-MatrixCode
+    \endverb
+    \field{year}{24 März 2013}
+  \endentry
+
+  \entry{opencv}{online}{}
+    \field{labeltitlesource}{title}
+    \field{labelalpha}{Ope}
+    \field{sortinit}{O}
+    \field{sortinithash}{O}
+    \field{title}{OpenCV}
+    \verb{url}
+    \verb http://docs.opencv.org/
+    \endverb
+    \field{year}{24 März 2013}
+  \endentry
+
+  \entry{qrcoderef}{online}{}
+    \name{author}{1}{}{%
+      {{hash=RWZWC}{%
+         family={Richard Wheeler\bibnamedelima (Zephyris)},
+         familyi={R\bibinitperiod\bibinitdelim W\bibinitperiod\bibinitdelim
+  Z\bibinitperiod},
+         given={Wikimedia\bibnamedelima Commons},
+         giveni={W\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{RWZWC1}
+    \strng{fullhash}{RWZWC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelalpha}{RWZ m}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \field{title}{File:QR Code Structure Example.svg}
+    \verb{url}
+    \verb https://upload.wikimedia.org/wikipedia/commons/7/7a/QR_Code_Structure
+    \verb _Example.svg
+    \endverb
+    \field{year}{24 März 2013}
+  \endentry
+
+  \entry{journals/cvgip/SuzukiA85}{article}{}
+    \name{author}{2}{}{%
+      {{hash=SS}{%
+         family={Suzuki},
+         familyi={S\bibinitperiod},
+         given={Satoshi},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=AK}{%
+         family={Abe},
+         familyi={A\bibinitperiod},
+         given={Keiichi},
+         giveni={K\bibinitperiod},
+      }}%
+    }
+    \keyw{dblp}
+    \strng{namehash}{SSAK1}
+    \strng{fullhash}{SSAK1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{labelalpha}{SA06}
+    \field{sortinit}{S}
+    \field{sortinithash}{S}
+    \field{number}{1}
+    \field{pages}{32\bibrangedash 46}
+    \field{title}{Topological structural analysis of digitized binary images by
+  border following.}
+    \verb{url}
+    \verb http://dblp.uni-trier.de/db/journals/cvgip/cvgip30.html#SuzukiA85
+    \endverb
+    \field{volume}{30}
+    \field{journaltitle}{Computer Vision, Graphics, and Image Processing}
+    \field{day}{04}
+    \field{month}{09}
+    \field{year}{2006}
+    \warn{\item Can't use 'date' + 'year'}
+  \endentry
+
+  \entry{versionimage}{online}{}
+    \field{labeltitlesource}{title}
+    \field{labelalpha}{Ver}
+    \field{sortinit}{V}
+    \field{sortinithash}{V}
+    \field{title}{QRCode.com}
+    \verb{url}
+    \verb http://www.qrcode.com/en/img/version/versionVarietyImage.png
+    \endverb
+    \field{year}{24 März 2013}
+  \endentry
+\endsortlist
+\endinput

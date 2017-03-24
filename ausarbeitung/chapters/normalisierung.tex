@@ -23,8 +23,7 @@ für $version \in \left\{1, ..., 40\right\} \subset \mathbb{N}$, Module besitzen
 \centering
 \includegraphics[scale=0.5]{images/QRVersion.png}
 \label{fig:version-qrcode}
-\caption{Mögliche Modulgrößen von \QRCodes}
-%\footnote{Quelle:\url{http://www.qrcode.com/en/img/version/versionVarietyImage.png}}
+\caption{Mögliche Modulgrößen von \QRCodes \cite{versionimage}.}
 \end{figure}
 
 \noindent Die Anzahl der geschätzten Module $m$ wird zur Berechnung der nächsten ganzzahligen Versionsnummer genutzt:
@@ -47,7 +46,6 @@ Das Ergebnis ist ein $modules \times modules$ großer normalisierter \QRCode.
 \centering
 \includegraphics[scale=0.25]{images/gitter.png}
 \caption{Extrahiert mit Raster}
-\label{fig:version-qrcode}
 \end{subfigure}
 \begin{subfigure}[t]{0.45\textwidth}
 \centering
@@ -63,7 +61,7 @@ Um fälschlicherweise erkannte \QRCodes zu vermeiden, wird im Anschluss eine Ver
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.5]{images/verifikation.png}
-\label{fig:version-qrcode}\caption{Finder und Timing Patterns eines Standard \QRCodes der Version $1$}
+\caption{Finder und Timing Patterns eines Standard \QRCodes der Version $1$}
 \end{figure}
 \\
 Ist die Übereinstimmung des normalisierten Bildes mit einem Standard \QRCode geringer als $85\%$, so wird, falls möglich, die Normalisierung und die Verifikation mit einer Versionsnummer von $\pm 1$ wiederholt. Dadurch wird Rundungsfehlern bei der Rasterisierung vorgebeugt. Sind alle Übereinstimmungen unter $65\%$, so wird der \QRCode verworfen, andernfalls wird der \QRCode mit der höchsten Übereinstimmung gewählt und gespeichert.

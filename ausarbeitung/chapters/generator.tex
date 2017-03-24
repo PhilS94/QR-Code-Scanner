@@ -66,7 +66,7 @@ $\sigma$ &$\widehat{=}$& Standardabweichung
 \caption{Evaluation der synthetischen Datenbank.}
 \end{table}
 
-\noindent Die Datenbanken von abfotografierten \QRCodes stammen von einer Forschungsgruppe der \emph{Brno University of Technology}. Die Bilder zeigen \QRCodes umschlossen von Text, unter verschiedenen Belichtungsszenarien, in realen Arbeitsumgebungen, in der freien Natur oder vor künstlichen, besonders gekachelten Hintergründen.
+\noindent Die Datenbanken von abfotografierten \QRCodes \cite{databasebrno} stammen von einer Forschungsgruppe der \emph{Brno University of Technology}. Die Bilder zeigen \QRCodes umschlossen von Text, unter verschiedenen Belichtungsszenarien, in realen Arbeitsumgebungen, in der freien Natur oder vor künstlichen, besonders gekachelten Hintergründen.
 
 Für diese \QRCodes sind \emph{Ground Truth} Bilder vorhanden, jedoch nicht in dem Format, wie sie für automatisierte Qualitätsvergleiche von der Implementierung des QR-Code-Detektors erwartet wird. Deswegen wird anstelle der Qualität nur die Erkennungsrate angegeben. Die Laufzeiten beziehen sich dabei auf die Erkennung von \QRCodes mit anschließender Ausgabe von \emph{Debug} Bildern.
 
@@ -96,5 +96,3 @@ Bei der Foto Datenbank zeigt sich eine grundlegende Schwäche der Lokalisierung 
 Szenarien die komplexe Probleme für klassische auf Hough-Transformation basierende Detektoren bereitstellten, sind jedoch problemlos gelöst worden. Auch mehrere \QRCodes in einem Bild direkt nebeneinander oder über das Bild verteilt stellen kein Problem dar, solange alle \fps gefunden werden.
 
 Auch hier zeigt sich wieder, wie schon bei der synthetischen Datenbank, dass die Lokalisierung der \fps das derzeit größte Problem für den implementierten Detektor darstellt.
-
-\footnote{Quelle: \url{http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode} [dataset1.zip] [dataset2.zip]}
