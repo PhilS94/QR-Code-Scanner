@@ -43,5 +43,5 @@ Uses the ground truth QR-Codes given in the project and generates a synthetic da
 After running the first example, this will use the generated images saved in the folder *07_noise* and scan every single image in it.
 
 ## Paper
-See our [paper](paper.pdf) for in-depth explanation of this project.
+See our [paper](paper.pdf) for an in-depth explanation of this project.
 The paper is written in german language.
