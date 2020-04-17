@@ -21,7 +21,7 @@ Scan all images in the input folder and save the detection results into a subfol
 Read single image stored at input-path and save the detection result to output-path.   
 
  - **Generate Mode**: *[-generate] [ground-truth-path] [output-path]*  
-Read images stored at ground-truth-path and generate syntethic dataset at output-path.
+Read images stored at ground-truth-path and generate synthetic dataset at output-path.
 The backgroundimage folder "99_bg" has to be located next to the input ground-truth-path.
 
 ## Paper
