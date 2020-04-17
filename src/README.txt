@@ -1,4 +1,4 @@
-Zum Compilieren werden folgende Dateien benötigt:
+For compilation the following files are necessary:
 
 CodeFinder.hpp
 Filesystem.hpp
@@ -12,7 +12,7 @@ Generator.cpp
 ImageBinarization.cpp
 main.cpp
 
-Verwendung des Programms:
+Program Usage:
 
 "+---------------------------------------------------------------------------+"
 "| Please enter 0, 1 or 2 path values to start one of the following modes:   |"
@@ -45,7 +45,7 @@ Verwendung des Programms:
 "|       Read images stored at ground-truth-path and generate syntethic      |"
 
 "|       database images at output-path. Backgroundimage folder 99_bg has    |"
-"|	 to be located next to  ground-truth-path.                           |"
+"|	 to be located next to the input ground-truth-path.                  |"
 
 "|                                                                           |"
 
@@ -59,12 +59,11 @@ Verwendung des Programms:
 
 "+---------------------------------------------------------------------------+"
 
-Verwendete Datenbanken an QR-Codes:
+Sources for QR-Code datasets:
 
 http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode 	[dataset1.zip] [dataset2.zip]
 http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-SCCG-QRtiles 	[qrcode-datasets.zip]
-Eigene generierte Datenbank durch Generate-Modus mit folgendem Input: <main> [-generate] [<ground-truth-path>] [<output-path>]
-Der Ordner 99_bg muss neben dem Ordner <ground-truth-path> liegen!!!
 
-
-Quelle der Backgroundimages: https://www.pexels.com
+Own generated synthetic dataset. (See above how to generate)
+The folder "99_bg" has to be next to the <ground-truth-path> and contain the desired background images.
+In this project there are already a few images contained in this folder, which are acquired from the following site: https://www.pexels.com

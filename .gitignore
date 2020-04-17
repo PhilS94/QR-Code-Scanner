@@ -7,6 +7,7 @@ cmake-build-*/
 # Visual Studio
 /x64
 /Debug
+/.vs
 /.vs/qrcode/v14
 /qrcode.vcxproj.user
 /qrcode.vcxproj.filters
@@ -18,21 +19,21 @@ cmake-build-*/
 
 # Generated Files
 ScannedQR
-01_border
-02_scale
-03_rotate
-04_perspective
-05_synthetic
-06_blured
-07_noise
-/data/Test
+/data/01_border
+/data/02_scale
+/data/03_rotate
+/data/04_perspective
+/data/05_synthetic
+/data/06_blured
+/data/07_noise
 /data/qrcode-datasets.zip
 /data/qrcode-datasets
 /data/dataset2.zip
 /data/dataset2
 /data/dataset1.zip
 /data/dataset1
-/data/00_ground_truth/99_bg
+/data/00_ground_truth
+
 */ScanResult
 ScanPositive
 ScanNegative
