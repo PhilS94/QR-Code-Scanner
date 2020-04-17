@@ -14,6 +14,7 @@ The following image presents an example of the QR-Code detection in this project
 The image used is from the generated synthetic dataset.
 As you can see, the QR-Code is rotated and perspectively transformed and the image is very blurry and noisy.
 The implemented algorithm can handle this though and outputs a QR-Code that isn't too far off from the original one.
+This is of course an extreme case and an error should be expected.
 
 ![QR-Code Detection Example](QR-Code-Detection-Example.png)
 
