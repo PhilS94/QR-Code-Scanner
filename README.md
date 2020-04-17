@@ -24,14 +24,22 @@ Call the *main* function with the following parameters to run the respective mod
 Attempt to open a camera feed and continuously search for QR-Codes.
 
 - **Folder Scan Mode**: *[folder-path]*  
-Scan all images in the input folder and save the detection results into a subfolder.
+Scan all images in the input folder and save the detection results into the subfolders *ScanPositive* and *ScanNegative*,
+which will be created at runtime.
 
 - **Evaluation Mode**: *[input-path] [output-path]*  
-Read single image stored at input-path and save the detection result to output-path.   
+Read a single image stored at input-path and save the detection result to output-path.   
 
  - **Generate Mode**: *[-generate] [ground-truth-path] [output-path]*  
-Read images stored at ground-truth-path and generate synthetic dataset at output-path.
-The backgroundimage folder "99_bg" has to be located next to the input ground-truth-path.
+Read images stored at *ground-truth-path* and generate synthetic dataset at output-path.
+The backgroundimage folder *99_bg* has to be located next to the input folder *ground-truth-path*.
+
+**Examples**
+- *"-generate" "data/00_ground_truth" "data"*    
+Uses the ground truth QR-Codes given in the project and generates a synthetic dataset in the *data* folder.
+
+- *"data/07_noise"*  
+After running the first example, this will use the generated images saved in the folder *07_noise* and scan every single image in it.
 
 ## Paper
 See our [paper](paper.pdf) for in-depth explanation of this project.
