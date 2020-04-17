@@ -8,6 +8,15 @@ where each pixel is associated with a square of the QR-Code, and saves the image
 Moreover, the program is able to generate a synthetic dataset of QR-Codes from a set of ground truth QR-Codes and background images.
 This synthetic dataset can then be used to test the QR-Code detection.
 
+## Example
+
+The following image presents an example of the QR-Code detection in this project.
+The image used is from the generated synthetic dataset.
+As you can see, the QR-Code is rotated and perspectively transformed and the image is very blurry and noisy.
+The implemented algorithm can handle this though and outputs a QR-Code that isn't too far off from the original one.
+
+![QR-Code Detection Example](QR-Code-Detection-Example.png)
+
 ## How to Use
 Call the *main* function with the following parameters to run the respective mode:
 
