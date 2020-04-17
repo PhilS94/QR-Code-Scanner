@@ -59,7 +59,12 @@ Program Usage:
 
 "+---------------------------------------------------------------------------+"
 
-Sources for QR-Code datasets:
+Authors:
+Philipp Schofield
+Armin Wolf
+Christian Esch
+
+Sources for datasets:
 
 http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-JRTIP-MatrixCode 	[dataset1.zip] [dataset2.zip]
 http://www.fit.vutbr.cz/research/groups/graph/pclines/pub_page.php?id=2012-SCCG-QRtiles 	[qrcode-datasets.zip]
