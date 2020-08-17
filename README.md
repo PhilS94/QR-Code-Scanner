@@ -33,7 +33,7 @@ Read a single image stored at input-path and save the detection result to output
 
  - **Generate Mode**: *[-generate] [ground-truth-path] [output-path]*  
 Read images stored at *ground-truth-path* and generate synthetic dataset at output-path.
-The backgroundimage folder *99_bg* has to be located next to the input folder *ground-truth-path*.
+The background image folder *99_bg* has to be located next to the input folder *ground-truth-path*.
 
 **Examples**
 - *"-generate" "data/00_ground_truth" "data"*    
@@ -44,4 +44,4 @@ After running the first example, this will use the generated images saved in the
 
 ## Paper
 See our [paper](paper.pdf) for an in-depth explanation of this project.
-The paper is written in german language.
+The paper is written in German language.
