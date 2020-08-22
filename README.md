@@ -1,5 +1,5 @@
 ## QR-Code-Scanner 
-A QR-Code Scanner, written in C++ and using the OpenCV library, which was developed as part of a university course "Computer Vision".
+A QR-Code Scanner, written in C++ and using the OpenCV library, which was developed as an optional part of the university course "Computer Vision" in a small team of three.
 
 ## Features
 The program detects QR-Codes from image or video input, and outputs the detected QR-Code as a binary image,
