@@ -4,18 +4,23 @@
 # CMakeFiles
 cmake-build-*/
 
+# Folders
+/paper
+
 # Visual Studio
 /x64
 /Debug
 /.vs
-/.vs/qrcode/v14
-/qrcode.vcxproj.user
-/qrcode.vcxproj.filters
-/qrcode.vcxproj
-/qrcode.VC.VC.opendb
-/qrcode.VC.db
-/qrcode.sln*
-/qrcode.sln.DotSettings.user
+/.vs/QRCodeScanner/v14
+/QRCodeScanner.vcxproj.user
+/QRCodeScanner.vcxproj.filters
+/QRCodeScanner.vcxproj
+/QRCodeScanner.VC.VC.opendb
+/QRCodeScanner.VC.db
+/QRCodeScanner.sln*
+/QRCodeScanner.sln.DotSettings.user
+/QRCodeScanner.sdf
+
 
 # Generated Files
 ScannedQR
@@ -32,7 +37,6 @@ ScannedQR
 /data/dataset2
 /data/dataset1.zip
 /data/dataset1
-/data/00_ground_truth
 
 */ScanResult
 ScanPositive
@@ -49,4 +53,3 @@ ScanNegative
 *.toc
 *.blg
 *.bbl
-
