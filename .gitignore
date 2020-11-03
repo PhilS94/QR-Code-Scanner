@@ -8,6 +8,7 @@ cmake-build-*/
 /paper
 
 # Visual Studio
+/bin
 /x64
 /Debug
 /.vs
@@ -20,6 +21,7 @@ cmake-build-*/
 /QRCodeScanner.sln*
 /QRCodeScanner.sln.DotSettings.user
 /QRCodeScanner.sdf
+*.opendb
 
 
 # Generated Files
